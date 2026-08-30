@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import * as business from "../business";
 import { tinhAmLich } from "../lunar";
+import { QueDich } from "../queDich";
+import { LUC_THAN } from "../const";
 
 /**
- * que6Hao/napAm đã điền dữ liệu thật (đối chiếu bytes KinhDich.sdf, xem data/README.md) nên
- * có test riêng bên dưới. queKinhDich (Nạp Giáp Bát Quái) vẫn còn stub — pipeline GiaiQue
- * end-to-end (cần cả 3 bảng) vẫn chờ ở test.todo cuối file.
+ * Toàn bộ dữ liệu tra cứu (queKinhDich/que6Hao/napAm) đã điền dữ liệu thật, đối chiếu với
+ * KinhDich.sdf gốc — xem data/README.md. Pipeline GiaiQue end-to-end test ở cuối file.
  */
 
 describe("Ngũ Hành tương sinh/tương khắc", () => {
@@ -116,9 +117,64 @@ describe("Que6Hao — Cung/Quẻ Thượng-Hạ/Hào Thế (đối chiếu bytes
   });
 });
 
-describe.todo(
-  "GiaiQue end-to-end đối chiếu với bản desktop — CẦN điền dữ liệu thật vào " +
-    "src/core/data/queKinhDich.ts trước (Nạp Giáp Bát Quái — xem data/README.md), " +
-    "sau đó viết bộ test hồi quy quét nhiều mốc thời gian so với kết quả bản C# gốc " +
-    "(project-brain/05-ke-hoach-migrate-web.md, Giai đoạn 5).",
-);
+describe("GiaiQue end-to-end — an quẻ + luận giải chạy trọn pipeline không throw", () => {
+  const moiNgayGio = [
+    new Date(2024, 1, 10, 10, 0, 0), // ngày giờ thường
+    new Date(2024, 1, 9, 23, 30, 0), // qua giờ 23h — đổi ngày âm lịch
+    new Date(2000, 0, 1, 0, 0, 0),
+    new Date(2025, 11, 31, 13, 45, 0),
+  ];
+
+  it.each(moiNgayGio)("an quẻ + giải quẻ cho %s không throw, kết quả hợp lệ", (time) => {
+    const que = new QueDich(time);
+    expect(() => que.giaiQue()).not.toThrow();
+
+    // Đủ 5 Lục Thân, mỗi Lục Thân có điểm số hữu hạn (không còn NEGATIVE_INFINITY placeholder)
+    for (const lt of LUC_THAN) {
+      expect(Number.isFinite(que.diemLucThan[lt])).toBe(true);
+    }
+
+    // Hào 1-6 đều đã được Nạp Giáp: có lucthan/chi/nguhanh/napgiap không rỗng
+    for (let i = 1; i <= 6; i++) {
+      const hao = que.hao[i];
+      expect(hao.lucthan).not.toBe("");
+      expect(hao.chi).not.toBe("");
+      expect(hao.nguhanh).not.toBe("");
+      expect(hao.napgiap).toContain(hao.chi);
+    }
+
+    // Đúng một hào Thế, một hào Ứng, hai vị trí khác nhau
+    const haoThePositions = [1, 2, 3, 4, 5, 6].filter((i) => que.hao[i].haoThe);
+    const haoUngPositions = [1, 2, 3, 4, 5, 6].filter((i) => que.hao[i].haoUng);
+    expect(haoThePositions).toHaveLength(1);
+    expect(haoUngPositions).toHaveLength(1);
+    expect(haoThePositions[0]).not.toBe(haoUngPositions[0]);
+  });
+
+  it("giaiQueCuocDoi cũng chạy được không throw", () => {
+    const que = new QueDich(new Date(1990, 5, 15), true);
+    expect(() => que.giaiQueCuocDoi()).not.toThrow();
+    for (const lt of LUC_THAN) {
+      expect(Number.isFinite(que.diemLucThan[lt])).toBe(true);
+    }
+  });
+
+  it("biến quẻ (BienQue) cho ra quẻ đơn hợp lệ, khác quẻ gốc theo đúng hào động", () => {
+    const que = new QueDich(new Date(2024, 5, 1, 14, 0, 0));
+    const queThuongTruoc = que.tenQueThuong;
+    const queHaTruoc = que.tenQueHa;
+    que.bienQue();
+    // Sau biến quẻ, ít nhất một trong hai quẻ đơn phải khác với trước (trừ khi hào động
+    // trùng đúng giá trị cũ — về lý thuyết luôn đổi vì đảo bit 0/1)
+    expect(que.tenQueThuong !== queThuongTruoc || que.tenQueHa !== queHaTruoc).toBe(true);
+  });
+});
+
+/**
+ * TODO (khuyến nghị, chưa bắt buộc — xem data/README.md): viết thêm test hồi quy so sánh
+ * GiaiQue với kết quả CHẠY THẬT trên bản desktop (không chỉ kiểm tra không throw + hợp lệ về
+ * cấu trúc như trên) trên nhiều mốc thời gian mẫu đặc thù (giao thừa, tháng nhuận, giờ
+ * 23h-24h) — Giai đoạn 5 của kế hoạch migrate. Hiện độ tin cậy đến từ việc dữ liệu tra cứu đã
+ * đối chiếu trực tiếp với KinhDich.sdf gốc (xem data/README.md), không phải từ so sánh kết
+ * quả tính toán end-to-end với desktop.
+ */

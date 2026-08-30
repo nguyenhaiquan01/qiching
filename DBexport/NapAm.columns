@@ -1,0 +1,6 @@
+"name","type","length","leftDigits","rightDigits"
+"ThienCan","STRING","4","0","0"
+"DiaChi","STRING","4","0","0"
+"TenNapAm","STRING","16","0","0"
+"NguHanh","STRING","4","0","0"
+"Notes","STRING","904","0","0"

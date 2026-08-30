@@ -1,15 +1,14 @@
 /**
  * Port từ bảng `LucThan` trong KinhDich.sdf (dataAccess.findYNghiaLucThan).
  *
- * CHƯA ĐỐI CHIẾU VỚI KinhDich.sdf GỐC — đây là văn bản giải nghĩa tự viết theo ý nghĩa cổ
- * điển thông thường của từng Lục Thân, có thể khác cách diễn đạt với văn bản gốc trong DB.
- * Vì đây chỉ là text hiển thị (không ảnh hưởng đến kết quả tính toán số), rủi ro thấp hơn
- * nhiều so với các bảng dữ liệu số/phân loại — nhưng vẫn nên thay bằng văn bản gốc nếu có.
+ * Nguồn: export trực tiếp từ `KinhDich.sdf` gốc ra CSV (`DBexport/LucThan.csv`) — văn bản
+ * giải nghĩa nguyên văn từ DB gốc, không phải diễn giải lại. Chỉ là text hiển thị (không ảnh
+ * hưởng kết quả tính toán số).
  */
 export const GIAI_NGHIA_LUC_THAN: Record<string, string> = {
-  "Huynh Đệ": "Anh em, bạn bè, người cùng vai vế; đại diện cho sự tranh giành, hao tài, cạnh tranh.",
-  "Tử Tôn": "Con cháu, phúc thần, đại diện cho sự sinh sôi, giải trừ tai ương, khắc chế Quan Quỷ.",
-  "Thê Tài": "Vợ, tiền tài, của cải; đại diện cho tài lộc, vật chất.",
-  "Quan Quỷ": "Quan chức, bệnh tật, tai ương; đại diện cho công danh, chức vị, nhưng cũng là điềm xấu/bệnh tật.",
-  "Phụ Mẫu": "Cha mẹ, người trên, văn thư, nhà cửa; đại diện cho sự che chở, học hành, giấy tờ.",
+  "Huynh Đệ": "Anh em, chị em, anh em họ, kết bạn anh em, quan hệ bè bạn",
+  "Phụ Mẫu": "Về cha mẹ, người ngang với cha mẹ trở lên như chú, bác, thầy giáo, bố mẹ chồng (hoặc vơ), mẹ nuôi, bà vú. Đoán về trời đất, thành trì, nhà cửa, nhà ở, tường quách, thuyền bè, xe cộ, áo quần, vật dụng vải vóc, giấy tờ, văn chương, sách vở, văn khế",
+  "Tử Tôn": "Con cái, phúc đức",
+  "Thê Tài": "Đoán về vợ, anh chị em dâu, đầy tớ gái. Đoán về của cải, tài sản, tiền bạc, lương thực và những vật dụng quí báu khác.",
+  "Quan Quỷ": "Đoán về công danh, cầu quan, quan phủ, trưởng quan, quỉ thần; nữ đoán về hôn nhân, vợ đoán chồng. Đoán về loạn thần, trộm cướp, tôn giáo, nghi ngờ, bệnh tật, thân thể",
 };
