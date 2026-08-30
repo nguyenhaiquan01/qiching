@@ -11,6 +11,12 @@ node_modules
 dist
 dist-ssr
 *.local
+coverage
+
+# Local environment files
+.env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
@@ -20,5 +26,27 @@ dist-ssr
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
+
+# Legacy Visual Studio/.NET and SVN artifacts
+**/.svn/
+**/[Bb]in/
+**/[Oo]bj/
+**/[Dd]ebug/
+**/[Rr]elease/
+**/[Pp]ublish/
+.vs/
+*.user
+*.pfx
+*.p12
+*.snk
+*.pdb
+*.exe
+*.dll
+*.msi
+*.application
+*.vshost.*
+*.exe.config
+*.exe.manifest
+Thumbs.db
+~$*

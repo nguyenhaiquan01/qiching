@@ -1,12 +1,17 @@
 # QIChing Web (migration)
 
-Bản viết lại của ứng dụng desktop QIChing (`nhq-iching/trunk`, C#/.NET Framework/WinForms)
-thành static SPA — React + TypeScript, không backend/database server. Xem đầy đủ bối cảnh,
-quyết định kiến trúc và lý do trong `project-brain/` của repo gốc, đặc biệt:
+Repository này chứa cả hai phiên bản của QIChing:
 
-- `01-tong-quan-du-an.md` — ứng dụng gốc làm gì
-- `05-ke-hoach-migrate-web.md` — kế hoạch migrate chi tiết theo từng giai đoạn
-- `06-deployment.md` — kế hoạch deploy (Cloudflare Pages/GitHub Pages, static hosting)
+- Source web mới (React + TypeScript) nằm tại thư mục gốc.
+- Source desktop cũ (C#/.NET Framework 3.5/WinForms) nằm trong [`legacy/`](legacy/README.md).
+
+Bản viết lại của ứng dụng desktop QIChing ([`legacy/`](legacy/README.md), C#/.NET Framework/WinForms)
+thành static SPA — React + TypeScript, không backend/database server. Xem đầy đủ bối cảnh,
+quyết định kiến trúc và lý do trong [`legacy/project-brain/`](legacy/project-brain/), đặc biệt:
+
+- [`01-tong-quan-du-an.md`](legacy/project-brain/01-tong-quan-du-an.md) — ứng dụng gốc làm gì
+- [`05-ke-hoach-migrate-web.md`](legacy/project-brain/05-ke-hoach-migrate-web.md) — kế hoạch migrate chi tiết theo từng giai đoạn
+- [`06-deployment.md`](legacy/project-brain/06-deployment.md) — kế hoạch deploy (Cloudflare Pages/GitHub Pages, static hosting)
 
 ## Trạng thái hiện tại
 

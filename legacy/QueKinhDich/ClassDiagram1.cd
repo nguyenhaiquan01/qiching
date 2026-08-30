@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="KinhDich.AboutBox" Collapsed="true">
+    <Position X="6" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>kIACAAgAACAgCAUAAACAAAADAAAAEIAAAAAAAAAAAAA=</HashCode>
+      <FileName>AboutBox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.business" Collapsed="true">
+    <Position X="7.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EsBAIAAAgCAIgACgAAAAIAIgCAQAAAAICAAQCAgEAQI=</HashCode>
+      <FileName>Business\business.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.Const" Collapsed="true">
+    <Position X="11.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAEAAAAAAAAAAAAAAAgEAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Const.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.dataAccess" Collapsed="true">
+    <Position X="13" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ggBAAAAAAAAAgAAgAAIAYAIgAEQAwAAICAEAAEAEAQA=</HashCode>
+      <FileName>dataAccess.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.frmKinhDich" Collapsed="true">
+    <Position X="7.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>9aICIEDqPSEREBbTAUWJCqAKaSQAkEQiEiAJQOA5CDA=</HashCode>
+      <FileName>frmKinhDich.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.frmTimNgayTotTheoQueDich" Collapsed="true">
+    <Position X="9.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAACAAABAAAAGgAAACAAogAAAQAAAAAAAAgAA=</HashCode>
+      <FileName>frmTimNgayTotTheoQueDich.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.Program" Collapsed="true">
+    <Position X="6" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.XemNgay" Collapsed="true">
+    <Position X="11.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAACAAAACAAAIAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>XemNgay.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.AmDuong" Collapsed="true">
+    <Position X="3.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Business\Batquai.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.NguHanh" Collapsed="true">
+    <Position X="11.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Business\Batquai.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.ThienCan" Collapsed="true">
+    <Position X="9.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAEAAAACAIAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Business\Batquai.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.DiaChi" Collapsed="true">
+    <Position X="6" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Business\Batquai.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.Hao" Collapsed="true">
+    <Position X="3.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Business\QueDich.cs</FileName>
+      <NewMemberFileName>Business\Batquai.cs</NewMemberFileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="System.Globalization.HQVietnameseCalendar" Collapsed="true">
+    <Position X="0.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Business\HQVietnameseCalendar.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="System.Globalization.VietnameseCalendar" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>RAAkAAFmDAgigCBQZAQAgAIwAIgzBABhNwIAxBEUEBA=</HashCode>
+      <FileName>VietnameseCalendar.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.Properties.Resources" Collapsed="true">
+    <Position X="13" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAUgAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.Properties.Settings" Collapsed="true">
+    <Position X="6" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KinhDich.NgayAmLich" Collapsed="true">
+    <Position X="9.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BABCABCAJIAAAABAAAAAADCAAABAAAAUAgAgAEAQAAA=</HashCode>
+      <FileName>Business\business.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
