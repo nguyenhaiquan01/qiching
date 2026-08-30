@@ -12,6 +12,7 @@ dữ liệu thật** của `KinhDich.sdf` gốc:
 | `que6Hao.ts` | ✅ Đã điền, đối chiếu | Cung + Quẻ Thượng/Hạ + Hào Thế của 64 quẻ — khớp `DBexport/Que6Hao.csv`. |
 | `napAm.ts` | ✅ Đã điền, đối chiếu | Tên Nạp Âm + Ngũ Hành của 60 dòng Lục Thập Hoa Giáp — khớp `DBexport/NapAm.csv`. |
 | `queKinhDich.ts` | ✅ Đã điền, đối chiếu | Nạp Giáp Bát Quái (Địa Chi hào 1-6 của 8 quẻ đơn) — khớp `DBexport/QueKinhDich.csv`. |
+| `noiDungQue.json` / `.ts` | ✅ Đã điền | Nội dung diễn giải 64 quẻ (Giải nghĩa/Dịch/Giảng/Hào Từ/Dụng Cửu/Chú Thích) — lấy từ cohoc.net, không dùng để tính toán (chỉ hiển thị). Xem comment đầu `noiDungQue.ts` để biết cách tra cứu (`tenQueChuan`) và các chỗ trang nguồn viết sai đã được tự sửa. |
 
 **`src/core/__tests__/dbexport.test.ts`** so trực tiếp từng dòng trong các file `.ts` trên
 với CSV tương ứng trong `DBexport/` (nếu thư mục đó tồn tại cục bộ — test tự skip nếu không

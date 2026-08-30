@@ -9,8 +9,16 @@
   --accent: #8a5a2b;
   --accent-text: #ffffff;
   --danger: #b3261e;
+  --danger-bg: #fbe9e7;
+  --success: #357a38;
+  --success-bg: #e8f3e9;
+  --warning: #9a6a00;
+  --warning-bg: #fbf1dc;
 
-  /* Ngũ Hành — giữ đúng quy ước màu của bản gốc */
+  /* Ngũ Hành — giữ đúng quy ước màu của bản gốc. Đây là màu PHÂN LOẠI (không phải trạng
+   * thái tốt/xấu) — cố tình tách riêng khỏi --success/--warning/--danger ở trên để tránh
+   * xung đột kiểu "Hỏa=đỏ" bị hiểu nhầm thành "đỏ=xấu" (xem mục 7 của
+   * `project-brain/05.1. Chỉnh UI-UX.md`). */
   --kim: #7c8591;
   --moc: #2e7d32;
   --thuy: #1565c0;
@@ -33,6 +41,11 @@
     --accent: #d19a5c;
     --accent-text: #1b1815;
     --danger: #ff6b60;
+    --danger-bg: #3a2220;
+    --success: #7fc687;
+    --success-bg: #1e2e1f;
+    --warning: #e0b355;
+    --warning-bg: #332912;
 
     --kim: #a7b0bc;
     --moc: #6cbf6f;

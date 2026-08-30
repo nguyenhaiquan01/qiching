@@ -36,36 +36,40 @@ quyết định kiến trúc và lý do trong [`legacy/project-brain/`](legacy/p
   migrate). Có thêm export/import JSON thủ công cho nhu cầu đồng bộ nhiều thiết bị.
 - `src/core/__tests__/` — test cho toàn bộ hàm/dữ liệu đã có, bao gồm `dbexport.test.ts` so
   trực tiếp từng bảng dữ liệu với `DBexport/*.csv` (chạy: `npm test`).
-- **Giao diện React (Giai đoạn 4)** — 4 trang theo đúng mapping form → trang của kế hoạch:
-  - `src/pages/XemQue.tsx` (frmKinhDich): chọn ngày/giờ (hoặc bật "Quẻ Cuộc Đời"), hiển thị
-    lịch âm, quẻ chính + quẻ biến (`src/components/QueDichView.tsx`, `AmLichView.tsx`), điểm
-    vượng suy Lục Thân, giải thích theo ngưỡng điểm (`src/ui/giaiThich.ts`), lưu quẻ, in.
+- **Giao diện React (Giai đoạn 4)** — 5 trang:
+  - `src/pages/XemQue.tsx` (frmKinhDich) — thiết kế lại theo
+    [`legacy/project-brain/05.1. Chỉnh UI-UX.md`](<legacy/project-brain/05.1. Chỉnh UI-UX.md/Chỉnh UI/Chỉnh UI/UX.md>):
+    Câu hỏi (loại quẻ/chủ đề/câu hỏi) → **Kết quả** (quẻ chính → quẻ biến, mức độ thuận lợi,
+    điểm thuận/cần lưu ý) → **Luận quẻ theo việc đang hỏi** (chỉ hiện khi có Dụng Thần cụ
+    thể) → **Căn cứ luận quẻ** (accordion) → Lịch âm → **Vượng suy Lục Thân** (thanh phân
+    cực quanh mốc 0) → **Chi tiết Lục Hào** đầy đủ (quẻ chính/biến, có chú giải ký hiệu,
+    tooltip cho thuật ngữ chuyên môn) → Lưu quẻ/Chia sẻ/In. Logic diễn giải ở `src/ui/luanQue.ts`
+    (mức độ thuận lợi tái dùng đúng ngưỡng Vượng/Hung đã có, không bịa ngưỡng mới), thuật
+    ngữ ở `src/ui/thuatNgu.ts` + `src/components/ThuatNgu.tsx`. Tách rõ màu Ngũ Hành (phân
+    loại) khỏi màu trạng thái UX (success/warning/danger) để tránh xung đột kiểu "Hỏa=đỏ=xấu".
+  - `src/pages/Que64.tsx` (`DanhSachQue.tsx` + `ChiTietQue.tsx`) — tra cứu 64 quẻ (lưới 8×8),
+    nội dung đầy đủ từng quẻ lấy từ `src/core/data/noiDungQue.json` (scrape có đối chiếu từ
+    cohoc.net, xem comment đầu file).
   - `src/pages/TimNgayTot.tsx` (frmTimNgayTotTheoQueDich): quét khoảng ngày giờ trong Web
     Worker (`src/core/timNgayTot.worker.ts`) để không chặn UI, có thanh tiến độ, hai chế độ
     quét (2 giờ/lần ngưỡng Vượng, hoặc hàng ngày ngưỡng Hung theo giờ cố định).
   - `src/pages/QueDaLuu.tsx` (frmLoadQue): danh sách quẻ đã lưu, xem lại/xoá, xuất/nhập JSON.
   - `src/pages/GioiThieu.tsx` (AboutBox).
-  - Điều hướng bằng state đơn giản (không dùng router — ứng dụng cá nhân 4 trang, không cần
-    thêm dependency). Tô màu Ngũ Hành giữ đúng quy ước bản gốc (`src/ui/mauNguHanh.ts` +
-    biến CSS trong `index.css`), có hỗ trợ dark mode (bản gốc WinForms không có).
-  - Đã chạy thử bằng Playwright (headless Chromium) qua toàn bộ 4 trang + luồng lưu/xem
-    lại/tìm ngày tốt, không có lỗi console.
+  - Điều hướng bằng state đơn giản (không dùng router). Container rộng 1200px, đoạn văn dài
+    giới hạn ~720px để dễ đọc (theo brief UI/UX). Hỗ trợ dark mode (bản gốc WinForms không có).
+  - Đã chạy thử bằng Playwright (headless Chromium) qua tất cả các trang + trạng thái (xem
+    một việc/tổng quan/quẻ cuộc đời, mobile 390px không bị tràn ngang), không có lỗi console.
 
 **Giai đoạn 1-4 của kế hoạch migrate đã hoàn tất** — toàn bộ tầng nghiệp vụ TypeScript có dữ
 liệu thật, `QueDich.giaiQue()` chạy được end-to-end, và có giao diện React dùng được thật sự.
-
-**Chưa bắt đầu (Giai đoạn 4 theo kế hoạch):**
-
-- Giao diện React (trang chủ xem quẻ, trang Tìm ngày tốt, trang Quẻ đã lưu) — hiện dự án chỉ
-  có trang mặc định của Vite, chưa có UI thật nào gọi tới `src/core/`.
-- Web Worker cho vòng lặp "Tìm ngày tốt" khi quét khoảng thời gian dài.
 
 ## Chạy thử
 
 ```bash
 npm install
 npm test        # chạy bộ test hiện có
-npm run dev      # chạy dev server (hiện chỉ có trang mặc định của Vite, chưa có UI thật)
+npm run dev      # dev server (hot reload) — http://localhost:5173
+npm run build && npm run preview   # bản production — http://localhost:4173
 ```
 
 ## Bước tiếp theo được đề xuất
@@ -74,7 +78,7 @@ npm run dev      # chạy dev server (hiện chỉ có trang mặc định của
    quả bản desktop trên nhiều mốc thời gian mẫu thật (giao thừa, tháng nhuận, giờ 23h-24h) —
    Giai đoạn 5 của kế hoạch. Hiện tại độ tin cậy dữ liệu đến từ đối chiếu trực tiếp với
    `KinhDich.sdf` gốc (xem `src/core/data/README.md`), không phải chạy song song desktop.
-2. Dùng thử giao diện thật (`npm run dev`) và tinh chỉnh UI/UX theo phản hồi thực tế — bản
-   hiện tại ưu tiên đủ chức năng + đối chiếu đúng logic gốc hơn là hoàn thiện thẩm mỹ.
-3. Cân nhắc build + deploy lên Cloudflare Pages/GitHub Pages (`npm run build`) theo kế hoạch
+2. Cân nhắc build + deploy lên Cloudflare Pages/GitHub Pages (`npm run build`) theo kế hoạch
    ở `legacy/project-brain/06-deployment.md`.
+3. Bundle production hiện ~700KB (chủ yếu do `noiDungQue.json` ~480KB nhúng thẳng vào bundle)
+   — có thể lazy-load nếu cần tối ưu thời gian tải ban đầu, hiện chưa cần thiết cho dùng cá nhân.

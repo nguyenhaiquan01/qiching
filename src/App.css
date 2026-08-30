@@ -2,7 +2,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 960px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   padding: 0 16px 32px;
@@ -168,6 +168,54 @@
   border-bottom: 1px dashed var(--border);
 }
 
+/* Hover xem Giải nghĩa/Dịch/Giảng (tên quẻ) và Hào Từ (từng hào) — xem HoverInfo.tsx */
+.hover-boc {
+  position: relative;
+  display: inline-block;
+}
+
+.hover-trigger {
+  cursor: help;
+  text-decoration: underline dotted var(--text-dim);
+  text-underline-offset: 3px;
+}
+
+.hover-bang {
+  position: absolute;
+  z-index: 30;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  width: min(420px, 80vw);
+  max-height: 340px;
+  overflow-y: auto;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+
+.hover-bang h4 {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+}
+
+.hover-bang p {
+  margin: 0 0 10px;
+}
+
+.hover-bang p:last-child {
+  margin-bottom: 0;
+}
+
 .hao-hang:last-child {
   border-bottom: none;
 }
@@ -242,6 +290,7 @@
   white-space: pre-wrap;
   font-size: 0.92rem;
   line-height: 1.6;
+  max-width: 720px;
 }
 
 table.bang-ket-qua {
@@ -321,5 +370,384 @@ table.bang-ket-qua th {
 @media (max-width: 560px) {
   .luoi-can-chi {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Trang "64 Quẻ Kinh Dịch" — danh sách + chi tiết */
+.hinh-que {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.hinh-que .hao-vach {
+  width: 46px;
+}
+
+.hinh-que.gon .hao-vach {
+  width: 28px;
+  height: 6px;
+}
+
+.luoi-64-que {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+}
+
+.the-que {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+}
+
+.the-que:hover {
+  border-color: var(--accent);
+}
+
+.the-que-so {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.the-que-ten {
+  font-weight: 600;
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+.hao-tu-chi-tiet {
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--border);
+}
+
+.hao-tu-chi-tiet:last-child {
+  border-bottom: none;
+}
+
+.hao-tu-chi-tiet h3 {
+  font-size: 0.9rem;
+  margin: 0 0 4px;
+  color: var(--accent);
+}
+
+@media (max-width: 760px) {
+  .luoi-64-que {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .luoi-64-que {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================================
+ * Redesign "Xem quẻ / Kết quả" theo project-brain/05.1. Chỉnh UI-UX.md
+ * ============================================================ */
+
+.loai-que-radio {
+  gap: 18px;
+}
+
+.loai-que-radio label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.92rem;
+}
+
+/* --- Section 2: KẾT QUẢ (hero) --- */
+
+.hero-ket-qua {
+  border: 1px solid var(--accent);
+}
+
+.hero-nhan {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.hero-que {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.hero-que-ten {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.hero-que-bien {
+  color: var(--text-dim);
+}
+
+.hero-mui-ten {
+  color: var(--text-dim);
+  font-size: 1.1rem;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.hero-badge-thuan {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.hero-badge-trungTinh {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.hero-badge-canThanTrong {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.hero-tom-tat {
+  max-width: 720px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.hero-diem-hai-cot {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.hero-diem-tieu-de {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 6px;
+}
+
+.hero-diem-tieu-de.thuan {
+  color: var(--success);
+}
+
+.hero-diem-tieu-de.can-luu-y {
+  color: var(--danger);
+}
+
+.hero-diem-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.hero-diem-rong {
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  font-style: italic;
+}
+
+/* --- Section 3: Luận quẻ theo việc đang hỏi --- */
+
+.luan-que-tieu-de {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  margin: 18px 0 6px;
+}
+
+.luan-que-tieu-de:first-of-type {
+  margin-top: 0;
+}
+
+.hao-dong-dien-bien {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* --- Section 4: Căn cứ luận quẻ (progressive disclosure) --- */
+
+.can-cu summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.can-cu-noi-dung {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.can-cu-dong {
+  display: flex;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.can-cu-nhan {
+  width: 140px;
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
+
+/* --- Vượng suy Lục Thân: thanh phân cực quanh mốc 0 --- */
+
+.vuong-suy-boc {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vuong-suy-hang {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+
+.vuong-suy-nhan {
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.vuong-suy-truc {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  background: var(--border);
+  border-radius: 5px;
+}
+
+.vuong-suy-truc .mid {
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: var(--text-dim);
+}
+
+.vuong-suy-thanh {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 5px;
+}
+
+.vuong-suy-thanh.duong {
+  background: var(--success);
+}
+
+.vuong-suy-thanh.am {
+  background: var(--danger);
+}
+
+.vuong-suy-diem {
+  width: 32px;
+  text-align: right;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ghi-chu-vuong-suy {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  max-width: 720px;
+}
+
+/* --- Thuật ngữ (tooltip) --- */
+
+.thuat-ngu-icon {
+  font-size: 0.75em;
+  margin-left: 2px;
+  color: var(--text-dim);
+}
+
+/* --- Chú giải ký hiệu (Section 5) --- */
+
+.chu-giai {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+
+.chu-giai-muc {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hao-vach.mau-chu-giai {
+  width: 28px;
+  height: 8px;
+}
+
+.cham-mau {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* --- Section 6: hành động --- */
+
+.hanh-dong {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nut-nho {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 6px 4px;
+}
+
+@media (max-width: 640px) {
+  .hero-que {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .can-cu-dong {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .can-cu-nhan {
+    width: auto;
   }
 }

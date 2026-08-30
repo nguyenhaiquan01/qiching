@@ -1,11 +1,12 @@
 import { useState } from "react";
 import "./App.css";
 import { XemQue } from "./pages/XemQue";
+import { Que64 } from "./pages/Que64";
 import { TimNgayTot } from "./pages/TimNgayTot";
 import { QueDaLuu } from "./pages/QueDaLuu";
 import { GioiThieu } from "./pages/GioiThieu";
 
-const TRANG = ["Xem quẻ", "Tìm ngày tốt", "Quẻ đã lưu", "Giới thiệu"] as const;
+const TRANG = ["Xem quẻ", "64 Quẻ Kinh Dịch", "Tìm ngày tốt", "Quẻ đã lưu", "Giới thiệu"] as const;
 type Trang = (typeof TRANG)[number];
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
       </nav>
       <main>
         {trang === "Xem quẻ" && <XemQue key={thoiDiemXem?.getTime()} thoiDiemBanDau={thoiDiemXem} />}
+        {trang === "64 Quẻ Kinh Dịch" && <Que64 />}
         {trang === "Tìm ngày tốt" && <TimNgayTot />}
         {trang === "Quẻ đã lưu" && <QueDaLuu onXemLai={xemLaiQue} />}
         {trang === "Giới thiệu" && <GioiThieu />}
