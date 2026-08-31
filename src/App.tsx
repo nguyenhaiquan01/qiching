@@ -6,8 +6,9 @@ import { Que64 } from "./pages/Que64";
 import { TimNgayTot } from "./pages/TimNgayTot";
 import { QueDaLuu } from "./pages/QueDaLuu";
 import { GioiThieu } from "./pages/GioiThieu";
+import { GieoDongXu } from "./pages/GieoDongXu";
 
-const TRANG = ["Xem quẻ", "Tìm ngày tốt", "64 Quẻ Kinh Dịch", "Quẻ đã lưu", "Giới thiệu"] as const;
+const TRANG = ["Xem quẻ", "Gieo đồng xu", "Tìm ngày tốt", "64 Quẻ Kinh Dịch", "Quẻ đã lưu", "Giới thiệu"] as const;
 type Trang = (typeof TRANG)[number];
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
         {trang === "Xem quẻ" && (
           <XemQue key={thoiDiemXem?.getTime()} thoiDiemBanDau={thoiDiemXem} onXemChiTietQue={xemChiTietQue} />
         )}
+        {trang === "Gieo đồng xu" && <GieoDongXu onXemChiTietQue={xemChiTietQue} />}
         {trang === "64 Quẻ Kinh Dịch" && <Que64 queMoDau={queMoDau} />}
         {trang === "Tìm ngày tốt" && <TimNgayTot />}
         {trang === "Quẻ đã lưu" && <QueDaLuu onXemLai={xemLaiQue} />}

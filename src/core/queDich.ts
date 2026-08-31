@@ -128,7 +128,14 @@ export class QueDich {
     this.tinhThan();
   }
 
-  private tinhDiemMotHao(nguHanh: string, hao: Hao): void {
+  /**
+   * Nới từ `private` sang public — KHÔNG đổi logic — để module `core/coinCasting/` tái dùng
+   * nguyên trạng cho lá số Coin Casting (có thể có 0-6 hào động cùng lúc, khác giả định "đúng
+   * 1 hào động" của `tinhDiemHao`/`giaiQue` bên dưới). Xem `project-brain/QIChing — Coin
+   * Casting Feature Specification.md`, mục 3.1.1 — đây là toàn bộ thay đổi ở file này, không
+   * có gì khác bị sửa nên 43 test hiện có của luồng Mai Hoa Dịch Số không bị ảnh hưởng.
+   */
+  tinhDiemMotHao(nguHanh: string, hao: Hao): void {
     if (nguHanh === hao.nguhanh) {
       hao.diemso += 2;
     } else if (business.TuongSinh(nguHanh, hao.nguhanh)) {
@@ -142,7 +149,8 @@ export class QueDich {
     }
   }
 
-  private tinhDiemLucThan(): void {
+  /** Nới từ `private` sang public — xem ghi chú ở `tinhDiemMotHao`. */
+  tinhDiemLucThan(): void {
     for (let i = 1; i < 7; i++) {
       const hienThoi = this.diemLucThan[this.hao[i].lucthan];
       this.diemLucThan[this.hao[i].lucthan] = Math.max(hienThoi, this.hao[i].diemso);
@@ -156,7 +164,8 @@ export class QueDich {
     }
   }
 
-  private tinhDiemHao(laQueChu: boolean): void {
+  /** Nới từ `private` sang public — xem ghi chú ở `tinhDiemMotHao`. */
+  tinhDiemHao(laQueChu: boolean): void {
     for (let i = 1; i < 7; i++) {
       const nguHanhNgay = business.findNguHanh(this.amLich.diaChiNgay);
       this.tinhDiemMotHao(nguHanhNgay, this.hao[i]);

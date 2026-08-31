@@ -76,15 +76,25 @@ export function diemThuanVaCanLuuY(que: QueDich): { thuan: DiemHao[]; canLuuY: D
   return { thuan: gop(vachThuan), canLuuY: gop(vachCanLuuY) };
 }
 
-/** Vị trí + nội dung hào động và hào biến tương ứng — undefined nếu không tìm được quẻ biến
- * (không nên xảy ra trong luồng bình thường, chỉ phòng thủ kiểu dữ liệu). */
-export function haoDongVaDienBien(que: QueDich): { vach: number; truoc: string; sau: string } | undefined {
-  if (que.queBien < 1 || que.queBien > 6 || !que.queDichBien) return undefined;
-  return {
-    vach: que.queBien,
-    truoc: que.hao[que.queBien].napgiap,
-    sau: que.queDichBien.hao[que.queBien].napgiap,
-  };
+/**
+ * Vị trí + nội dung của (các) hào động và hào biến tương ứng.
+ *
+ * Mặc định đọc `que.queBien` (đúng 1 hào động, luồng Mai Hoa Dịch Số) — trả mảng rỗng nếu
+ * không có hoặc không tìm được quẻ biến. Truyền `viTriHaoDongOverride` khi quẻ có thể có
+ * NHIỀU hào động cùng lúc (Coin Casting — xem `core/coinCasting/`, `que.queBien` không mang
+ * ý nghĩa gì trong trường hợp đó).
+ */
+export function haoDongVaDienBien(
+  que: QueDich,
+  viTriHaoDongOverride?: number[],
+): Array<{ vach: number; truoc: string; sau: string }> {
+  if (!que.queDichBien) return [];
+  const viTriDs = viTriHaoDongOverride ?? (que.queBien >= 1 && que.queBien <= 6 ? [que.queBien] : []);
+  return viTriDs.map((vach) => ({
+    vach,
+    truoc: que.hao[vach].napgiap,
+    sau: que.queDichBien!.hao[vach].napgiap,
+  }));
 }
 
 const MO_TA_THEO_MUC: Record<MucDo, string> = {

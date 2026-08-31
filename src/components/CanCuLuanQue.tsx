@@ -7,7 +7,19 @@ import { ThuatNgu } from "./ThuatNgu";
  * `<details>` gấp lại mặc định) cho phép người dùng đi từ KẾT LUẬN → CĂN CỨ → DỮ LIỆU GỐC,
  * đúng nguyên tắc "CONCLUSION → EVIDENCE" (mục 4).
  */
-export function CanCuLuanQue({ que, amLich, dungThan }: { que: QueDich; amLich: AmLich; dungThan?: string }) {
+export function CanCuLuanQue({
+  que,
+  amLich,
+  dungThan,
+  viTriHaoDong,
+}: {
+  que: QueDich;
+  amLich: AmLich;
+  dungThan?: string;
+  /** Truyền khi quẻ có thể có nhiều hào động cùng lúc (Coin Casting) — mặc định đọc
+   * `que.queBien` (đúng 1 hào động, luồng Mai Hoa Dịch Số). */
+  viTriHaoDong?: number[];
+}) {
   const haoThe = que.hao.find((h) => h.haoThe);
   const haoUng = que.hao.find((h) => h.haoUng);
 
@@ -53,7 +65,12 @@ export function CanCuLuanQue({ que, amLich, dungThan }: { que: QueDich; amLich: 
           <span className="can-cu-nhan">
             <ThuatNgu ten="Hào động" hienThi="Hào động" />
           </span>
-          <span>{que.queBien >= 1 && que.queBien <= 6 ? `Hào ${que.queBien}` : "Không có"}</span>
+          <span>
+            {(() => {
+              const ds = viTriHaoDong ?? (que.queBien >= 1 && que.queBien <= 6 ? [que.queBien] : []);
+              return ds.length > 0 ? `Hào ${ds.join(", ")}` : "Không có";
+            })()}
+          </span>
         </div>
       </div>
     </details>

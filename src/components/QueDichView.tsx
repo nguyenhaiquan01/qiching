@@ -25,8 +25,9 @@ export function QueDichView({
   /** Vị trí hào (1-6) cần tô đỏ cưỡng bức — dùng ở quẻ biến để khớp đúng vị trí hào động bên
    * quẻ chính (`que.queBien` của quẻ biến luôn = 0 sau khi biến, không tự tô được), giúp
    * người xem thấy ngay "hào nào động → biến thành hào nào" giữa 2 quẻ (mục 5, "phải làm
-   * nổi bật transformation" của `05.1. Chỉnh UI-UX.md`). */
-  noiBatVach?: number;
+   * nổi bật transformation" của `05.1. Chỉnh UI-UX.md`). Nhận mảng khi có nhiều hào động
+   * cùng lúc (Coin Casting, `que.queBien` không mang ý nghĩa trong trường hợp đó). */
+  noiBatVach?: number | number[];
   /** Bấm vào tên quẻ để xem trang chi tiết đầy đủ (tab "64 Quẻ Kinh Dịch") — nhận
    * `tenQueChuan`. Không truyền thì tên quẻ chỉ hiện hover popup như cũ. */
   onXemChiTiet?: (tenQueChuan: string) => void;
@@ -63,7 +64,8 @@ export function QueDichView({
       <div className="que-dich-cung">Cung {que.cung}</div>
       {[6, 5, 4, 3, 2, 1].map((i) => {
         const hao = que.hao[i];
-        const laDong = que.queBien === i || noiBatVach === i;
+        const laDong =
+          que.queBien === i || (Array.isArray(noiBatVach) ? noiBatVach.includes(i) : noiBatVach === i);
         const daDam = vietNhanManh != null && hao.lucthan === vietNhanManh;
         const haoTu = noiDung?.haoTu.find((h) => h.vach === i);
         const nhan = (

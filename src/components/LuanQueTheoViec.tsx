@@ -16,6 +16,7 @@ export function LuanQueTheoViec({
   diemThuan,
   diemCanLuuY,
   goiY,
+  viTriHaoDong,
 }: {
   que: QueDich;
   dungThan: string;
@@ -24,8 +25,11 @@ export function LuanQueTheoViec({
   diemThuan: DiemHao[];
   diemCanLuuY: DiemHao[];
   goiY: string;
+  /** Truyền khi quẻ có thể có nhiều hào động cùng lúc (Coin Casting) — mặc định đọc
+   * `que.queBien` (đúng 1 hào động, luồng Mai Hoa Dịch Số). */
+  viTriHaoDong?: number[];
 }) {
-  const bien = haoDongVaDienBien(que);
+  const bienDs = haoDongVaDienBien(que, viTriHaoDong);
 
   return (
     <div className="the">
@@ -71,14 +75,16 @@ export function LuanQueTheoViec({
       <h3 className="luan-que-tieu-de">
         <ThuatNgu ten="Hào động" hienThi="Hào động & diễn biến" />
       </h3>
-      {bien ? (
-        <p className="hao-dong-dien-bien">
-          Hào {bien.vach}: <strong>{bien.truoc}</strong>
-          <span className="hero-mui-ten" aria-hidden>
-            →
-          </span>
-          <strong>{bien.sau}</strong>
-        </p>
+      {bienDs.length > 0 ? (
+        bienDs.map((bien) => (
+          <p className="hao-dong-dien-bien" key={bien.vach}>
+            Hào {bien.vach}: <strong>{bien.truoc}</strong>
+            <span className="hero-mui-ten" aria-hidden>
+              →
+            </span>
+            <strong>{bien.sau}</strong>
+          </p>
+        ))
       ) : (
         <p className="hero-diem-rong">Quẻ này không có hào động.</p>
       )}
