@@ -108,6 +108,17 @@ Mục đích:
 
 `createdAt` không phải `casting input`.
 
+### Ngoại lệ: thời điểm dùng cho tầng luận (Nhật/Nguyệt Kiến)
+
+Engine Lục Hào Nạp Giáp hiện có tính điểm vượng suy Lục Thân dựa trên Ngũ Hành của **Nhật Kiến** (Chi ngày) và **Nguyệt Kiến** (Chi tháng) — đây là khái niệm bắt buộc của lý thuyết Lục Hào, không phụ thuộc quẻ được khởi bằng phương pháp nào.
+
+Vì vậy:
+
+- `createdAt` (ngày gieo quẻ) **được dùng** làm mốc để tính Nhật Kiến/Nguyệt Kiến ở bước luận giải, sau khi sáu hào đã được xác định.
+- Đây **không phải** casting input — nó không tham gia xác định Âm/Dương, Động/Tĩnh hay hào động của từng hào (những giá trị đó chỉ đến từ kết quả gieo/nhập đồng xu).
+- Nói cách khác: thời gian không quyết định *quẻ nào* được lập, nhưng vẫn cần thiết để xác định *luận quẻ đó ra sao* — đúng bản chất Lục Hào Nạp Giáp, tách biệt hoàn toàn khỏi thuật toán Coin Casting ở Section 5-11.
+- Nếu phiên gieo kéo dài qua ranh giới ngày (ví dụ bắt đầu 23h55, xác nhận Hào 6 lúc 00h05 hôm sau), lấy **thời điểm xác nhận Hào 6** làm `createdAt` — không lấy thời điểm bắt đầu phiên.
+
 ---
 
 # 4. Quy ước mặt đồng xu của QIChing
@@ -480,6 +491,11 @@ Existing Result / Interpretation
 
 Không copy logic Lục Hào vào Coin Casting module.
 
+`CoinCastingAdapter` truyền vào Existing Liu Yao Engine đúng hai nhóm input độc lập:
+
+- **Hexagram Input**: suy từ 6 `CoinLine` (Âm/Dương, hào động) — không liên quan `createdAt`.
+- **Ngày luận quẻ**: `createdAt` (xem Section 3.2, "Ngoại lệ: thời điểm dùng cho tầng luận") — chỉ dùng để engine tính Nhật/Nguyệt Kiến, không ảnh hưởng Hexagram Input.
+
 ---
 
 # 16. Persistence
@@ -649,6 +665,10 @@ Chế độ: Tôi tự gieo
 ### AC-20
 
 Sau khi lập đủ sáu hào, hệ thống tái sử dụng engine Lục Hào hiện tại.
+
+### AC-21
+
+Bước luận giải dùng `createdAt` (thời điểm xác nhận Hào 6) để tính Nhật Kiến/Nguyệt Kiến; thay đổi `createdAt` không được làm thay đổi Âm/Dương, Động/Tĩnh hay hào động của bất kỳ hào nào đã lập.
 
 ---
 

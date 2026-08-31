@@ -2,7 +2,7 @@
 
 ## Bối cảnh
 
-Trong mã nguồn desktop gốc, `TuTru/` (xem [`01-tong-quan-du-an.md`](./01-tong-quan-du-an.md)) chỉ có một `Form1` rỗng — **chưa từng có logic nghiệp vụ Tứ Trụ nào được lập trình**. Tài liệu này xây dựng lại đặc tả luật tính Tứ Trụ (Bát Tự) bằng cách đọc ngược (reverse-engineer) một file Excel tham khảo do người dùng cung cấp, dùng làm nền tảng nếu sau này triển khai tính năng Tứ Trụ (tương tự cách tài liệu `05.1. Chỉnh UI-UX.md` — trong `project-brain/` của thư mục `trunk` — đã dẫn dắt việc redesign trang Xem Quẻ).
+Trong mã nguồn desktop gốc, `TuTru/` (xem [`01-tong-quan-du-an.md`](./01-tong-quan-du-an.md)) chỉ có một `Form1` rỗng — **chưa từng có logic nghiệp vụ Tứ Trụ nào được lập trình**. Tài liệu này xây dựng lại đặc tả luật tính Tứ Trụ (Bát Tự) bằng cách đọc ngược (reverse-engineer) một file Excel tham khảo do người dùng cung cấp, dùng làm nền tảng nếu sau này triển khai tính năng Tứ Trụ (tương tự cách tài liệu [`05.1-chinh-ui-ux.md`](./05.1-chinh-ui-ux.md) đã dẫn dắt việc redesign trang Xem Quẻ).
 
 **Nguồn**: file `Tu tru new.xlsx` (không nằm trong repo, do người dùng lưu cục bộ). Workbook có hàng chục sheet trùng cấu trúc (`Tam`, `HQ (2)`, `T.Nam`, `Duong`, `MeHav2`, `MeHav3`, `ADung`, `Thev5`, `Thev6`, `Dung`, `ThoSV`, `Vanv3`, `Vanv4`, `BNv4`, `bnV5`, `Vietv3`, `Uyen2`, `PhuAnh`, `Me Ha`, `VN`, `Bo Quoc`, `CTG`, `Donacoop`...) — mỗi sheet là **lá số của một người**, dùng chung một template công thức. Tài liệu này đặc tả theo sheet **`HQ (2)`** (bản mới nhất, đầy đủ cột nhất) như người dùng yêu cầu, và hai sheet dữ liệu tra cứu dùng làm input:
 
