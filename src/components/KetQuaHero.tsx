@@ -1,5 +1,7 @@
 import type { QueDich } from "../core/queDich";
 import type { DiemHao, MucDoThuanLoi } from "../ui/luanQue";
+import { timNoiDungQue } from "../core/data/noiDungQue";
+import { HoverInfo } from "./HoverInfo";
 
 /**
  * Khu vực "KẾT QUẢ" (Section 2 của `05.1. Chỉnh UI-UX.md`) — visual hierarchy cao nhất của
@@ -13,6 +15,7 @@ export function KetQuaHero({
   tomTat,
   diemThuan,
   diemCanLuuY,
+  onXemChiTiet,
 }: {
   que: QueDich;
   /** null khi không có Dụng Thần cụ thể (Xem tổng quan / Quẻ Cuộc Đời) — không hiển thị mức
@@ -22,16 +25,26 @@ export function KetQuaHero({
   tomTat: string;
   diemThuan: DiemHao[];
   diemCanLuuY: DiemHao[];
+  /** Bấm vào tên quẻ chính/quẻ biến để xem trang chi tiết đầy đủ (tab "64 Quẻ Kinh Dịch"),
+   * hover để xem nhanh Giải nghĩa/Dịch/Giảng — cùng cơ chế với `QueDichView` ở phần "Chi tiết
+   * Lục Hào" bên dưới. */
+  onXemChiTiet?: (tenQueChuan: string) => void;
 }) {
   return (
     <div className="the hero-ket-qua">
       <div className="hero-nhan">Kết quả</div>
       <div className="hero-que">
-        <span className="hero-que-ten">{que.tenQueDich}</span>
+        <span className="hero-que-ten">
+          <TenQueVoiHover tenQueDich={que.tenQueDich} onXemChiTiet={onXemChiTiet} />
+        </span>
         <span className="hero-mui-ten" aria-hidden>
           ↓
         </span>
-        <span className="hero-que-ten hero-que-bien">{que.queDichBien?.tenQueDich}</span>
+        <span className="hero-que-ten hero-que-bien">
+          {que.queDichBien && (
+            <TenQueVoiHover tenQueDich={que.queDichBien.tenQueDich} onXemChiTiet={onXemChiTiet} />
+          )}
+        </span>
       </div>
       {mucDo && <span className={`hero-badge hero-badge-${mucDo.muc}`}>{mucDo.nhan}</span>}
       <p className="hero-tom-tat">{tomTat}</p>
@@ -67,5 +80,39 @@ export function KetQuaHero({
         </div>
       </div>
     </div>
+  );
+}
+
+/** Tên quẻ + hover popup Giải nghĩa/Dịch/Giảng + (tuỳ chọn) bấm để xem trang chi tiết — trích
+ * từ `QueDichView`, dùng chung logic cho cả quẻ chính lẫn quẻ biến ở khu vực Kết quả. */
+function TenQueVoiHover({
+  tenQueDich,
+  onXemChiTiet,
+}: {
+  tenQueDich: string;
+  onXemChiTiet?: (tenQueChuan: string) => void;
+}) {
+  const noiDung = timNoiDungQue(tenQueDich);
+  if (!noiDung) return <>{tenQueDich}</>;
+
+  return (
+    <HoverInfo
+      trigger={
+        onXemChiTiet ? (
+          <button type="button" className="que-dich-ten-link" onClick={() => onXemChiTiet(tenQueDich)}>
+            {tenQueDich}
+          </button>
+        ) : (
+          tenQueDich
+        )
+      }
+    >
+      <h4>Giải nghĩa</h4>
+      <p>{noiDung.giaiNghia}</p>
+      <h4>Dịch</h4>
+      <p>{noiDung.dich}</p>
+      <h4>Giảng</h4>
+      <p>{noiDung.giang}</p>
+    </HoverInfo>
   );
 }

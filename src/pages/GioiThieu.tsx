@@ -90,7 +90,7 @@ export function GioiThieu() {
         <h2>Góp ý &amp; liên hệ</h2>
         <p>Mọi góp ý về QIChing, dữ liệu hoặc nội dung Dịch học đều được trân trọng.</p>
         <p>
-          Email: <a href="mailto:nguyenhaiquan@gmail.com">nguyenhaiquan@gmail.com</a>
+          Email: <a href="mailto:info@qiching.org">info@qiching.org</a>
         </p>
       </div>
 

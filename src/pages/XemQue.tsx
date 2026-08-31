@@ -1,17 +1,16 @@
 import { useMemo, useState } from "react";
 import { QueDich } from "../core/queDich";
 import { tinhAmLich } from "../core/lunar";
-import { AmLichView } from "../components/AmLichView";
-import { QueDichView } from "../components/QueDichView";
-import { KetQuaHero } from "../components/KetQuaHero";
-import { LuanQueTheoViec } from "../components/LuanQueTheoViec";
-import { CanCuLuanQue } from "../components/CanCuLuanQue";
-import { VuongSuyBar } from "../components/VuongSuyBar";
 import { luuQueInfo } from "../core/storage";
 import { LUC_THAN } from "../core/const";
-import { CHU_DE, mucDoThuanLoi, tomTatKetQua, goiYUngXu, diemThuanVaCanLuuY } from "../ui/luanQue";
+import { CHU_DE, dungThanTuChuDe, mucDoThuanLoi, tomTatKetQua, diemThuanVaCanLuuY } from "../ui/luanQue";
+import { NoiDungHoiQue } from "../components/NoiDungHoiQue";
+import { KetQuaXemQue } from "../components/KetQuaXemQue";
+import { GieoDongXuFlow } from "./GieoDongXuFlow";
+import type { QueDaGieoDaLuu } from "../core/coinCasting/storage";
 
 type LoaiQue = "mot-viec" | "tong-quan" | "cuoc-doi";
+type CachKhoiQue = "THEO_THOI_GIAN" | "GIEO_DONG_XU";
 
 function denChuoiNgay(d: Date): string {
   const y = d.getFullYear();
@@ -27,33 +26,47 @@ function denChuoiGio(d: Date): string {
 }
 
 /**
- * Trang chủ — port từ frmKinhDich, thiết kế lại theo `project-brain/05.1. Chỉnh UI-UX.md`:
+ * Trang chủ — port từ frmKinhDich, thiết kế lại theo `project-brain/05.1-chinh-ui-ux.md`:
  * Câu hỏi → Kết quả → Luận giải → Căn cứ → Chi tiết chuyên môn, thay vì chỉ hiển thị dữ liệu
  * thô rồi để người dùng tự diễn giải.
+ *
+ * Đóng vai trò orchestrator cho cả 2 "Cách khởi quẻ" (Theo thời gian / Gieo đồng xu) — gộp
+ * theo `project-brain/09-gop-gieo-dong-xu-vao-xem-que.md`: "Gieo đồng xu" không còn là trang
+ * top-level riêng, mà là 1 trong 2 lựa chọn ở đây, dùng chung Chủ đề/Câu hỏi và khối kết quả
+ * với nhánh Theo Thời Gian.
  */
 export function XemQue({
   thoiDiemBanDau,
+  gieoQueBanDau,
   onXemChiTietQue,
 }: {
   thoiDiemBanDau?: Date;
+  /** Xem lại một quẻ gieo đồng xu đã lưu (từ trang "Quẻ đã lưu") — nhảy thẳng vào kết quả. */
+  gieoQueBanDau?: QueDaGieoDaLuu;
   /** Điều hướng sang trang chi tiết của một quẻ (tab "64 Quẻ Kinh Dịch") — dùng khi người
    * dùng bấm vào tên quẻ chính/quẻ biến ở phần "Chi tiết Lục Hào". */
   onXemChiTietQue?: (tenQueChuan: string) => void;
 }) {
+  const [cach, setCach] = useState<CachKhoiQue>(gieoQueBanDau ? "GIEO_DONG_XU" : "THEO_THOI_GIAN");
+  const [dangGieoDoDang, setDangGieoDoDang] = useState(false);
+
+  // Chủ đề/Câu hỏi — dùng chung cho cả 2 cách, sống ở đây để giữ nguyên khi chuyển qua lại
+  // (quyết định #1, project-brain/09-gop-gieo-dong-xu-vao-xem-que.md).
+  const [chuDe, setChuDe] = useState<string>(gieoQueBanDau?.chuDe ?? CHU_DE[0].nhan);
+  const [vietTrucTiep, setVietTrucTiep] = useState<string>(LUC_THAN[0]);
+  const [cauHoi, setCauHoi] = useState(gieoQueBanDau?.cauHoi ?? "");
+
+  // --- Nhánh "Theo thời gian" ---
   const gio = thoiDiemBanDau ?? new Date();
   const [ngayStr, setNgayStr] = useState(denChuoiNgay(gio));
   const [gioStr, setGioStr] = useState(denChuoiGio(gio));
   const [loaiQue, setLoaiQue] = useState<LoaiQue>("mot-viec");
-  const [chuDe, setChuDe] = useState<string>(CHU_DE[0].nhan);
-  const [vietTrucTiep, setVietTrucTiep] = useState<string>(LUC_THAN[0]);
-  const [cauHoi, setCauHoi] = useState("");
   const [binhChu, setBinhChu] = useState("");
   const [daLuu, setDaLuu] = useState(false);
   const [daChep, setDaChep] = useState(false);
   const [daLapQue, setDaLapQue] = useState(thoiDiemBanDau != null);
 
-  const dungThan =
-    loaiQue === "mot-viec" ? (chuDe === "khac" ? vietTrucTiep : CHU_DE.find((c) => c.nhan === chuDe)?.lucThan) : undefined;
+  const dungThan = loaiQue === "mot-viec" ? dungThanTuChuDe(chuDe, vietTrucTiep) : undefined;
 
   const thoiDiem = useMemo(() => {
     const [y, m, d] = ngayStr.split("-").map(Number);
@@ -102,180 +115,146 @@ export function XemQue({
   return (
     <div>
       <div className="the khong-in">
-        <h2>Câu hỏi</h2>
-        <div className="hang-form loai-que-radio">
-          <label>
-            <input type="radio" checked={loaiQue === "mot-viec"} onChange={() => setLoaiQue("mot-viec")} />
-            Xem một việc
-          </label>
-          <label>
-            <input type="radio" checked={loaiQue === "tong-quan"} onChange={() => setLoaiQue("tong-quan")} />
-            Xem tổng quan
-          </label>
-          <label>
-            <input type="radio" checked={loaiQue === "cuoc-doi"} onChange={() => setLoaiQue("cuoc-doi")} />
-            Quẻ Cuộc Đời
-          </label>
-        </div>
-
-        {loaiQue === "mot-viec" && (
-          <div className="hang-form">
-            <div className="truong">
-              <label htmlFor="chude">Chủ đề</label>
-              <select id="chude" value={chuDe} onChange={(e) => setChuDe(e.target.value)}>
-                {CHU_DE.map((c) => (
-                  <option key={c.nhan} value={c.nhan}>
-                    {c.nhan}
-                  </option>
-                ))}
-                <option value="khac">Khác — chọn trực tiếp Lục Thân</option>
-              </select>
-            </div>
-            {chuDe === "khac" && (
-              <div className="truong">
-                <label htmlFor="viectt">Lục Thân</label>
-                <select id="viectt" value={vietTrucTiep} onChange={(e) => setVietTrucTiep(e.target.value)}>
-                  {LUC_THAN.map((lt) => (
-                    <option key={lt} value={lt}>
-                      {lt}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div className="truong" style={{ flex: 1 }}>
-              <label htmlFor="cauhoi">Câu hỏi (không bắt buộc)</label>
-              <input
-                id="cauhoi"
-                type="text"
-                placeholder="Ví dụ: Tôi có nên nhận công việc mới này không?"
-                value={cauHoi}
-                onChange={(e) => setCauHoi(e.target.value)}
-                style={{ width: "100%" }}
-              />
-            </div>
-          </div>
-        )}
-
-        <div className="hang-form">
-          <div className="truong">
-            <label htmlFor="ngay">Ngày lập quẻ</label>
-            <input id="ngay" type="date" value={ngayStr} onChange={(e) => setNgayStr(e.target.value)} />
-          </div>
-          <div className="truong">
-            <label htmlFor="gio">Giờ</label>
-            <input id="gio" type="time" value={gioStr} onChange={(e) => setGioStr(e.target.value)} />
-          </div>
-          <button className="nut" type="button" onClick={() => setDaLapQue(true)}>
-            Lập quẻ
+        <h2>Cách khởi quẻ</h2>
+        <div className="coin-mode-grid">
+          <button
+            type="button"
+            className={`coin-mode-card${cach === "THEO_THOI_GIAN" ? " active" : ""}`}
+            disabled={dangGieoDoDang}
+            onClick={() => setCach("THEO_THOI_GIAN")}
+          >
+            <strong>Theo thời gian</strong>
+            <span>Mai Hoa Dịch Số</span>
+          </button>
+          <button
+            type="button"
+            className={`coin-mode-card${cach === "GIEO_DONG_XU" ? " active" : ""}`}
+            disabled={dangGieoDoDang}
+            onClick={() => setCach("GIEO_DONG_XU")}
+          >
+            <strong>Gieo đồng xu</strong>
+            <span>Ba đồng xu · Sáu lần</span>
           </button>
         </div>
       </div>
 
-      {loi && (
-        <div className="the">
-          <p style={{ color: "var(--danger)" }}>Không an được quẻ: {loi}</p>
-        </div>
-      )}
+      <div className="the khong-in">
+        <h2>Câu hỏi</h2>
 
-      {!daLapQue && !loi && (
-        <div className="the">
-          <p className="trong-rong">Điền thông tin ở trên rồi bấm "Lập quẻ" để xem kết quả.</p>
-        </div>
-      )}
+        {cach === "THEO_THOI_GIAN" && (
+          <div className="hang-form loai-que-radio" style={{ marginBottom: 20 }}>
+            <label>
+              <input type="radio" checked={loaiQue === "mot-viec"} onChange={() => setLoaiQue("mot-viec")} />
+              Xem một việc
+            </label>
+            <label>
+              <input type="radio" checked={loaiQue === "tong-quan"} onChange={() => setLoaiQue("tong-quan")} />
+              Xem tổng quan
+            </label>
+            <label>
+              <input type="radio" checked={loaiQue === "cuoc-doi"} onChange={() => setLoaiQue("cuoc-doi")} />
+              Quẻ Cuộc Đời
+            </label>
+          </div>
+        )}
 
-      {que && daLapQue && (
+        {(cach === "GIEO_DONG_XU" || loaiQue === "mot-viec") && (
+          <NoiDungHoiQue
+            chuDe={chuDe}
+            onChuDeChange={setChuDe}
+            vietTrucTiep={vietTrucTiep}
+            onVietTrucTiepChange={setVietTrucTiep}
+            cauHoi={cauHoi}
+            onCauHoiChange={setCauHoi}
+          />
+        )}
+
+        {cach === "THEO_THOI_GIAN" && (
+          <div className="hang-form" style={{ marginTop: 20 }}>
+            <div className="truong">
+              <label htmlFor="ngay">Ngày lập quẻ</label>
+              <input id="ngay" type="date" value={ngayStr} onChange={(e) => setNgayStr(e.target.value)} />
+            </div>
+            <div className="truong">
+              <label htmlFor="gio">Giờ</label>
+              <input id="gio" type="time" value={gioStr} onChange={(e) => setGioStr(e.target.value)} />
+            </div>
+            <button className="nut" type="button" onClick={() => setDaLapQue(true)}>
+              Lập quẻ
+            </button>
+          </div>
+        )}
+      </div>
+
+      {cach === "THEO_THOI_GIAN" && (
         <>
-          <KetQuaHero que={que} mucDo={mucDo} tomTat={tomTat} diemThuan={thuan} diemCanLuuY={canLuuY} />
+          {loi && (
+            <div className="the">
+              <p style={{ color: "var(--danger)" }}>Không an được quẻ: {loi}</p>
+            </div>
+          )}
 
-          {loaiQue === "mot-viec" && dungThan && mucDo && (
-            <LuanQueTheoViec
+          {!daLapQue && !loi && (
+            <div className="the">
+              <p className="trong-rong">Điền thông tin ở trên rồi bấm "Lập quẻ" để xem kết quả.</p>
+            </div>
+          )}
+
+          {que && daLapQue && (
+            <KetQuaXemQue
               que={que}
+              amLich={amLich}
               dungThan={dungThan}
               mucDo={mucDo}
               tomTat={tomTat}
               diemThuan={thuan}
               diemCanLuuY={canLuuY}
-              goiY={goiYUngXu(mucDo.muc)}
-            />
+              provenance="Theo thời gian"
+              onXemChiTietQue={onXemChiTietQue}
+            >
+              <div className="the khong-in hanh-dong">
+                <div className="truong" style={{ flex: 1 }}>
+                  <label htmlFor="binhchu">Ghi chú</label>
+                  <input
+                    id="binhchu"
+                    type="text"
+                    placeholder="Ghi chú cho lần xem quẻ này..."
+                    value={binhChu}
+                    onChange={(e) => setBinhChu(e.target.value)}
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                <button className="nut" type="button" onClick={luuLai}>
+                  {daLuu ? "Đã lưu ✓" : "Lưu quẻ"}
+                </button>
+                <button className="nut phu" type="button" onClick={chiaSe}>
+                  {daChep ? "Đã chép ✓" : "Chia sẻ"}
+                </button>
+                <button className="nut phu" type="button" onClick={() => window.print()}>
+                  In
+                </button>
+              </div>
+            </KetQuaXemQue>
           )}
-
-          <div className="the khong-in">
-            <CanCuLuanQue que={que} amLich={amLich} dungThan={dungThan} />
-          </div>
-
-          <div className="the">
-            <h2>Lịch âm</h2>
-            <AmLichView amLich={amLich} />
-          </div>
-
-          <div className="the">
-            <h2>Điểm vượng suy Lục Thân</h2>
-            <VuongSuyBar diemLucThan={que.diemLucThan} vietNhanManh={dungThan} />
-          </div>
-
-          <div className="the">
-            <h2>Chi tiết Lục Hào</h2>
-            <p className="chu-giai khong-in">
-              <span className="chu-giai-muc">
-                <span className="hao-vach mau-chu-giai">
-                  <span className="thanh" />
-                </span>
-                Dương
-              </span>
-              <span className="chu-giai-muc">
-                <span className="hao-vach mau-chu-giai">
-                  <span className="thanh" />
-                  <span className="thanh" />
-                </span>
-                Âm
-              </span>
-              <span className="chu-giai-muc">
-                <span className="cham-mau" style={{ background: "var(--danger)" }} /> Hào động
-              </span>
-              <span className="chu-giai-muc">
-                <span className="huy-hieu">Thế</span> Bản thân người hỏi
-              </span>
-              <span className="chu-giai-muc">
-                <span className="huy-hieu">Ứng</span> Đối tượng/hoàn cảnh liên quan
-              </span>
-            </p>
-            <div className="que-dich-view">
-              <QueDichView que={que} vietNhanManh={dungThan} tieuDe="Quẻ chính" onXemChiTiet={onXemChiTietQue} />
-              {que.queDichBien && (
-                <QueDichView
-                  que={que.queDichBien}
-                  tieuDe="Quẻ biến"
-                  noiBatVach={que.queBien}
-                  onXemChiTiet={onXemChiTietQue}
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="the khong-in hanh-dong">
-            <div className="truong" style={{ flex: 1 }}>
-              <label htmlFor="binhchu">Ghi chú</label>
-              <input
-                id="binhchu"
-                type="text"
-                placeholder="Ghi chú cho lần xem quẻ này..."
-                value={binhChu}
-                onChange={(e) => setBinhChu(e.target.value)}
-                style={{ width: "100%" }}
-              />
-            </div>
-            <button className="nut" type="button" onClick={luuLai}>
-              {daLuu ? "Đã lưu ✓" : "Lưu quẻ"}
-            </button>
-            <button className="nut phu" type="button" onClick={chiaSe}>
-              {daChep ? "Đã chép ✓" : "Chia sẻ"}
-            </button>
-            <button className="nut-nho" type="button" onClick={() => window.print()}>
-              In
-            </button>
-          </div>
         </>
+      )}
+
+      {cach === "GIEO_DONG_XU" && (
+        <GieoDongXuFlow
+          chuDe={chuDe}
+          vietTrucTiep={vietTrucTiep}
+          cauHoi={cauHoi}
+          gieoQueBanDau={gieoQueBanDau}
+          onXemChiTietQue={onXemChiTietQue}
+          onHuy={() => {
+            // GieoDongXuFlow unmount ngay khi cach đổi — effect báo `dangGieoDoDang` của nó
+            // không kịp chạy cleanup, nên phải tự reset ở đây (bug B1,
+            // project-brain/09-gop-gieo-dong-xu-vao-xem-que.md).
+            setCach("THEO_THOI_GIAN");
+            setDangGieoDoDang(false);
+          }}
+          onDangGieoDoDangChange={setDangGieoDoDang}
+        />
       )}
     </div>
   );

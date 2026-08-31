@@ -21,10 +21,34 @@ import { VUONG, HUNG, LUC_THAN } from "../core/const";
 export const CHU_DE: ReadonlyArray<{ nhan: string; lucThan: (typeof LUC_THAN)[number] }> = [
   { nhan: "Công việc / Công danh", lucThan: "Quan Quỷ" },
   { nhan: "Tài lộc / Kinh doanh", lucThan: "Thê Tài" },
-  { nhan: "Con cái / Học hành", lucThan: "Tử Tôn" },
-  { nhan: "Gia đạo / Nhà cửa / Giấy tờ", lucThan: "Phụ Mẫu" },
+  { nhan: "Con cái", lucThan: "Tử Tôn" },
+  { nhan: "Cha Mẹ/Giấy Tờ/Học Hành", lucThan: "Phụ Mẫu" },
   { nhan: "Bạn bè / Anh em", lucThan: "Huynh Đệ" },
 ];
+
+/** Suy Dụng Thần từ lựa chọn Chủ đề/Lục Thân trực tiếp — dùng chung cho cả 2 "Cách khởi quẻ"
+ * (Theo thời gian / Gieo đồng xu), tránh lặp lại biểu thức này ở từng trang. */
+export function dungThanTuChuDe(chuDe: string, vietTrucTiep: string): string | undefined {
+  return chuDe === "khac" ? vietTrucTiep : CHU_DE.find((c) => c.nhan === chuDe)?.lucThan;
+}
+
+/** Câu hỏi ví dụ theo từng Chủ đề — hiện làm placeholder ở ô "Câu hỏi" để gợi ý đúng trọng
+ * tâm của Dụng Thần tương ứng, thay vì một ví dụ chung chung cho mọi chủ đề. */
+const CAU_HOI_VI_DU: Record<string, string> = {
+  "Công việc / Công danh": "Tôi có nên nhận công việc mới này không?",
+  "Tài lộc / Kinh doanh": "Tôi có nên đầu tư vào việc này không?",
+  "Con cái": "Con tôi dạo này có bình an, thuận lợi không?",
+  "Cha Mẹ/Giấy Tờ/Học Hành": "Sức khoẻ của cha mẹ tôi dạo này thế nào?",
+  "Bạn bè / Anh em": "Mối quan hệ này có nên tiếp tục duy trì không?",
+};
+
+const CAU_HOI_VI_DU_MAC_DINH = "câu hỏi cụ thể liên quan đến Lục Thân đã chọn";
+
+/** Trả về câu hỏi ví dụ khớp Chủ đề đang chọn — dùng làm placeholder, không tự điền vào ô
+ * (tôn trọng câu hỏi user đã gõ, không ghi đè khi đổi Chủ đề qua lại). */
+export function cauHoiViDuTheoChuDe(chuDe: string): string {
+  return CAU_HOI_VI_DU[chuDe] ?? CAU_HOI_VI_DU_MAC_DINH;
+}
 
 export type MucDo = "thuan" | "trungTinh" | "canThanTrong";
 

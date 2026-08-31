@@ -171,6 +171,46 @@ describe("GiaiQue end-to-end — an quẻ + luận giải chạy trọn pipeline
 });
 
 /**
+ * Regression snapshot cho luồng "Tìm ngày tốt" (quét nhiều mốc thời gian, hiển thị Quẻ dịch +
+ * Quẻ biến ở bảng kết quả). 16 mốc dưới đây lấy từ đúng bảng kết quả thật hiển thị trên UAT
+ * (quét 2 giờ/lần, chủ đề Công việc/Công danh, 31/8-15/9/2026) — đã đối chiếu độc lập bằng
+ * cách tính trực tiếp qua `new QueDich(time); q.giaiQue()` trước khi đưa vào đây, khớp đúng
+ * 16/16 dòng. Đây là test hồi quy (khoá lại giá trị hiện tại để phát hiện thay đổi ngoài ý
+ * muốn), KHÔNG PHẢI đối chiếu độc lập với bản desktop gốc (xem TODO bên dưới).
+ */
+describe("Quẻ dịch/Quẻ biến theo thời điểm — đối chiếu bảng kết quả \"Tìm ngày tốt\" thật", () => {
+  const cac: [string, string, string][] = [
+    ["2026-08-31T02:00", "THIÊN HỎA ĐỒNG NHÂN", "LY VI HỎA"],
+    ["2026-08-31T04:00", "THIÊN LÔI VÔ VỌNG", "TRẠCH LÔI TÙY"],
+    ["2026-08-31T20:00", "THIÊN LÔI VÔ VỌNG", "THIÊN TRẠCH LÝ"],
+    ["2026-09-01T02:00", "TRẠCH LÔI TÙY", "THIÊN LÔI VÔ VỌNG"],
+    ["2026-09-01T04:00", "TRẠCH PHONG ĐẠI QUÁ", "TRẠCH THIÊN QUẢI"],
+    ["2026-09-01T20:00", "TRẠCH PHONG ĐẠI QUÁ", "TRẠCH THỦY KHỐN"],
+    ["2026-09-03T00:00", "LÔI PHONG HẰNG", "LÔI THIÊN ĐẠI TRÁNG"],
+    ["2026-09-03T02:00", "LÔI THỦY GIẢI", "LÔI ĐỊA DỰ"],
+    ["2026-09-03T14:00", "CHẤN VI LÔI", "LÔI TRẠCH QUY MUỘI"],
+    ["2026-09-03T16:00", "LÔI PHONG HẰNG", "LÔI THỦY GIẢI"],
+    ["2026-09-03T22:00", "LÔI ĐỊA DỰ", "HỎA ĐỊA TẤN"],
+    ["2026-09-04T20:00", "PHONG ĐỊA QUAN", "THỦY ĐỊA TỶ"],
+    ["2026-09-05T12:00", "THỦY PHONG TỈNH", "KHẢM VI THỦY"],
+    ["2026-09-06T08:00", "SƠN LÔI DI", "SƠN TRẠCH TỔN"],
+    ["2026-09-06T10:00", "SƠN PHONG CỔ", "SƠN THỦY MÔNG"],
+    ["2026-09-07T08:00", "ĐỊA PHONG THĂNG", "ĐỊA THỦY SƯ"],
+  ];
+
+  it.each(cac)("%s → Quẻ dịch %s, Quẻ biến %s", (isoNgayGio, tenQueDich, tenQueBien) => {
+    const [ngay, gio] = isoNgayGio.split("T");
+    const [y, m, d] = ngay.split("-").map(Number);
+    const [h, min] = gio.split(":").map(Number);
+    const que = new QueDich(new Date(y, m - 1, d, h, min, 0));
+    que.giaiQue();
+
+    expect(que.tenQueDich).toBe(tenQueDich);
+    expect(que.queDichBien?.tenQueDich).toBe(tenQueBien);
+  });
+});
+
+/**
  * TODO (khuyến nghị, chưa bắt buộc — xem data/README.md): viết thêm test hồi quy so sánh
  * GiaiQue với kết quả CHẠY THẬT trên bản desktop (không chỉ kiểm tra không throw + hợp lệ về
  * cấu trúc như trên) trên nhiều mốc thời gian mẫu đặc thù (giao thừa, tháng nhuận, giờ

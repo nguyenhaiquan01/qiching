@@ -15,6 +15,14 @@
  * `haoTu[].nhan` đã được tính lại từ dữ liệu quẻ đơn đã xác nhận trong `queKinhDich.ts` thay
  * vì tin theo chữ scrape được, vị trí hào (Sơ/Nhị/Tam/Tứ/Ngũ/Thượng) vẫn giữ theo thứ tự xuất
  * hiện trên trang.
+ *
+ * Lần scrape đầu tiên (đã sửa lại) có 2 lỗi hệ thống trên toàn bộ 64 quẻ: (1) dòng tiêu đề
+ * chữ Hán của mỗi hào bị dính vào CUỐI nội dung hào liền trước thay vì đứng ĐẦU nội dung hào
+ * của chính nó (với Càn/Khôn, lỗi này còn lan sang đầu `dungCuu`) — do trang nguồn không có
+ * dấu ngăn cách rõ ràng giữa hai hào liên tiếp; (2) đoạn diễn giải mở rộng sau "Giải nghĩa:"
+ * (nếu có) và dòng chữ Hán + phiên âm của Thoán Từ bị bỏ sót hoàn toàn, không nằm ở đâu trong
+ * dữ liệu. Đã scrape lại từ `nguon` để đối chiếu và sửa cả hai: lỗi (1) sửa bằng cách dịch
+ * chuyển cơ học (không cần tải lại), lỗi (2) bổ sung vào cuối `giaiNghia` và đầu `dich`.
  */
 import raw from "./noiDungQue.json";
 

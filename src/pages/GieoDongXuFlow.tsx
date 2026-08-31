@@ -1,40 +1,54 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CheDoGieo, KetQuaHaoXu, MatXu } from "../core/coinCasting/types";
 import { xacDinhHaoTuXu, nhanLoaiHao } from "../core/coinCasting/xacDinhHao";
 import { gieoBaDongXu } from "../core/coinCasting/gieoManHinh";
 import { lapQueTuCoinCasting } from "../core/coinCasting/adapter";
-import { luuGieoQue } from "../core/coinCasting/storage";
+import { luuGieoQue, type QueDaGieoDaLuu } from "../core/coinCasting/storage";
 import { tinhAmLich } from "../core/lunar";
-import { CanCuLuanQue } from "../components/CanCuLuanQue";
-import { AmLichView } from "../components/AmLichView";
-import { KetQuaHero } from "../components/KetQuaHero";
-import { LuanQueTheoViec } from "../components/LuanQueTheoViec";
-import { VuongSuyBar } from "../components/VuongSuyBar";
-import { QueDichView } from "../components/QueDichView";
-import { CHU_DE, mucDoThuanLoi, tomTatKetQua, goiYUngXu, diemThuanVaCanLuuY } from "../ui/luanQue";
-import { LUC_THAN } from "../core/const";
+import { KetQuaXemQue } from "../components/KetQuaXemQue";
+import { dungThanTuChuDe, mucDoThuanLoi, tomTatKetQua, diemThuanVaCanLuuY } from "../ui/luanQue";
 
 /**
- * Trang "Gieo đồng xu" — port từ `project-brain/QIChing — Coin Casting Feature
- * Specification.md` + `... UX Specification.md`. Luồng: chọn chế độ gieo → chủ đề/câu hỏi →
- * gieo/nhập 6 hào (từ dưới lên) → màn hoàn tất → xem kết quả (tái dùng đúng các component
- * hiển thị của trang Xem Quẻ — KetQuaHero/LuanQueTheoViec/CanCuLuanQue/AmLichView/
- * VuongSuyBar/QueDichView).
+ * Nhánh "Gieo đồng xu" bên trong trang Xem Quẻ — port từ `project-brain/QIChing — Coin
+ * Casting Feature/UX Specification.md`, thu gọn theo
+ * `project-brain/09-gop-gieo-dong-xu-vao-xem-que.md`: bỏ 2 bước đầu (chọn "Gieo đồng xu" +
+ * Chủ đề/Câu hỏi — nay thuộc `XemQue.tsx` orchestrator dùng chung với nhánh Theo Thời Gian),
+ * chỉ còn Cách gieo → gieo/nhập 6 hào → hoàn tất → kết quả.
  */
 
-type Buoc = "CHON_CHE_DO" | "BOI_CANH" | "DANG_GIEO" | "HOAN_TAT" | "XEM_KET_QUA";
+type Buoc = "CACH_GIEO" | "DANG_GIEO" | "HOAN_TAT" | "XEM_KET_QUA";
 
 const XU_RONG: [MatXu | null, MatXu | null, MatXu | null] = [null, null, null];
 
-export function GieoDongXu({ onXemChiTietQue }: { onXemChiTietQue?: (tenQueChuan: string) => void }) {
-  const [buoc, setBuoc] = useState<Buoc>("CHON_CHE_DO");
-  const [cheDoGieo, setCheDoGieo] = useState<CheDoGieo | null>(null);
-  const [chuDe, setChuDe] = useState<string>(CHU_DE[0].nhan);
-  const [vietTrucTiep, setVietTrucTiep] = useState<string>(LUC_THAN[0]);
-  const [cauHoi, setCauHoi] = useState("");
-
-  const [hao, setHao] = useState<KetQuaHaoXu[]>([]);
-  const [thoiDiemLuanQue, setThoiDiemLuanQue] = useState<Date | null>(null);
+export function GieoDongXuFlow({
+  chuDe,
+  vietTrucTiep,
+  cauHoi,
+  gieoQueBanDau,
+  onXemChiTietQue,
+  onHuy,
+  onDangGieoDoDangChange,
+}: {
+  chuDe: string;
+  vietTrucTiep: string;
+  cauHoi: string;
+  /** Xem lại một quẻ gieo đồng xu đã lưu — nhảy thẳng vào kết quả, không gieo lại (mục 4, 6.4
+   * của kế hoạch gộp). */
+  gieoQueBanDau?: QueDaGieoDaLuu;
+  onXemChiTietQue?: (tenQueChuan: string) => void;
+  /** Gọi khi user xác nhận "Huỷ gieo quẻ" — quyết định #2: quay lại "Cách khởi quẻ" (bước đầu
+   * tiên của cả màn Xem Quẻ), không chuyển thẳng sang nội dung Theo Thời Gian. */
+  onHuy: () => void;
+  /** Báo cho `XemQue` orchestrator biết đang gieo dở, để disable "Cách khởi quẻ" — quyết định
+   * #2: không cho chuyển trực tiếp sang Theo Thời Gian khi đang gieo dở. */
+  onDangGieoDoDangChange: (dangDo: boolean) => void;
+}) {
+  const [buoc, setBuoc] = useState<Buoc>(gieoQueBanDau ? "XEM_KET_QUA" : "CACH_GIEO");
+  const [cheDoGieo, setCheDoGieo] = useState<CheDoGieo | null>(gieoQueBanDau?.cheDoGieo ?? null);
+  const [hao, setHao] = useState<KetQuaHaoXu[]>(gieoQueBanDau?.hao ?? []);
+  const [thoiDiemLuanQue, setThoiDiemLuanQue] = useState<Date | null>(
+    gieoQueBanDau ? new Date(gieoQueBanDau.createdAt) : null,
+  );
 
   // Mode "Gieo trên màn hình": kết quả 1 lần gieo, chờ user bấm "Tiếp tục" mới commit vào `hao`.
   const [dangGieo, setDangGieo] = useState(false);
@@ -46,9 +60,15 @@ export function GieoDongXu({ onXemChiTietQue }: { onXemChiTietQue?: (tenQueChuan
   const [daLuu, setDaLuu] = useState(false);
   const [hienLichSu, setHienLichSu] = useState(false);
   const [hienTroGiup, setHienTroGiup] = useState(false);
+  const [xacNhanHuy, setXacNhanHuy] = useState(false);
+
+  useEffect(() => {
+    onDangGieoDoDangChange(buoc === "DANG_GIEO" || buoc === "HOAN_TAT");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buoc]);
 
   const viTriHienTai = (hao.length + 1) as 1 | 2 | 3 | 4 | 5 | 6;
-  const dungThan = chuDe === "khac" ? vietTrucTiep : CHU_DE.find((c) => c.nhan === chuDe)?.lucThan;
+  const dungThan = dungThanTuChuDe(chuDe, vietTrucTiep);
 
   const ketQuaLapQue = useMemo(() => {
     if (buoc !== "HOAN_TAT" && buoc !== "XEM_KET_QUA") return null;
@@ -96,23 +116,30 @@ export function GieoDongXu({ onXemChiTietQue }: { onXemChiTietQue?: (tenQueChuan
     }
   };
 
-  const batDauLai = () => {
-    setBuoc("CHON_CHE_DO");
+  const batDauLaiGieo = () => {
+    setBuoc("CACH_GIEO");
     setCheDoGieo(null);
-    setChuDe(CHU_DE[0].nhan);
-    setCauHoi("");
     setHao([]);
     setThoiDiemLuanQue(null);
     setKetQuaManHinh(null);
     setXuVatLy(XU_RONG);
     setDaLuu(false);
     setHienLichSu(false);
+    setXacNhanHuy(false);
+  };
+
+  const huyGieo = () => {
+    if (hao.length > 0 && !xacNhanHuy) {
+      setXacNhanHuy(true);
+      return;
+    }
+    onHuy();
   };
 
   const luuQue = () => {
-    if (!ketQuaLapQue || !thoiDiemLuanQue) return;
+    if (!ketQuaLapQue || !thoiDiemLuanQue || !cheDoGieo) return;
     luuGieoQue({
-      cheDoGieo: cheDoGieo!,
+      cheDoGieo,
       hao,
       chuDe,
       cauHoi: cauHoi || undefined,
@@ -125,21 +152,40 @@ export function GieoDongXu({ onXemChiTietQue }: { onXemChiTietQue?: (tenQueChuan
     window.setTimeout(() => setDaLuu(false), 2000);
   };
 
+  const provenance = `Ba đồng xu · ${cheDoGieo === "MAN_HINH" ? "Gieo trên màn hình" : "Tôi tự gieo"}`;
+
   return (
     <div>
-      {buoc === "CHON_CHE_DO" && (
+      {buoc !== "XEM_KET_QUA" && (
+        <div className="hang-form khong-in" style={{ justifyContent: "flex-end", marginBottom: 8 }}>
+          {!xacNhanHuy ? (
+            <button type="button" className="nut-nho" onClick={huyGieo}>
+              Huỷ gieo quẻ
+            </button>
+          ) : (
+            <>
+              <span className="hero-diem-rong">Tiến độ hiện tại sẽ mất, bạn có chắc chắn?</span>
+              <button type="button" className="nut-nho" onClick={() => setXacNhanHuy(false)}>
+                Không
+              </button>
+              <button type="button" className="nut nguy-hiem" onClick={onHuy}>
+                Huỷ luôn
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {buoc === "CACH_GIEO" && (
         <div className="the">
-          <h2>Gieo quẻ bằng đồng xu</h2>
-          <p className="hero-tom-tat">
-            Gieo ba đồng xu sáu lần để lập sáu hào của quẻ, theo thứ tự từ dưới lên.
-          </p>
+          <h2>Cách gieo</h2>
           <div className="coin-mode-grid">
             <button
               type="button"
               className="coin-mode-card"
               onClick={() => {
                 setCheDoGieo("MAN_HINH");
-                setBuoc("BOI_CANH");
+                setBuoc("DANG_GIEO");
               }}
             >
               <strong>Gieo trên màn hình</strong>
@@ -150,7 +196,7 @@ export function GieoDongXu({ onXemChiTietQue }: { onXemChiTietQue?: (tenQueChuan
               className="coin-mode-card"
               onClick={() => {
                 setCheDoGieo("TU_GIEO");
-                setBuoc("BOI_CANH");
+                setBuoc("DANG_GIEO");
               }}
             >
               <strong>Tôi tự gieo</strong>
@@ -195,56 +241,6 @@ export function GieoDongXu({ onXemChiTietQue }: { onXemChiTietQue?: (tenQueChuan
               </table>
             </div>
           )}
-        </div>
-      )}
-
-      {buoc === "BOI_CANH" && (
-        <div className="the">
-          <h2>Trước khi gieo quẻ</h2>
-          <div className="hang-form">
-            <div className="truong">
-              <label htmlFor="cc-chude">Chủ đề</label>
-              <select id="cc-chude" value={chuDe} onChange={(e) => setChuDe(e.target.value)}>
-                {CHU_DE.map((c) => (
-                  <option key={c.nhan} value={c.nhan}>
-                    {c.nhan}
-                  </option>
-                ))}
-                <option value="khac">Khác — chọn trực tiếp Lục Thân</option>
-              </select>
-            </div>
-            {chuDe === "khac" && (
-              <div className="truong">
-                <label htmlFor="cc-lucthan">Lục Thân</label>
-                <select id="cc-lucthan" value={vietTrucTiep} onChange={(e) => setVietTrucTiep(e.target.value)}>
-                  {LUC_THAN.map((lt) => (
-                    <option key={lt} value={lt}>
-                      {lt}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div className="truong" style={{ flex: 1 }}>
-              <label htmlFor="cc-cauhoi">Câu hỏi (không bắt buộc)</label>
-              <input
-                id="cc-cauhoi"
-                type="text"
-                placeholder="Ví dụ: Tôi có nên nhận công việc mới này không?"
-                value={cauHoi}
-                onChange={(e) => setCauHoi(e.target.value)}
-                style={{ width: "100%" }}
-              />
-            </div>
-          </div>
-          <p className="hero-diem-rong" style={{ marginTop: 12 }}>
-            Hãy giữ câu hỏi trong tâm trí trong quá trình gieo sáu hào.
-          </p>
-          <div className="hanh-dong" style={{ marginTop: 12 }}>
-            <button type="button" className="nut" onClick={() => setBuoc("DANG_GIEO")}>
-              Tiếp tục
-            </button>
-          </div>
         </div>
       )}
 
@@ -392,7 +388,7 @@ export function GieoDongXu({ onXemChiTietQue }: { onXemChiTietQue?: (tenQueChuan
             </>
           )}
           <p className="que-dich-cung" style={{ marginTop: 12 }}>
-            Cách khởi quẻ: Ba đồng xu · {cheDoGieo === "MAN_HINH" ? "Gieo trên màn hình" : "Tôi tự gieo"}
+            Cách khởi quẻ: {provenance}
           </p>
           <div className="hanh-dong" style={{ marginTop: 12 }}>
             <button type="button" className="nut" onClick={() => setBuoc("XEM_KET_QUA")}>
@@ -403,64 +399,20 @@ export function GieoDongXu({ onXemChiTietQue }: { onXemChiTietQue?: (tenQueChuan
       )}
 
       {buoc === "XEM_KET_QUA" && que && ketQuaLapQue && amLich && (
-        <>
-          <KetQuaHero que={que} mucDo={mucDo} tomTat={tomTat} diemThuan={thuan} diemCanLuuY={canLuuY} />
-
-          {dungThan && mucDo && (
-            <LuanQueTheoViec
-              que={que}
-              dungThan={dungThan}
-              mucDo={mucDo}
-              tomTat={tomTat}
-              diemThuan={thuan}
-              diemCanLuuY={canLuuY}
-              goiY={goiYUngXu(mucDo.muc)}
-              viTriHaoDong={ketQuaLapQue.viTriHaoDong}
-            />
-          )}
-
+        <KetQuaXemQue
+          que={que}
+          amLich={amLich}
+          dungThan={dungThan}
+          mucDo={mucDo}
+          tomTat={tomTat}
+          diemThuan={thuan}
+          diemCanLuuY={canLuuY}
+          viTriHaoDong={ketQuaLapQue.viTriHaoDong}
+          provenance={provenance}
+          onXemChiTietQue={onXemChiTietQue}
+        >
           <div className="the khong-in">
-            <CanCuLuanQue que={que} amLich={amLich} dungThan={dungThan} viTriHaoDong={ketQuaLapQue.viTriHaoDong} />
-          </div>
-
-          <div className="the">
-            <h2>Lịch âm</h2>
-            <AmLichView amLich={amLich} />
-          </div>
-
-          <div className="the">
-            <h2>Điểm vượng suy Lục Thân</h2>
-            <VuongSuyBar diemLucThan={que.diemLucThan} vietNhanManh={dungThan} />
-          </div>
-
-          <div className="the">
-            <h2>Chi tiết Lục Hào</h2>
-            <div className="que-dich-view">
-              <QueDichView
-                que={que}
-                vietNhanManh={dungThan}
-                tieuDe="Quẻ chính"
-                noiBatVach={ketQuaLapQue.viTriHaoDong}
-                onXemChiTiet={onXemChiTietQue}
-              />
-              {ketQuaLapQue.queBien && (
-                <QueDichView
-                  que={ketQuaLapQue.queBien}
-                  tieuDe="Quẻ biến"
-                  noiBatVach={ketQuaLapQue.viTriHaoDong}
-                  onXemChiTiet={onXemChiTietQue}
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="the khong-in">
-            <p className="que-dich-cung">
-              Cách khởi quẻ: Ba đồng xu · {cheDoGieo === "MAN_HINH" ? "Gieo trên màn hình" : "Tôi tự gieo"}
-              <br />
-              Luận quẻ: Lục Hào Nạp Giáp
-            </p>
-            {cauHoi && <p className="que-dich-cung">Câu hỏi: “{cauHoi}”</p>}
+            {cauHoi && <p className="que-dich-cung">Câu hỏi: "{cauHoi}"</p>}
             <button type="button" className="nut-nho" onClick={() => setHienLichSu((v) => !v)}>
               {hienLichSu ? "Ẩn" : "Xem"} lịch sử gieo
             </button>
@@ -483,14 +435,14 @@ export function GieoDongXu({ onXemChiTietQue }: { onXemChiTietQue?: (tenQueChuan
             <button type="button" className="nut" onClick={luuQue}>
               {daLuu ? "Đã lưu ✓" : "Lưu quẻ"}
             </button>
-            <button type="button" className="nut phu" onClick={batDauLai}>
+            <button type="button" className="nut phu" onClick={batDauLaiGieo}>
               Gieo quẻ mới
             </button>
-            <button type="button" className="nut-nho" onClick={() => window.print()}>
+            <button type="button" className="nut phu" onClick={() => window.print()}>
               In
             </button>
           </div>
-        </>
+        </KetQuaXemQue>
       )}
     </div>
   );

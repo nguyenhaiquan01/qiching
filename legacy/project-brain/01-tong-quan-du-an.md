@@ -1,53 +1,87 @@
 # 01 – Tổng quan dự án
 
-## Dự án là gì
+> Trạng thái được đối chiếu với working tree ngày 2026-08-31. Bản web là sản phẩm đang phát triển; mã WinForms trong `legacy/` là nguồn lịch sử và đối chiếu nghiệp vụ.
 
-**QIChing** (tên module chính trong mã nguồn là `QueKinhDich`, namespace `KinhDich`) là một ứng dụng desktop viết bằng C#/.NET, dùng để **an quẻ và luận giải quẻ Kinh Dịch theo phương pháp Mai Hoa Dịch Số** (bấm quẻ theo ngày giờ), kết hợp chặt chẽ với **lịch âm Việt Nam** (ngày, giờ, tháng, năm theo can chi, tiết khí, giờ hoàng đạo). Ngoài quẻ dịch, dự án còn có các chức năng phụ trợ như xem ngày tốt xấu, xem quẻ theo từng chủ đề cuộc sống (tình duyên, tiền tài, quan lộc, học hành), và một module Tứ Trụ đang ở dạng phôi (chưa triển khai).
+## Dự án hiện tại
 
-Đây là một ứng dụng cá nhân/nghiên cứu, phục vụ người dùng có kiến thức hoặc quan tâm đến Kinh Dịch, Nạp Giáp, Lục Thân, Lục Thần – không phải phần mềm thương mại có đội ngũ vận hành.
+**QIChing** hiện gồm hai phần:
 
-## Mục tiêu và bài toán giải quyết
+1. **Ứng dụng web chính** tại thư mục gốc: static SPA viết bằng React + TypeScript, toàn bộ tính toán chạy trong trình duyệt, không có backend/API/database server.
+2. **Ứng dụng desktop gốc** trong `legacy/`: C#/.NET Framework 3.5, Windows Forms và SQL Server Compact. Phần này được giữ để truy vết thuật toán, dữ liệu và hành vi cũ; không còn là runtime của bản web.
 
-Việc an quẻ Kinh Dịch và luận đoán vượng suy của các hào đòi hỏi tra cứu thủ công rất nhiều bảng dữ liệu cố định (64 quẻ, Nạp Giáp từng hào, Ngũ Hành tương sinh/tương khắc, Lục Thân, Lục Thần, Tuần Không...) và các phép tính lịch âm phức tạp (không thể suy ra trực tiếp từ lịch dương). Ứng dụng số hóa toàn bộ các bảng tra cứu này và tự động hóa quy trình:
+Bản web hỗ trợ lập và luận quẻ Kinh Dịch theo hai cách khởi quẻ:
 
-1. Từ một thời điểm (ngày giờ dương lịch) → quy đổi ra ngày âm lịch, can chi ngày/tháng/năm/giờ.
-2. Từ ngày giờ đó → an quẻ Thượng, quẻ Hạ, xác định hào động và quẻ biến theo thuật Mai Hoa Dịch Số.
-3. Từ quẻ → tra Nạp Giáp cho từng hào, xác định hào Thế/Ứng, Tuần Không, Lục Thần.
-4. Tính điểm vượng/suy cho từng Lục Thân (Huynh Đệ, Tử Tôn, Thê Tài, Quan Quỷ, Phụ Mẫu) dựa trên quan hệ sinh – khắc giữa Nhật Kiến, Nguyệt Kiến, hào động, hào biến và bản mệnh của từng hào.
-5. Cho phép quét một khoảng thời gian để tìm ra những ngày "tốt" cho một việc cụ thể, dựa trên điểm vượng suy của Lục Thân tương ứng.
+- **Theo thời gian** — Mai Hoa Dịch Số từ ngày giờ.
+- **Gieo ba đồng xu** — gieo trên màn hình hoặc tự gieo xu thật, sau đó dùng chung tầng luận Lục Hào Nạp Giáp.
 
-## Bối cảnh kỹ thuật & lịch sử
+Các khả năng khác gồm lịch âm/Can Chi, tra cứu 64 quẻ, tìm ngày tốt, lưu và xem lại quẻ trong trình duyệt. Tứ Trụ mới có tài liệu reverse-engineering và thiết kế; chưa có module thực thi trong `src/core/`.
 
-- Mã nguồn được quản lý bằng **SVN** (không phải Git) – các thư mục `.svn` xuất hiện ở hầu hết mọi nơi trong cây thư mục.
-- Ứng dụng được xây dựng trên **.NET Framework 3.5 / Windows Forms**, dùng **SQL Server Compact Edition (.sdf)** làm nơi lưu trữ toàn bộ dữ liệu tra cứu tĩnh (64 quẻ, Ngũ Hành, Nạp Âm, Lục Thân...).
-- Có tài liệu đặc tả ngắn `QIChing specification 2012.docx`, cho thấy dự án đã tồn tại và được phát triển ít nhất từ năm 2012.
-- File `QIChing.application` cùng các thuộc tính `ApplicationVersion`, `UpdateEnabled` trong file dự án cho thấy ứng dụng từng được phát hành qua cơ chế **ClickOnce**; ngoài ra còn có một dự án cài đặt kiểu MSI (`QIChingSetup`) tạo ra `setup.exe`/`QIChingSetup.msi` để phát hành offline.
-- Đây là ứng dụng **desktop, chạy độc lập trên máy Windows của một người dùng**, không có kiến trúc client‑server, không có tầng web hay API.
+## Mục tiêu sản phẩm
 
-## Cấu trúc thư mục cấp cao
+Ứng dụng số hóa các bảng và phép tính vốn phải tra thủ công:
 
+1. đổi ngày giờ dương lịch sang lịch âm, Can Chi, Tiết Khí và giờ Hoàng Đạo;
+2. lập quẻ theo thời gian hoặc từ sáu hào gieo bằng ba đồng xu;
+3. tính Quẻ Chính/Quẻ Biến, Nạp Giáp, Lục Thân, Lục Thần, Thế/Ứng và Tuần Không;
+4. tính điểm vượng suy theo engine được port từ desktop;
+5. trình bày kết quả theo hướng dễ đọc nhưng vẫn cho phép truy vết dữ liệu chuyên môn;
+6. chạy hoàn toàn phía client và lưu dữ liệu cá nhân bằng `localStorage`.
+
+## Trạng thái triển khai
+
+| Hạng mục | Trạng thái |
+|---|---|
+| Core Mai Hoa Dịch Số/Lục Hào | Đã port sang TypeScript và chạy end-to-end |
+| Dữ liệu tĩnh từ `KinhDich.sdf` | Đã đưa vào `src/core/data/`; các bảng tính toán chính có fixture CSV trong `DBexport/` |
+| UI React | Đã có năm mục điều hướng chính; dùng state nội bộ, không dùng router |
+| Coin Casting core | Đã có mapping xu, adapter 0–6 hào động và storage riêng |
+| Gộp Coin Casting vào Xem Quẻ | **Đang triển khai trong working tree**, chưa nên coi là hoàn tất; xem [09](./09-gop-gieo-dong-xu-vao-xem-que.md) |
+| Lưu quẻ | Hai schema `localStorage`; danh sách hợp nhất ở tầng UI đang được triển khai |
+| Kiểm thử | 8 test file, 63 test pass; lint và production build pass tại lần rà soát này |
+| Đối chiếu desktop end-to-end | Mới một phần; chưa có golden dataset lớn cho toàn bộ lịch pháp và kết quả luận |
+| Tứ Trụ | Có đặc tả [07](./07-tu-tru-tinh-toan.md) và thiết kế [08](./08-tu-tru-thiet-ke-chuong-trinh.md), chưa có code |
+
+## Cấu trúc repository
+
+```text
+nhq-iching-web/
+├── src/
+│   ├── core/                  # nghiệp vụ thuần TypeScript
+│   │   ├── coinCasting/       # gieo xu, adapter sang QueDich, storage và test
+│   │   ├── data/              # bảng tra cứu tĩnh
+│   │   └── __tests__/         # test core và dữ liệu
+│   ├── pages/                 # các màn hình/orchestrator
+│   ├── components/            # component trình bày dùng lại
+│   └── ui/                    # logic diễn giải và theme/presentation helpers
+├── DBexport/                  # CSV xuất từ dữ liệu desktop để đối chiếu
+├── legacy/
+│   ├── QueKinhDich/           # WinForms gốc
+│   ├── TuTru/                 # project Tứ Trụ gốc chỉ có form rỗng
+│   └── project-brain/         # tài liệu nghiệp vụ, kiến trúc và trạng thái
+├── package.json
+├── vite.config.ts
+└── tsconfig*.json
 ```
-trunk/
-├── QueKinhDich.sln            # Solution Visual Studio, gộp 3 project chính
-├── QueKinhDich/                # Ứng dụng chính (WinForms) – xem 03 & 04
-│   ├── Business/                # Tầng nghiệp vụ: an quẻ, lịch âm, ngũ hành...
-│   ├── UserControl/              # Control tái sử dụng (bảng âm lịch)
-│   ├── Resources/                # Icon, hình ảnh hào âm/dương
-│   ├── kinhdich.xsd              # Typed DataSet – schema dữ liệu tra cứu
-│   ├── KinhDich.sdf              # Cơ sở dữ liệu SQL CE chứa dữ liệu tra cứu
-│   └── frm*.cs                   # Các màn hình (form) của ứng dụng
-├── TuTru/                       # Dự án Tứ Trụ – mới có khung form, CHƯA có logic
-├── VCTest/                       # Test đơn vị cho thư viện lịch âm (VietnameseCalendar)
-└── QIChingSetup/                # Dự án đóng gói cài đặt (MSI/.vdproj)
-```
 
-## Trạng thái hoàn thiện
+## Các giới hạn cần nhớ
 
-Không phải mọi tính năng nhìn thấy trên giao diện đều đã có logic đầy đủ. Một số điểm đáng lưu ý khi tiếp cận dự án:
+- Không có tài khoản người dùng hoặc đồng bộ server; dữ liệu gắn với từng browser/profile.
+- Lịch hiện dùng `Date` theo timezone môi trường chạy và quy tắc đổi ngày từ 23h của bản cũ. Đây chưa phải contract timezone đủ chặt cho Tứ Trụ.
+- Test hiện mạnh ở core/data nhưng chưa có test component/E2E được check-in.
+- Adapter Coin Casting có parity test khi đúng một hào động; tính đúng nghiệp vụ của cách chấm điểm khi có nhiều hào động chưa có oracle độc lập.
+- Production bundle hiện khoảng 728 kB minified và Vite cảnh báo chunk chính vượt 500 kB.
 
-- **`TuTru` (Tứ Trụ)** chỉ có `Form1` rỗng, chưa có bất kỳ logic nghiệp vụ nào – đây là tính năng dự kiến nhưng chưa triển khai.
-- **`frmXemNgay` (Xem ngày)** và **`frmXemQueCuocDoi` (Xem quẻ cuộc đời)** có khung form nhưng phần xử lý còn để trống hoặc chỉ là chú thích TODO.
-- Chức năng **tra cứu chú thích quẻ theo Chứng khoán** (`ChuThichQueChungKhoan`, bảng `QueCK`) tồn tại trong tầng dữ liệu nhưng phần sinh dữ liệu (`TaoQueCK`) đã bị comment lại, cho thấy đây là tính năng thử nghiệm nửa chừng.
-- Có file `VietnameseCalendarbak.cs` (bản sao lưu cũ của thư viện lịch âm) vẫn còn nằm trong mã nguồn, không được biên dịch cùng logic hiện hành – cần lưu ý khi đọc code để không nhầm với bản đang dùng.
+## Bối cảnh legacy
 
-Xem chi tiết từng tính năng tại [02-tinh-nang.md](./02-tinh-nang.md), kiến trúc tại [03-kien-truc-va-thiet-ke.md](./03-kien-truc-va-thiet-ke.md), và công nghệ sử dụng tại [04-cong-nghe-su-dung.md](./04-cong-nghe-su-dung.md).
+Ứng dụng desktop từng được quản lý bằng SVN, phát hành qua ClickOnce/MSI và dùng SQL Server Compact. Các form `frmXemNgay`, `frmXemQueCuocDoi`, module Chứng khoán và project `TuTru` có mức hoàn thiện không đồng đều. Khi đọc code legacy phải phân biệt logic đang chạy với file backup/TODO, đặc biệt `VietnameseCalendarbak.cs`.
+
+## Tài liệu liên quan
+
+- [02 – Tính năng](./02-tinh-nang.md)
+- [03 – Kiến trúc và thiết kế](./03-kien-truc-va-thiet-ke.md)
+- [04 – Công nghệ sử dụng](./04-cong-nghe-su-dung.md)
+- [05 – Kế hoạch và trạng thái migrate](./05-ke-hoach-migrate-web.md)
+- [06 – Deployment](./06-deployment.md)
+- [07 – Mô hình tính toán Tứ Trụ](./07-tu-tru-tinh-toan.md)
+- [08 – Thiết kế chương trình Tứ Trụ](./08-tu-tru-thiet-ke-chuong-trinh.md)
+- [09 – Gộp Gieo đồng xu vào Xem quẻ](./09-gop-gieo-dong-xu-vao-xem-que.md)

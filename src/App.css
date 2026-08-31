@@ -11,7 +11,7 @@
 .app-header {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 8px;
   padding: 20px 0 12px;
@@ -19,6 +19,22 @@
 
 .app-header h1 {
   font-size: 1.4rem;
+  color: #5c3d2e;
+  margin: 0;
+}
+
+.app-slogan {
+  display: none;
+  font-size: 15px;
+  font-weight: 400;
+  color: #8a7a6a;
+  margin-left: 18px;
+}
+
+@media (min-width: 768px) {
+  .app-slogan {
+    display: inline;
+  }
 }
 
 .app-nav {
@@ -795,6 +811,21 @@ table.bang-ket-qua th {
 
 .coin-mode-card:hover {
   border-color: var(--accent);
+}
+
+.coin-mode-card.active {
+  border-color: var(--accent);
+  border-width: 2px;
+  background: var(--bg-elevated);
+}
+
+.coin-mode-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.coin-mode-card:disabled:hover {
+  border-color: var(--border);
 }
 
 .coin-mode-card span {

@@ -1,84 +1,139 @@
 # 02 – Tính năng
 
-Toàn bộ tính năng được truy cập từ màn hình chính `frmKinhDich` (menu **Kinh dịch**, **Xem ngày**, **Trợ giúp**) và các form phụ được mở từ đó.
+> Tài liệu này mô tả bản web hiện tại. Các chức năng chỉ tồn tại trong WinForms gốc được tách riêng ở cuối tài liệu.
 
-## 1. Xem lịch âm & can chi theo thời gian thực
+## 1. Điều hướng
 
-- Người dùng chọn một ngày (qua `MonthCalendar`) và một giờ (qua bộ chọn giờ `datePick`); ứng dụng lập tức:
-  - Quy đổi sang **ngày âm lịch** (năm/tháng/ngày âm, có xử lý tháng nhuận).
-  - Hiển thị **Can Chi của Giờ, Ngày, Tháng, Năm**.
-  - Hiển thị **Tiết khí** hiện hành (24 tiết khí theo kinh độ mặt trời).
-  - Hiển thị **Giờ Hoàng Đạo** của ngày đó.
-- Quy tắc đổi ngày đặc thù: nếu giờ nhập là 23h trở đi, hệ thống tự động lùi sang "ngày âm lịch kế tiếp" (theo quan niệm ngày mới bắt đầu từ giờ Tý), xử lý tại `HienThiNgayAmLich`/`NgayAmLich`.
-- Control `amLichControl` đóng gói lại phần hiển thị âm lịch này để tái sử dụng ở form khác (`frmLoadQue`, `frmXemNgay`).
+`src/App.tsx` dùng state React thay cho router. Năm mục cấp cao hiện tại là:
 
-## 2. An quẻ Kinh Dịch theo thời gian (Mai Hoa Dịch Số)
+1. Xem quẻ
+2. Tìm ngày tốt
+3. 64 Quẻ Kinh Dịch
+4. Quẻ đã lưu
+5. Giới thiệu
 
-Đây là tính năng lõi của ứng dụng, nằm ở `business.XacDinhQueKinhDich` và lớp `QueDich`:
+Không có URL riêng cho từng màn hình, deep link hay browser history. Trong working tree hiện tại, **Gieo đồng xu đã được bỏ khỏi top navigation và chuyển vào bên trong Xem quẻ**.
 
-- Từ thời điểm xem quẻ, tính "số quẻ Thượng" và "số quẻ Hạ" dựa trên tổng của Chi năm + tháng (quy theo tiết lệnh nếu bật tùy chọn `Const.TietLenh`) + ngày âm lịch, chia lấy dư cho 8 (theo 8 quẻ đơn Tiên Thiên: Càn, Đoài, Ly, Chấn, Tốn, Khảm, Cấn, Khôn).
-- Cộng thêm số giờ (quy đổi giờ ra "chi giờ") để tính quẻ Hạ và xác định **hào động** (chia dư cho 6).
-- Tra ra **quẻ dịch** (một trong 64 quẻ kép, danh sách đầy đủ trong `Const.que6hao`) và **Cung** của quẻ.
-- Tính **quẻ Biến**: đảo âm/dương của hào động để suy ra quẻ mới (`business.BienQue`).
-- Hiển thị hình ảnh trực quan của 6 hào (hào âm/hào dương, đánh dấu hào động) bằng các `PictureBox` trên form chính.
+## 2. Xem quẻ
 
-## 3. Luận giải quẻ (Nạp Giáp – Lục Thân – Lục Thần – Tuần Không – Vượng Suy)
+### 2.1 Hai cách khởi quẻ
 
-Sau khi có quẻ, `QueDich.NapGiap()` và `QueDich.GiaiQue()` thực hiện:
+`XemQue.tsx` là orchestrator cho hai nhánh:
 
-- **Nạp Giáp**: gán Địa Chi và Ngũ Hành cho từng hào (dựa trên bảng `QueKinhDich` – cột `NapGiapH1`…`NapGiapH6`).
-- **Lục Thân** (Huynh Đệ, Tử Tôn, Thê Tài, Quan Quỷ, Phụ Mẫu): xác định bằng quan hệ sinh/khắc giữa Ngũ Hành của hào và Ngũ Hành của Cung quẻ.
-- **Hào Thế / Hào Ứng**: tra từ bảng `Que6Hao.HaoThe`, suy ra Hào Ứng đối xứng.
-- **Tuần Không**: tính "tuần không" của ngày xem quẻ (dựa trên Thiên Can – Địa Chi ngày) và đánh dấu hào nào rơi vào tuần không.
-- **Lục Thần** (Thanh Long, Chu Tước, Câu Trần, Đằng Xà, Bạch Hổ, Huyền Vũ): gán tuần tự cho 6 hào bắt đầu từ vị trí ứng với Thiên Can ngày.
-- **Điểm vượng/suy**: mỗi hào được cộng/trừ điểm dựa trên quan hệ sinh – khắc với Nhật Kiến (Chi ngày), Nguyệt Kiến (Chi tháng), hào động và hào biến; điểm của mỗi Lục Thân là điểm cao nhất trong các hào mang Lục Thân đó (nếu quẻ không có đủ 5 Lục Thân, phần thiếu được lấy điểm từ "Quẻ Chủ" – quẻ thuần cùng Cung).
-- Kết quả được tô màu theo Ngũ Hành (Thủy=xanh dương, Hỏa=đỏ, Thổ=cam, Kim=bạc, Mộc=xanh lá) để dễ đọc trên giao diện.
+- **Theo thời gian**: chọn loại xem, ngày/giờ rồi lập quẻ bằng Mai Hoa Dịch Số.
+- **Gieo đồng xu**: chọn gieo trên màn hình hoặc tự gieo; thực hiện sáu lần từ Hào 1 ở dưới lên Hào 6 ở trên.
 
-## 4. Xem quẻ theo chủ đề (menu "Kinh dịch")
+Chủ đề và câu hỏi được dùng chung qua `NoiDungHoiQue`. Khối kết quả được dùng chung qua `KetQuaXemQue`. Phần gộp IA này đang ở working tree chưa commit và còn các gap được ghi tại [09](./09-gop-gieo-dong-xu-vao-xem-que.md).
 
-Menu chính cung cấp các lối tắt xem quẻ gắn với từng "việc" cụ thể – dùng chung một cơ chế an quẻ + tính điểm Lục Thân, chỉ khác Lục Thân nào được dùng làm tiêu chí:
+### 2.2 Khởi quẻ theo thời gian
 
-- **Xem quẻ tình duyên**
-- **Xem quẻ tiền tài**
-- **Xem quẻ quan lộc**
-- **Xem quẻ học hành**
-- **Xem quẻ chung**
-- **Xem thời tiết thiên nhiên**
+Nhánh này hỗ trợ:
 
-## 5. Tìm ngày tốt theo quẻ dịch
+- **Xem một việc**: chọn chủ đề hoặc chọn trực tiếp Lục Thân làm Dụng Thần.
+- **Xem tổng quan**: không chọn một Dụng Thần duy nhất.
+- **Quẻ Cuộc Đời**: gọi biến thể `QueDich(..., true)` và `giaiQueCuocDoi()`.
+- Chọn ngày và giờ, sau đó tính Quẻ Chính, một hào động và Quẻ Biến.
+- Lưu thời điểm + ghi chú, chép nội dung chia sẻ vào clipboard và in bằng `window.print()`.
 
-Form `frmTimNgayTotTheoQueDich`:
+### 2.3 Khởi quẻ bằng ba đồng xu
 
-- Người dùng chọn một việc (Lục Thân tương ứng), khoảng thời gian bắt đầu – kết thúc, và bước quét (theo giờ/2 giờ/ngày).
-- Ứng dụng lặp qua từng mốc thời gian trong khoảng đó, an quẻ và tính điểm Lục Thân cho việc được chọn; nếu điểm vượt ngưỡng "vượng" (`Const.Vuong`) thì liệt kê ngày/giờ đó cùng tên quẻ, quẻ biến, và điểm số của cả 5 Lục Thân vào bảng kết quả (`DataGridView`).
-- Có phím tắt "Hàng ngày" để quét theo từng ngày với ngưỡng "hung" (`Const.Hung`) thay vì vượng.
-- Có thanh tiến trình (`toolStripProgressBar`) hiển thị tiến độ quét.
+Core Coin Casting nằm trong `src/core/coinCasting/`:
 
-## 6. Lưu và tải lại thông tin quẻ đã xem
+- `gieoManHinh.ts`: gieo độc lập ba đồng xu với xác suất 1/2 mỗi mặt.
+- `xacDinhHao.ts`: ánh xạ bốn kết quả Lão Dương/Thiếu Dương/Thiếu Âm/Lão Âm.
+- `adapter.ts`: chuyển sáu hào thành `QueDich`, hỗ trợ cấu trúc 0–6 hào động.
+- `storage.ts`: lưu raw sáu hào, cách gieo, chủ đề/câu hỏi và kết quả nhận diện.
 
-- **Lưu Quẻ** (`LuuQueMenuItem` / `toolStripSave`): cho phép người dùng ghi lại bình chú (`binhchu`) cùng thời điểm xem quẻ vào bảng `InfoQue` trong CSDL, để tra cứu lại sau này (`business.SaveQueInfo`, `dataAccess.SaveQueInfo`).
-- **`frmLoadQue`**: tải danh sách các quẻ đã lưu (`InfoQue`) để xem lại.
+Hai cách gieo:
 
-## 7. In ấn kết quả quẻ
+- **Gieo trên màn hình**: mỗi lần sinh đúng một bộ ba mặt xu; người dùng xác nhận để thêm hào, không có nút gieo lại kết quả đang chờ.
+- **Tôi tự gieo**: người dùng nhập Ngửa/Sấp của ba đồng xu thật rồi xác nhận hào.
 
-- Menu "Dàn trang", "Xem trước bản in", "In" trên form chính dùng `System.Drawing.Printing.PrintDocument`/`PrintPreviewDialog` để xuất bản in nội dung quẻ đang xem ra giấy hoặc PDF ảo.
+Sau Hào 6, thời điểm xác nhận được dùng làm Nhật/Nguyệt Kiến cho tầng luận. Quẻ không có hào động là trạng thái hợp lệ; nhiều hào động được đảo đồng thời khi tạo Quẻ Biến.
 
-## 8. Bình chú Chứng khoán theo quẻ biến (tính năng thử nghiệm)
+**Giới hạn xác minh:** parity với engine cũ đã được test khi đúng một hào động. Các test nhiều hào động mới chứng minh cấu trúc/quẻ hợp lệ và điểm hữu hạn, chưa phải oracle nghiệp vụ độc lập.
 
-- Có sẵn hạ tầng dữ liệu (bảng `QueCK`: Quẻ Chủ – Quẻ Biến – Chú Thích) và hàm tra cứu `business.ChuThichQueChungKhoan`, dùng ý tưởng "quẻ biến" của Kinh Dịch để đưa ra nhận định biến động thị trường chứng khoán.
-- Phần sinh dữ liệu tự động (`TaoQueCK`) đã bị vô hiệu hóa (comment) trong mã nguồn – tính năng coi như đang tạm dừng, chưa hoàn thiện.
+## 3. Kết quả và luận quẻ dùng chung
 
-## 9. Xem quẻ cuộc đời (dự kiến, chưa hoàn thiện)
+`KetQuaXemQue` ghép các phần:
 
-- `business.XacDinhQueCuocDoi` và constructor `QueDich(time, cuocdoi)` cài đặt một biến thể an quẻ dựa trên Thiên Can của năm sinh (Giáp, Ất, Bính...) thay vì Địa Chi năm như quẻ thông thường – dùng để luận một quẻ đại diện cho cả cuộc đời một người.
-- Form giao diện tương ứng (`frmXemQueCuocDoi`, nút `toolStripQueCuocDoi`) đã có nhưng chưa gắn xử lý sự kiện, nên tính năng chưa dùng được từ giao diện.
+1. Hero Quẻ Chính → Quẻ Biến, mức độ thuận lợi và tóm tắt.
+2. Luận theo việc đang hỏi nếu có Dụng Thần.
+3. Căn cứ luận quẻ.
+4. Lịch âm/Can Chi/Tiết Khí/Giờ Hoàng Đạo.
+5. Điểm vượng suy năm Lục Thân.
+6. Chi tiết sáu hào, Nạp Giáp, Thế/Ứng, Tuần Không và Lục Thần.
+7. Provenance: Theo thời gian hoặc Ba đồng xu + cách gieo.
 
-## 10. Tứ Trụ (dự kiến, chưa triển khai)
+Tên Quẻ Chính/Quẻ Biến có thể mở nội dung tra cứu đầy đủ của quẻ; hover hiện phần Giải nghĩa/Dịch/Giảng.
 
-- Có dự án con `TuTru` riêng và mục menu/nút `frmTuTru` mở form tương ứng, nhưng form này hiện chỉ là khung trống – chưa có logic lập lá số Tứ Trụ (Bát Tự).
+Các câu kết luận UI dùng ngưỡng `VUONG=3` và `HUNG=-8` đã có trong engine. Đây là lớp trình bày, không phải mô hình dự báo xác suất.
 
-## 11. Tiện ích khác
+## 4. Lịch âm và Can Chi
 
-- **Xem ngày** (`frmXemNgay`): khung màn hình dự kiến để tra cứu cát/hung của một ngày/tháng/năm cụ thể; hiện phần xử lý còn để trống (chỉ có chú thích mô tả ý tưởng).
-- **Trợ giúp / Bản quyền** (`helpToolStripMenuItem`, `aboutUsToolStripMenuItem`): hộp thoại giới thiệu ứng dụng (`AboutBox`).
-- **Đo thời gian xử lý**: mỗi lần đổi ngày trên lịch, ứng dụng đo và hiển thị thời gian xử lý (`elapseTimetoolStripStatusLabel`) ở thanh trạng thái – phục vụ mục đích theo dõi hiệu năng khi phát triển.
+`tinhAmLich()` bọc `lunar-calendar-ts-vi` để trả:
+
+- ngày/tháng/năm âm và tháng nhuận;
+- Can Chi Giờ/Ngày/Tháng/Năm;
+- Tiết Khí;
+- Giờ Hoàng Đạo.
+
+Quy tắc legacy được giữ: từ 23:00, ngày dùng để tính Can Chi/lịch âm được chuyển sang ngày kế tiếp. Hàm hiện đọc timezone cục bộ từ `Date`; chưa có input timezone IANA.
+
+## 5. Tìm ngày tốt
+
+`TimNgayTot.tsx` gửi yêu cầu sang `timNgayTot.worker.ts` để không chặn UI. Người dùng chọn:
+
+- Lục Thân cần xét;
+- khoảng thời gian;
+- quét mỗi hai giờ với ngưỡng Vượng, hoặc quét hàng ngày theo một giờ cố định với ngưỡng Hung.
+
+Worker trả tiến độ và danh sách mốc đạt điều kiện cùng tên quẻ, quẻ biến và điểm Lục Thân.
+
+## 6. Tra cứu 64 quẻ
+
+`Que64.tsx` kết hợp danh sách và chi tiết:
+
+- lưới 64 quẻ theo dữ liệu Bát Cung;
+- Giải nghĩa, Dịch, Giảng;
+- sáu hào và Dụng Cửu/Dụng Lục khi có;
+- mở trực tiếp từ tên quẻ trong màn kết quả.
+
+Dữ liệu nội dung nằm trong `src/core/data/noiDungQue.json`; đây là nguồn diễn giải riêng, không phải dữ liệu tính toán từ `KinhDich.sdf`.
+
+## 7. Quẻ đã lưu
+
+Có hai kho `localStorage` độc lập:
+
+- `qiching.queInfo.v1`: quẻ theo thời gian, lưu `(time, binhchu)` và tính lại khi xem.
+- `qiching.coinCasting.v1`: quẻ gieo đồng xu, phải lưu raw sáu hào vì không thể tái tạo từ timestamp.
+
+Working tree hiện gộp hai kho ở tầng hiển thị, sắp mới nhất trước và cho xem lại/xóa đúng loại. Export/import JSON **chỉ áp dụng cho quẻ theo thời gian**; Coin Casting chưa có export/import.
+
+## 8. Trình bày và khả năng sử dụng
+
+- Responsive CSS và dark mode theo `prefers-color-scheme`.
+- Màu Ngũ Hành tách khỏi màu trạng thái UX.
+- Tooltip thuật ngữ và nội dung quẻ.
+- In bằng trình duyệt; không có engine PDF riêng.
+- Không có bộ test UI/accessibility tự động được check-in. Tooltip hover hiện chưa đầy đủ cho keyboard/touch.
+
+## 9. Trạng thái kiểm thử
+
+Tại lần rà soát 2026-08-31:
+
+- `npm test`: 8/8 file, 63/63 test pass.
+- `npm run lint`: pass.
+- `npm run build`: pass.
+- Chưa có component/E2E test trong repository.
+- Chưa có golden dataset lớn đối chiếu toàn pipeline với desktop.
+
+## 10. Chưa triển khai hoặc chỉ thuộc legacy
+
+| Tính năng | Trạng thái bản web |
+|---|---|
+| Tứ Trụ | Chưa có code; xem tài liệu 07/08 |
+| Bình chú Chứng khoán | Không migrate |
+| Form Xem ngày cát/hung tổng quát | Không migrate; khác với trang Tìm ngày tốt theo quẻ đã có |
+| ClickOnce/MSI/SQL CE | Chỉ thuộc desktop legacy |
+| Đồng bộ dữ liệu nhiều thiết bị | Chưa có backend; phải dùng export/import thủ công nơi được hỗ trợ |

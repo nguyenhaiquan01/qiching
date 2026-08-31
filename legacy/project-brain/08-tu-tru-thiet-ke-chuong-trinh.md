@@ -1,16 +1,26 @@
 # 08 – Thiết kế chương trình Tứ Trụ (kiến trúc & thuật toán)
 
-**Chưa tạo code.** Tài liệu này chỉ thiết kế kiến trúc, kiểu dữ liệu và thuật toán dựa trên [`07-tu-tru-tinh-toan.md`](./07-tu-tru-tinh-toan.md); việc lập trình thực tế (kể cả file/thư mục nêu ở mục 1) để cho một bước riêng sau khi thiết kế này được duyệt.
+> **Trạng thái sau code review 2026-08-31:** chưa có code Tứ Trụ trong `src/`. Thiết kế này chỉ là proposal dựa trên [`07-tu-tru-tinh-toan.md`](./07-tu-tru-tinh-toan.md), chưa đủ điều kiện triển khai end-to-end. Có thể làm độc lập các bảng/hàm thuần Tàng Can, Thập Thần, Vòng Trường Sinh và nhận diện Ngũ Hợp; `anTru`, mốc khởi Đại Vận, Tam Hội/Bán Hợp, vượng suy có trọng số và nhiều rule Thần Sát vẫn cần contract hoặc nguồn nghiệp vụ được chốt.
+
+Mức sẵn sàng hiện tại:
+
+| Nhóm | Đánh giá |
+|---|---|
+| Kiểu Can/Chi, Tàng Can, Thập Thần, Vòng Trường Sinh, nhận diện cặp Ngũ Hợp | Có thể triển khai theo test table-driven; vẫn phải giữ provenance của bảng nguồn |
+| An bốn trụ từ ngày giờ dương lịch | **Chặn** bởi contract múi giờ, giờ Tý, giờ mặt trời và dữ liệu giao Tiết chính chính xác |
+| Đại Vận | Chiều thuận/nghịch và chuỗi Can-Chi có thể thiết kế; mốc khởi vận chính xác chưa đủ đặc tả |
+| Tam Hợp/Tam Hội/Bán Hợp, vượng suy | Một phần là thiết kế mới, không có oracle từ workbook |
+| Thần Sát | Chỉ có rule trích xuất; phân loại cát/hung, các rule thiếu và các sửa lỗi cần nguồn xác nhận độc lập |
 
 ## 0. Phạm vi & nguyên tắc thiết kế
 
-1. **Chỉ port "Rule workbook"** đã được 07 xác nhận đúng (ví dụ Vòng Trường Sinh, Ngũ Hợp Thiên Can, phần lớn mapping Thần Sát). **Không port "Lỗi workbook"** (danh sách đầy đủ ở 07, mục e/f/g/h/i) — mọi chỗ port phải trỏ lại đúng bảng đã sửa trong 07, không lấy lại giá trị cache hay literal sai chính tả từ Excel.
+1. **Chỉ port có kiểm soát “Rule workbook”** mà 07 đã trích xuất và không phát hiện lỗi nội bộ (ví dụ bảng Vòng Trường Sinh, Ngũ Hợp Thiên Can). “Khớp workbook” chỉ là parity với nguồn tham khảo, không đồng nghĩa đúng nghiệp vụ Bát Tự. **Không port “Lỗi workbook”** (danh sách ở 07, mục e/f/g/h/i); mọi sửa lỗi hoặc rule suy diễn phải mang provenance và test riêng.
 2. **"Rule cần triển khai"** (workbook không tính: đổi lịch dương→Bát Tự, ranh Tiết Khí, thuật toán ngày khởi Đại Vận, Tam Hợp/Tam Hội/Bán Hợp) phải có đặc tả thuật toán rõ ràng + câu hỏi cần chốt (mục 5) trước khi viết test, **không suy đoán rồi code thẳng**.
 3. **Tái dùng tối đa hạ tầng đã có** trong `src/core/` thay vì tạo lại bảng trùng lặp — xem mục 1.2 bảng đối chiếu "đã có / cần thêm".
 4. **Không mô phỏng giới hạn layout của Excel.** Ví dụ: trụ Giờ trong workbook thiếu tàng can thứ 3 vì hết cột — model mới mọi trụ dùng chung một kiểu `TangCan[]` đầy đủ 1-3 phần tử. Tương tự, không dùng `0`/chuỗi rỗng lẫn lộn làm giá trị "không có" — dùng `undefined`/mảng rỗng nhất quán.
 5. **Tách 2 tầng rõ ràng**:
-   - **Tầng lịch pháp** ("an trụ"): từ một thời điểm dương lịch → 4 trụ Can-Chi + Tiết Khí. Đây là tầng duy nhất phụ thuộc thời gian thực và có thể kiểm chứng độc lập bằng lịch vạn niên bên ngoài.
-   - **Tầng luận** (Tàng Can, Thập Thần, Trường Sinh, Ngũ Hợp/Tam Hợp, thống kê Ngũ Hành, Đại Vận, Thần Sát): thuần hàm suy diễn từ 4 trụ Can-Chi + Giới tính, không phụ thuộc gì khác vào thời gian thực → dễ viết test thuần túy (pure function), không cần mock ngày giờ.
+   - **Tầng lịch pháp** (“an trụ”): từ `BirthContext` đã chuẩn hóa → bốn trụ, thời điểm Tiết chính trước/sau và policy đã dùng. Tầng này phụ thuộc múi giờ/dữ liệu thiên văn và phải kiểm chứng bằng oracle độc lập.
+   - **Tầng suy diễn**: Tàng Can, Thập Thần, Trường Sinh, quan hệ Can/Chi và phần lớn Thần Sát là hàm thuần từ bốn trụ. Riêng **mốc khởi Đại Vận** còn phụ thuộc thời điểm sinh và thời điểm giao Tiết chính, nên không được xếp là hàm chỉ nhận bốn trụ + giới tính.
 
 ## 1. Kiến trúc module
 
@@ -20,8 +30,9 @@ Theo đúng phong cách `src/core/` hiện có của phần Kinh Dịch (`busine
 
 ```
 src/core/tuTru/
-├── types.ts              # TruCanChi, TangCan, ThapThan, TrangThaiTruongSinh, LaSoTuTru...
-├── anTru.ts               # tầng lịch pháp: dương lịch → 4 trụ Can-Chi + Tiết Khí (4.1)
+├── types.ts              # BirthContext, policy, TruCanChi, LaSoTuTru, provenance...
+├── solarTerms.ts         # adapter thời điểm 24 tiết khí; không dùng chuỗi tiết-khí-theo-ngày làm ranh
+├── anTru.ts              # BirthContext + solar-term instants → 4 trụ Can-Chi (4.1)
 ├── data/
 │   ├── tangCan.ts         # bảng Tàng Can 12 Địa Chi (4.2, port từ TC tang, đã sửa)
 │   ├── vongTruongSinh.ts  # bảng 10 Can × 12 Chi (4.4, port nguyên trạng từ NN-TC)
@@ -42,7 +53,7 @@ src/core/tuTru/
 | `THIEN_CAN`, `DIA_CHI` (10 Can, 12 Chi) | `core/const.ts` | Toàn bộ enum Can/Chi |
 | `NGU_HANH_THIEN_CAN`, `NGU_HANH_DIA_CHI`, `AM_DUONG_THIEN_CAN`, `AM_DUONG_DIA_CHI` | `core/data/canChi.ts` | Chính là nội dung của `NguhanhThiencan` (`'TC tang'!D17:F36`) trong workbook — **không cần port lại bảng này**, chỉ cần thêm `AM_DUONG_DIA_CHI` (đã có sẵn!) cho phần Tàng Can |
 | `tuongSinh()`, `tuongKhac()` | `core/data/nguHanh.ts` | Suy luận Thập Thần bằng công thức thay vì hard-code ma trận 10×10 của `NN-TC!A1:K11` (xem 4.3) |
-| `tinhAmLich()` | `core/lunar.ts` | Trụ **Ngày** và **Giờ** — xem 4.1, đây là hai trụ duy nhất có thể tái dùng trực tiếp |
+| `tinhAmLich()` | `core/lunar.ts` | Chỉ là **candidate adapter** cho Can-Chi Ngày/Giờ. Không tái dùng trực tiếp trước khi chốt timezone/giờ Tý và có test Bát Tự; `dbexport.test.ts` không kiểm thử lịch pháp |
 
 **Chú ý chính tả**: `DIA_CHI` trong dự án dùng `"Tý"`, `"Tỵ"`; workbook và tài liệu 07 dùng `"Tí"`, `"Tị"`. Toàn bộ bảng dữ liệu mới (Tàng Can, Trường Sinh, Thần Sát...) phải chuẩn hoá theo chính tả `core/const.ts` đang dùng (`Tý`/`Tỵ`) ngay từ lúc khai báo, không giữ chính tả gốc của Excel.
 
@@ -66,6 +77,15 @@ interface TangCanCuaChi {
                           // 07 đã ghi rõ workbook không có trọng số/tên gọi cho 3 vị trí này)
 }
 
+interface BirthContext {
+  localDateTime: string;             // ISO local, ví dụ 1985-01-06T06:00:00; chưa mang offset
+  timeZone: string;                  // IANA, ví dụ Asia/Ho_Chi_Minh
+  gioiTinh: "Nam" | "Nữ";
+  kinhDo?: number;                   // bắt buộc nếu policy dùng giờ mặt trời
+  chinhSachGioTy: "GIU_NGAY" | "DOI_NGAY_LUC_23H";
+  chinhSachThoiGian: "GIO_DAN_SU" | "GIO_MAT_TROI_THUC";
+}
+
 type ThapThan =
   | "Tỉ" | "Kiếp"
   | "Thực" | "Thương"
@@ -78,23 +98,26 @@ type TrangThaiTruongSinh =
   | "Suy" | "Bệnh" | "Tử" | "Mộ" | "Tuyệt" | "Thai" | "Dưỡng";
 
 interface LaSoTuTru {
-  hoTen: string;
-  gioiTinh: "Nam" | "Nữ";
+  hoTen?: string;                    // metadata, không tham gia tính toán
+  input: BirthContext;
   truNam: TruCanChi;
   truThang: TruCanChi;
   truNgay: TruCanChi;   // = Nhật Chủ / bản mệnh nằm ở truNgay.can
   truGio: TruCanChi;
-  tietKhi: string;                 // tiết khí tại thời điểm sinh — xem 4.1
+  tietKhi: string;
+  mocTietChinhTruoc: string;        // instant ISO dùng để audit ranh trụ/mốc Đại Vận
+  mocTietChinhSau: string;
   tangCan: Record<ViTriTru, TangCanCuaChi>;
+  ruleSetVersion: string;           // tránh kết quả cũ đổi âm thầm khi sửa rule
 }
 ```
 
-Các kiểu còn lại (Thần Sát, Đại Vận, thống kê Ngũ Hành) được mô tả trực tiếp trong từng mục 4.x tương ứng để giữ ngữ cảnh.
+`BirthContext` phải được validate trước khi tính: datetime phải tồn tại trong timezone đã chọn (kể cả giờ DST không tồn tại/trùng lặp nếu hỗ trợ ngoài Việt Nam), kinh độ phải có khi dùng giờ mặt trời, và mọi policy phải được lưu cùng kết quả. Các kiểu còn lại (Thần Sát, Đại Vận, thống kê Ngũ Hành) được mô tả trực tiếp trong từng mục 4.x tương ứng để giữ ngữ cảnh.
 
 ## 3. Pipeline tính toán tổng thể
 
 ```
-Ngày giờ sinh (dương lịch) + Giới tính
+BirthContext đã validate + bộ thời điểm Tiết chính
         │
         ▼
 ┌───────────────────────┐
@@ -119,45 +142,43 @@ Ngày giờ sinh (dương lịch) + Giới tính
           │ Hành             │
           └─────────────────┘
 
-  (truNam..truGio, tietKhi, gioiTinh)
+  (bốn trụ)                      (BirthContext + mốc Tiết chính + bốn trụ)
             │
             ▼
-      ┌───────────┐        ┌──────────────┐
-      │ 4.8 Đại   │───────▶│ 4.9 Thần Sát  │  (dùng 4 trụ + kết quả 4.8 làm input,
-      │ Vận       │        │               │   không phụ thuộc 4.3/4.4/4.7)
-      └───────────┘        └──────────────┘
+      ┌──────────────┐            ┌───────────┐
+      │ 4.9 Thần Sát │            │ 4.8 Đại   │
+      │ theo lá số   │            │ Vận       │
+      └──────────────┘            └───────────┘
 ```
 
-Mọi nhánh sau bước 4.1 đều là hàm thuần (pure function) nhận 4 trụ Can-Chi làm input — đúng nguyên tắc tách tầng ở mục 0.5.
+Các module vẫn được viết như hàm thuần, nhưng “thuần” không có nghĩa mọi module chỉ nhận bốn trụ. Hàm Đại Vận phải nhận tường minh `BirthContext`, mốc Tiết chính và policy; không đọc `Date.now()`, timezone máy hoặc state UI ngầm.
 
 ## 4. Thiết kế từng bước
 
 ### 4.1 An 4 trụ Can-Chi + Tiết Khí — tầng lịch pháp
 
-**Trụ Ngày và Giờ**: tái dùng trực tiếp `tinhAmLich(time).thienCanNgay/diaChiNgay` và `.thienCanGio/.diaChiGio`. Hai trụ này đúng theo chu kỳ 60 Can-Chi liên tục, không phụ thuộc ranh giới lịch âm/tiết khí — không có khác biệt giữa "Can Chi ngày Bát Tự" và "Can Chi ngày lịch âm thông thường" mà `tinhAmLich()` đã tính đúng (đã kiểm chứng qua `dbexport.test.ts` của phần Kinh Dịch).
+**Trụ Ngày và Giờ**: có thể khảo sát tái dùng primitive của `tinhAmLich()`, nhưng chưa được gọi trực tiếp từ Tứ Trụ. Hàm hiện dùng `Date` theo timezone môi trường và tự đổi ngày từ 23:00; đó là policy legacy Kinh Dịch, chưa mặc nhiên là policy Bát Tự. Ngoài ra, `dbexport.test.ts` chỉ đối chiếu bảng dữ liệu Kinh Dịch, **không** chứng minh Can-Chi Ngày/Giờ. Cần test riêng hai phía ranh 23:00/00:00, timezone và quy ước giờ Tý trước khi chọn adapter.
 
 **Trụ Năm và Tháng — KHÔNG tái dùng `lunarYearStr`/`lunarMonthStr` của `tinhAmLich()`** (07, mục b, đã cảnh báo rõ: sai ranh quanh Lập Xuân và các Tiết chính). Cần logic mới:
 
-```
-tinhTruNam(time):
-  tietKhiHienHanh = tietKhiTaiThoiDiem(time)      # xem bên dưới
-  namDungDeTinhCan = year(time)
-  if tietKhiHienHanh xảy ra TRƯỚC Lập Xuân của năm dương lịch chứa `time`:
-      namDungDeTinhCan -= 1
+```text
+tinhTruNam(instantSinh, timeZone, solarTerms):
+  localYear = năm dân sự của instantSinh trong timeZone
+  lapXuan = solarTerms.instant("Lập xuân", localYear, timeZone)
+  namDungDeTinhCan = instantSinh < lapXuan ? localYear - 1 : localYear
   can = ((namDungDeTinhCan - 4) mod 10) → THIEN_CAN[...]   # Giáp = năm có (year-4) mod 10 == 0, quy ước chuẩn 60 Giáp Tý
   chi = ((namDungDeTinhCan - 4) mod 12) → DIA_CHI[...]
   return { can, chi }
 
-tinhTruThang(time, truNamCan):
-  tietKhiHienHanh = tietKhiTaiThoiDiem(time)
-  chiThang = mapTietChinhSangChi[tietKhiHienHanh]   # bảng 12 mục đã có sẵn ở 07 mục c:
-                                                      # Lập xuân→Dần, Kinh trập→Mão, ..., Tiểu hàn→Sửu
+tinhTruThang(instantSinh, truNamCan, solarTerms):
+  tietChinhGanNhat = Tiết chính cuối cùng có instant <= instantSinh
+  chiThang = mapTietChinhSangChi[tietChinhGanNhat.ten]
   canThang = suyCanThangTuCanNamVaChiThang(truNamCan, chiThang)  # công thức "Ngũ Hổ Độn" cổ điển —
                                                                     # CẦN XÁC NHẬN, xem mục 5, câu hỏi #1
   return { can: canThang, chi: chiThang }
 ```
 
-`tietKhiTaiThoiDiem(time)`: thư viện `lunar-calendar-ts-vi` mà dự án đang dùng đã trả về `block.airRetention` (tiết khí trong ngày, dùng ở `AmLich.tietKhi`) — cần khảo sát thêm xem thư viện có API trả **thời điểm giao tiết chính xác đến phút** hay chỉ tên tiết khí của ngày hiện tại (đủ để xác định ranh trụ Năm/Tháng nếu chỉ cần độ chính xác theo ngày, nhưng không đủ cho bước tính "số ngày cách tiết" ở Đại Vận — mục 4.8). Đây là điểm kỹ thuật cần xác nhận trước khi code (mục 5, câu hỏi #2).
+`lunar-calendar-ts-vi` hiện được wrapper lấy `block.airRetention`, tức nhãn tiết khí của ngày. Dữ liệu cấp ngày **không đủ** cho người sinh đúng ngày giao tiết và không đủ tính mốc khởi Đại Vận. `solarTerms.ts` vì vậy phải cung cấp instant của ít nhất 24 tiết khí (12 Tiết chính để an tháng, mốc trước/sau theo rule Đại Vận) với timezone rõ ràng; nếu thư viện hiện tại không có API đó thì cần một thuật toán/thư viện thiên văn khác và bộ fixture chuẩn, không được suy phút giao tiết từ chuỗi `airRetention`.
 
 **Bảng chuẩn hoá chính tả** khi lấy input từ `tinhAmLich()` (dùng `Tý`/`Tỵ`) sang các bảng tra Tứ Trụ mới (cũng nên dùng `Tý`/`Tỵ` luôn, không dùng `Tí`/`Tị` của Excel — xem mục 1.2).
 
@@ -209,7 +230,7 @@ Dùng `thapThanCuaCan()` cho: 3 Can lộ (Năm/Tháng/Giờ, không tính Ngày)
 
 ### 4.4 Vòng Trường Sinh — port nguyên bảng
 
-07 xác nhận bảng `vongtruongsinh` (`'NN-TC'!A26:K38`) không có lỗi phát hiện được. Port thẳng làm bảng tra `Record<ThienCan, Record<DiaChi, TrangThaiTruongSinh>>` (12×10 = 120 ô, chép nguyên văn từ bảng đã liệt kê ở 07 mục e).
+07 không phát hiện lỗi nội bộ trong bảng `vongtruongsinh` (`'NN-TC'!A26:K38`). Có thể port làm bảng tra `Record<ThienCan, Record<DiaChi, TrangThaiTruongSinh>>` (12×10 = 120 ô), nhưng test phải đối chiếu đủ 120 ô và ghi rõ đây là parity workbook, chưa phải thẩm định độc lập theo trường phái.
 
 Hàm dùng chung:
 
@@ -279,11 +300,11 @@ interface TrongSoDiemNguHanh {
 }
 ```
 
-Không tự chọn công thức cụ thể ở đây — cần nguồn nghiệp vụ xác nhận trọng số (mục 5, câu hỏi #4). "Được lệnh"/"Không được lệnh" (workbook ô `A34`, dựa trên `truongSinhCuaCanTrenChi(nhatChu, chiThang)` ∈ {Trường sinh, Mộc dục, Quan đới, Lâm quan, Đế vượng}) **có thể port thẳng** vì đây là công thức đã xác nhận đúng, không phải bug.
+Không tự chọn công thức cụ thể ở đây — cần nguồn nghiệp vụ xác nhận trọng số (mục 5, câu hỏi #4). “Được lệnh”/“Không được lệnh” ở ô `A34` có thể được port thành **chỉ số parity workbook** vì 07 không phát hiện lỗi trong công thức; không được coi chỉ số đó là kết luận thân vượng/nhược đầy đủ nếu chưa có nguồn độc lập.
 
 ### 4.8 Đại Vận (và khung Lưu Niên/Tiểu Vận thay thế mục "Niên vận 100 năm" đã hỏng)
 
-**Phần port được (07 mục g, xác nhận đúng)**:
+**Phần có thể port để giữ parity workbook (07 mục g)**:
 
 ```ts
 function chieuDaiVan(canNam: ThienCan, gioiTinh: "Nam" | "Nữ"): "Thuận" | "Nghịch" {
@@ -292,53 +313,69 @@ function chieuDaiVan(canNam: ThienCan, gioiTinh: "Nam" | "Nữ"): "Thuận" | "N
 }
 
 function sinhChuoiDaiVan(truThang: TruCanChi, chieu: "Thuận" | "Nghịch", soVan = 10): TruCanChi[] {
-  // bắt đầu từ can-chi trụ Tháng, +1/-1 mỗi vận theo chỉ số trong THIEN_CAN/DIA_CHI, dùng modulo
-  // thay cho "danh sách lặp 2 vòng" ListThienCan2/ListDiaChi2 của Excel (07 đã đề xuất điều này)
+  // Vận thực thứ nhất là trụ Tháng +1 hoặc -1; không trả chính trụ Tháng ở index 0.
+  // Dùng modulo Can 10/Chi 12 và test qua biên Giáp/Quý, Tý/Hợi.
 }
 ```
 
-**Phần Rule cần triển khai (07 mục c/g đã cảnh báo, KHÔNG suy đoán công thức)**: thuật toán tính "số ngày từ lúc sinh tới Tiết Khí gần nhất" (nhập tay ở `B8` trong workbook) và quy đổi ra tuổi/tháng khởi vận chính xác (không chỉ `ROUND(ngày/3)` theo năm mà còn phần dư tháng/ngày). Cần: (a) xác định thời điểm giao tiết chính xác đến phút quanh ngày sinh (phụ thuộc câu hỏi #2 ở mục 5), (b) chốt quy ước "tuổi" đang dùng là tuổi mụ hay tuổi tây (07 mục g đã nêu, workbook không giải thích) — câu hỏi #5.
+Workbook đặt chính trụ Tháng ở slot đầu rồi mới tăng/giảm; 07 đã ghi rõ chưa đủ bằng chứng coi slot đó là Đại Vận thứ nhất. Model chuẩn hóa ở đây dùng vận thực thứ nhất `±1`; nếu sản phẩm cần hiển thị “trụ tháng gốc”, lưu nó ở trường riêng, không trộn vào `chuoiDaiVan`.
 
-**Thay thế mục "Niên vận 100 năm" đã hỏng nặng của workbook (07 mục h)**: không port lại bảng 100 dòng đó (dependency chéo người, `#REF!`, lookup lệch). Dùng lại đúng công thức đã được 07 xác nhận là rule chuẩn hoá đúng (07, dòng ~254-262), viết thành hàm thuần:
+**Phần Rule cần triển khai (07 mục c/g đã cảnh báo, KHÔNG suy đoán công thức)**: thuật toán chọn **Tiết chính kế tiếp khi Thuận / Tiết chính trước khi Nghịch** (không phải “tiết gần nhất”), tính khoảng thời gian từ lúc sinh và quy đổi thành tuổi/tháng/ngày khởi vận. Cần: (a) thời điểm giao tiết chính xác, (b) công thức quy đổi phần dư, (c) quy ước tuổi hiển thị. `ROUND(số ngày/3)` và nhãn `D8-1` của workbook chỉ là hành vi tham khảo, không phải contract mới.
+
+**Thay thế mục “Niên vận 100 năm” đã hỏng nặng của workbook (07 mục h)**: không port lại bảng 100 dòng đó (dependency chéo người, `#REF!`, lookup lệch). Chỉ sau khi có `MocKhoiVan` đã xác minh mới ánh xạ một thời điểm/tuổi sang vận:
 
 ```ts
-function daiVanTaiTuoi(tuoi: number, tuoiKhoiVan: number, chuoiDaiVan: TruCanChi[]): TruCanChi | null {
-  if (tuoi < tuoiKhoiVan) return null;
-  const index = Math.floor((tuoi - tuoiKhoiVan) / 10);
+interface MocKhoiVan {
+  batDauTai: string;       // instant ISO tính từ rule đã chốt
+  tuoiNam: number;
+  tuoiThang: number;
+  tuoiNgay?: number;
+  ruleSetVersion: string;
+}
+
+function daiVanTaiTuoi(tuoiLienTuc: number, tuoiKhoiVan: number, chuoiDaiVan: TruCanChi[]): TruCanChi | null {
+  if (tuoiLienTuc < tuoiKhoiVan) return null;
+  const index = Math.floor((tuoiLienTuc - tuoiKhoiVan) / 10);
   return chuoiDaiVan[index] ?? null;
 }
 ```
+
+Không truyền “tuổi” mơ hồ từ UI. Tầng application phải quy đổi ngày cần xem sang `tuoiLienTuc` theo contract tuổi đã chốt, hoặc tốt hơn dùng trực tiếp `batDauTai` và khoảng 10 năm theo policy lịch được xác nhận.
 
 Lưu Niên (Can-Chi của năm dương lịch bất kỳ) và Tiểu Vận đều tính được từ hàm thuần tương tự (chu kỳ 60 Can-Chi năm liên tục cho Lưu Niên; công thức Tiểu Vận cần xác nhận lại từ nguồn khác vì 07 ghi nhận cột I/J của workbook "cần xác nhận nghiệp vụ trước khi port" — câu hỏi #6). Quan hệ Can khắc/Chi xung giữa Lưu Niên và trụ Năm/Ngày (cột L/M/P/Q của workbook) tái dùng thẳng bảng `Quanhediachi` (07 đã liệt kê, chỉ cần tách thành tập token `hình/xung/hại/phá/hợp` thay vì so chuỗi nguyên văn như bug đã ghi ở 07 mục h, lỗi #6).
 
 ### 4.9 Thần Sát — rule engine khai báo dữ liệu, thay cho 38 công thức hard-code
 
-07 đã trích xuất mapping của 25 Thần Sát chạy đúng (mục i, bảng "Hàng | Thần Sát | Neo và mapping") kèm 15 lỗi literal/3 lỗi tham chiếu/6 lỗi nhãn cần sửa. Thay vì hard-code từng `IF/AND/OR` như Excel, thiết kế một bảng khai báo dữ liệu + 1 engine chạy chung:
+07 đã trích xuất 25 rule Thần Sát có công thức chạy trong workbook (mục i) kèm 15 lỗi literal, 3 lỗi tham chiếu và 6 lỗi nhãn. “Có công thức chạy” không có nghĩa mapping đã được thẩm định độc lập. Thay vì hard-code từng `IF/AND/OR`, dùng rule khai báo có discriminant, provenance và trạng thái xác minh:
 
 ```ts
-type KieuNeo =
-  | "canNam" | "canNgay"                 // so Can neo với Chi của cả 4 trụ
-  | "chiThang"                            // so Chi Tháng với Can/Chi của trụ khác
-  | "nhomTamHopNam" | "nhomTamHopNgay"    // Chi Năm/Ngày thuộc nhóm Tam Hợp nào → suy 1 Chi mục tiêu
-  | "canChiTruNgay";                      // Can-Chi trụ Ngày là 1 tổ hợp đặc biệt (Khôi Canh, Kim thần...)
-
-interface RuleThanSat {
+interface RuleMetadata {
   ten: string;
-  loai: "cát" | "hung";
-  neo: KieuNeo;
-  mapping: Record<string, DiaChi | DiaChi[] | ThienCan>;  // cụ thể hoá theo từng kieuNeo
+  phanLoai?: "cát" | "hung"; // chỉ điền khi nguồn xác nhận; workbook không có header đủ rõ
+  nguon: { workbookCells: string[]; externalReference?: string };
+  trangThai: "workbook-parity" | "domain-verified";
 }
 
+type RuleThanSat = RuleMetadata & (
+  | { kieu: "can-to-chi"; neo: Array<"canNam" | "canNgay">;
+      mapping: Partial<Record<ThienCan, readonly DiaChi[]>> }
+  | { kieu: "chi-thang-to-target";
+      mapping: Partial<Record<DiaChi, readonly ({ loai: "can"; giaTri: ThienCan } | { loai: "chi"; giaTri: DiaChi })[]>> }
+  | { kieu: "can-chi-pair"; viTri: Array<"ngay" | "gio">; cap: readonly [ThienCan, DiaChi][] }
+  | { kieu: "tam-hop-anchor"; neo: Array<"chiNam" | "chiNgay">;
+      mapping: Partial<Record<DiaChi, readonly DiaChi[]>> }
+);
+
 const BANG_THAN_SAT: RuleThanSat[] = [
-  { ten: "Thiên Ất", loai: "cát", neo: "canNam", mapping: {
+  { ten: "Thiên Ất", kieu: "can-to-chi", neo: ["canNam", "canNgay"],
+    nguon: { workbookCells: ["HQ (2)!178"] }, trangThai: "workbook-parity", mapping: {
       "Giáp": ["Sửu","Mùi"], "Mậu": ["Sửu","Mùi"],
       "Ất": ["Tý","Thân"], "Kỷ": ["Tý","Thân"],
       "Bính": ["Hợi","Dậu"], "Đinh": ["Hợi","Dậu"],
       "Nhâm": ["Mão","Tỵ"], "Quý": ["Mão","Tỵ"],
       "Canh": ["Dần","Ngọ"], "Tân": ["Dần","Ngọ"],
     } },
-  // ... 24 rule còn lại, chép nguyên `mapping` đã sửa lỗi từ 07 mục i, KHÔNG chép lại literal sai
-  //     ("Mẵo"→"Mão", "Qúy"→"Quý", 3 lỗi copy sai Can neo, 6 lỗi nhãn output — xem 07 mục i)
+  // ... các rule còn lại; mỗi correction phải có test + provenance, không sửa âm thầm.
 ];
 
 function chayRuleThanSat(rule: RuleThanSat, boTru: Record<ViTriTru, TruCanChi>): ViTriTru[] {
@@ -346,7 +383,7 @@ function chayRuleThanSat(rule: RuleThanSat, boTru: Record<ViTriTru, TruCanChi>):
 }
 ```
 
-Ưu điểm so với cách của Excel: (1) sửa lỗi một lần trong dữ liệu thay vì rải rác 38 công thức; (2) tự động phủ đủ 4 trụ neo × 4 trụ mục tiêu thay vì phải chép tay từng ô như Excel; (3) dễ viết test — mỗi rule là 1 test case độc lập, dùng chính bảng mapping đã trích ở 07 làm oracle.
+Engine chỉ kiểm tra đúng những vị trí mà từng rule khai báo; **không tự động mở rộng mọi rule thành 4 trụ neo × 4 trụ mục tiêu**, vì việc mở rộng đó có thể đổi nghiệp vụ so với workbook. Test workbook bảo vệ parity; chỉ test từ nguồn độc lập mới được nâng `trangThai` thành `domain-verified`.
 
 **13 tên Thần Sát chưa có công thức trong workbook** (07 mục i: Tam Kỳ, Từ quán, Học đường, Củng lộc, Thiên la, Địa võng, Cấu Giảo, Vong thần, Nguyên thần, Không vong, Thập ác đại bại, Cô Loan, Tứ phế) — **không tự suy đoán mapping**, để trống trong `BANG_THAN_SAT` cho tới khi có nguồn nghiệp vụ khác (câu hỏi #7).
 
@@ -355,30 +392,34 @@ function chayRuleThanSat(rule: RuleThanSat, boTru: Record<ViTriTru, TruCanChi>):
 | # | Câu hỏi | Vì sao chưa tự quyết |
 |---|---|---|
 | 1 | Công thức suy Can trụ Tháng từ Can trụ Năm + Chi trụ Tháng ("Ngũ Hổ Độn") — dùng bảng cố định nào? | Không thấy trong workbook (Can Tháng ở đó là input tay) |
-| 2 | Thư viện `lunar-calendar-ts-vi` có trả được **thời điểm giao tiết chính xác đến phút** không, hay chỉ tên tiết khí theo ngày? | Quyết định việc có tự động hoá được ranh Năm/Tháng và bước "số ngày cách tiết" của Đại Vận hay vẫn phải nhập tay một phần |
+| 2 | Chọn nguồn/thuật toán nào trả **instant giao 24 tiết khí** và bộ fixture chuẩn nào để kiểm chứng? | Wrapper hiện tại chỉ dùng nhãn tiết khí theo ngày; dữ liệu đó không đủ cho ca sinh trong ngày giao tiết và Đại Vận |
 | 3 | Quy tắc Bán Hợp và Tam Hội dùng đúng bản nào (có trường phái khác nhau)? | Workbook không để lại gì để đối chiếu (07 mục f) |
 | 4 | Có cần trọng số vượng suy theo lệnh tháng (Vượng/Tướng/Hưu/Tù/Tử) và theo vị trí Tàng Can (bản/trung/dư khí) ở bản đầu, hay chấp nhận đếm thô như workbook trước? | Ảnh hưởng trực tiếp độ chính xác của phần "luận", cần biết mức ưu tiên |
-| 5 | "Tuổi khởi Đại Vận" hiển thị là tuổi mụ hay tuổi tây? | Workbook không giải thích (07 mục g) |
+| 5 | Công thức quy đổi khoảng cách tới Tiết chính thành năm/tháng/ngày khởi vận và cách hiển thị tuổi là gì? | Workbook chỉ `ROUND(ngày/3)` rồi hiển thị `D8-1`, không đủ làm contract |
 | 6 | Công thức Tiểu Vận (cột I/J của mục "Niên vận 100 năm") lấy từ nguồn nào? | 07 ghi rõ "cần xác nhận nghiệp vụ trước khi port", không tự suy diễn từ code hỏng |
-| 7 | 13 Thần Sát chưa có công thức trong workbook — có cần bổ sung ở bản đầu không, và lấy mapping từ nguồn nào? | Không có gì trong workbook để tham khảo |
+| 7 | 13 Thần Sát chưa có công thức, phân loại cát/hung và 25 mapping hiện có lấy nguồn chuẩn nào? | Workbook không đủ bằng chứng để bổ sung/phân loại hoặc xác nhận các correction |
+| 8 | Bản đầu cố định `Asia/Ho_Chi_Minh` hay cho chọn timezone/nơi sinh; dùng giờ dân sự hay giờ mặt trời thực? | Thay đổi instant và có thể đổi cả bốn trụ ở ca biên |
+| 9 | Quy ước giờ Tý là giữ ngày hay đổi ngày lúc 23:00? | `tinhAmLich()` đang áp policy legacy đổi ngày; chưa được xác nhận cho Tứ Trụ |
 
 ## 6. Chiến lược kiểm thử (khi tới bước viết code)
 
-Theo đúng cách phần Kinh Dịch đã làm (`core/__tests__/dbexport.test.ts` đối chiếu trực tiếp với dữ liệu gốc):
+Áp dụng mô hình table-driven của phần Kinh Dịch, nhưng không coi `core/__tests__/dbexport.test.ts` là test lịch pháp Tứ Trụ:
 
-1. **Test vector từ chính workbook** cho mọi phần đã xác nhận đúng ở 07 (Tàng Can, Vòng Trường Sinh, Ngũ Hợp, 25 rule Thần Sát đã sửa) — dùng lá số mẫu "Tam" (sinh Can Chi Giáp Tý/Đinh Sửu/Ất Tỵ/Canh Thìn) làm ca đầu tiên, kỳ vọng khớp đúng kết quả 07 đã liệt kê (sau khi áp fix).
+1. **Parity workbook** cho Tàng Can, 100 ô Thập Thần, 120 ô Vòng Trường Sinh, 5 cặp Ngũ Hợp và 25 rule Thần Sát. Fixture phải được đưa vào repo ở dạng dữ liệu tối giản có version/checksum; lá số mẫu chỉ là một ca, không đủ phủ bảng.
 2. **Test riêng cho hàm `thapThanCuaCan()`** (4.3) đối chiếu đủ 100 ô của bảng `NN-TC!A1:K11` — không tin hàm đúng chỉ vì "logic nghe hợp lý".
-3. **Ca biên lịch pháp** (4.1) độc lập với workbook: sinh đúng thời điểm giao tiết Lập Xuân (trước/sau vài phút), giờ Tý (23h, đổi ngày), năm nhuận âm lịch — đối chiếu với lịch vạn niên bên ngoài vì workbook không cho ca nào loại này.
-4. **Không dùng lại các ca đã xác nhận hỏng ở 07** (Niên vận 100 năm, Tam Hợp `#NAME?`) làm test oracle — với các phần này phải tự tạo test vector từ nguồn nghiệp vụ khác sau khi trả lời xong mục 5.
+3. **Oracle lịch pháp độc lập**: test trước/đúng/sau Lập Xuân và mỗi Tiết chính vài giây/phút, hai phía 23:00/00:00, nhiều timezone, leap day và thời điểm DST nếu hỗ trợ. Kỳ vọng phải gồm instant Tiết khí và đủ bốn trụ, không chỉ tên tiết của ngày.
+4. **Đại Vận**: fixture phải có ngày giờ sinh, giới tính, chiều, Tiết chính được chọn, khoảng cách, mốc khởi vận và ít nhất ba vận đầu; test rõ vận thứ nhất là `±1` từ trụ Tháng.
+5. **Property/invariant**: Tàng Can luôn 1–3 phần tử hợp lệ; chuỗi Đại Vận tiến/lùi đồng thời Can và Chi; rule engine không đọc vị trí ngoài `neo`; serialize/deserialize giữ nguyên policy + `ruleSetVersion`.
+6. **Không dùng vùng đã hỏng** (Niên vận 100 năm, Tam Hợp `#NAME?`) làm oracle. Rule thiết kế mới chỉ được release sau khi có nguồn và fixture độc lập.
 
 ## 7. Thứ tự triển khai đề xuất
 
-1. `types.ts` + `anTru.ts` (4.1) — cần trả lời câu hỏi #1, #2 trước.
-2. `data/tangCan.ts` (4.2) — không phụ thuộc câu hỏi nào, làm được ngay.
-3. `thapThan.ts` (4.3) + `data/vongTruongSinh.ts` (4.4) — làm song song, không phụ thuộc nhau.
-4. `nguHanhManhYeu.ts` bước 1 (4.7, bản đếm thô) — làm được ngay sau 4.2-4.4.
-5. `daiVan.ts` phần chuỗi 10 vận (4.8, phần port được) — cần câu hỏi #5 để hiển thị tuổi đúng quy ước.
-6. `data/nguHopThienCan.ts` (4.5) và `data/tamHopDiaChi.ts` (4.6) — 4.6 cần câu hỏi #3.
-7. `thanSatEngine.ts` + `data/thanSat.ts` (4.9) — 25 rule đầu làm được ngay, 13 rule còn lại chờ câu hỏi #7.
-8. Lưu Niên/Tiểu Vận (mở rộng 4.8) — Tiểu Vận chờ câu hỏi #6.
-9. `nguHanhManhYeu.ts` bước 2 (4.7, trọng số vượng suy) — chờ câu hỏi #4, có thể làm sau cùng vì không chặn các phần khác.
+1. `types.ts` + validation cho `BirthContext`, policy và provenance; chưa cần viết `anTru`.
+2. `data/tangCan.ts`, `thapThan.ts`, `data/vongTruongSinh.ts`, `data/nguHopThienCan.ts` cùng test phủ toàn bảng.
+3. `nguHanhManhYeu.ts` bước đếm thô; đặt tên rõ là thống kê, không quảng bá thành đánh giá thân vượng/nhược.
+4. Chốt câu hỏi #1, #2, #8, #9 rồi mới làm `solarTerms.ts` + `anTru.ts` và oracle lịch pháp.
+5. `daiVan.ts`: tách `chieuDaiVan`, `sinhChuoiDaiVan` khỏi `tinhMocKhoiVan`; chỉ phần sau bị chặn bởi câu hỏi #2/#5.
+6. `tamHopDiaChi.ts` sau khi chốt #3; không gộp rule đề xuất vào nhóm đã xác minh.
+7. `thanSatEngine.ts` + dữ liệu đã có provenance; rule/phân loại thiếu chờ #7.
+8. Lưu Niên/Tiểu Vận sau khi chốt #6 và có test riêng.
+9. Vượng suy có trọng số sau khi chốt #4; đây là một model versioned riêng, không thay âm thầm kết quả đếm thô.

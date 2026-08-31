@@ -1,5 +1,7 @@
 # 07 – Mô hình tính toán Tứ Trụ (đặc tả từ file Excel tham khảo)
 
+> **Trạng thái sau code review 2026-08-31:** repository chưa có `src/core/tuTru/` hay UI Tứ Trụ. Tài liệu này là kết quả reverse-engineer workbook, không phải bằng chứng độc lập rằng mọi rule đúng với một trường phái Bát Tự. Các mục ghi “rule workbook” chỉ cam kết phản ánh công thức/bảng của file nguồn; các rule đã sửa, suy diễn hoặc còn tranh luận phải có nguồn nghiệp vụ và test vector riêng trước khi đưa vào sản phẩm.
+
 ## Bối cảnh
 
 Trong mã nguồn desktop gốc, `TuTru/` (xem [`01-tong-quan-du-an.md`](./01-tong-quan-du-an.md)) chỉ có một `Form1` rỗng — **chưa từng có logic nghiệp vụ Tứ Trụ nào được lập trình**. Tài liệu này xây dựng lại đặc tả luật tính Tứ Trụ (Bát Tự) bằng cách đọc ngược (reverse-engineer) một file Excel tham khảo do người dùng cung cấp, dùng làm nền tảng nếu sau này triển khai tính năng Tứ Trụ (tương tự cách tài liệu [`05.1-chinh-ui-ux.md`](./05.1-chinh-ui-ux.md) đã dẫn dắt việc redesign trang Xem Quẻ).

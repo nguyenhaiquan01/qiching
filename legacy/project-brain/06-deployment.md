@@ -1,59 +1,240 @@
-# 06 – Deployment cho bản web (Static SPA)
+# 06 – Runbook deployment bản web
 
-## Đặc điểm cần cân nhắc khi chọn nơi deploy
+## 1. Phạm vi và kiến trúc runtime
 
-- Đây là **ứng dụng cá nhân/nghiên cứu**, không phải sản phẩm thương mại nhiều người dùng đồng thời → không cần hạ tầng scale lớn.
-- Sau khi đổi kiến trúc sang **static SPA** (xem `05-ke-hoach-migrate-web.md`) — không còn backend, không còn database server, không còn nhu cầu persistent storage phía server. Toàn bộ ứng dụng chỉ là **HTML/CSS/JS tĩnh** sau khi build (`npm run build`), và dữ liệu "quẻ đã lưu" nằm trong `localStorage` của trình duyệt người dùng, không phải trên server.
-- Vì vậy bài toán deploy chỉ còn là: **host một thư mục file tĩnh**, không cần chọn nơi hỗ trợ .NET/Docker/volume nữa.
+QIChing Web là static SPA React/TypeScript. `npm run build` tạo thư mục `dist/`; Cloudflare
+Pages chỉ phân phối HTML, CSS, JavaScript và dữ liệu tĩnh trong thư mục này. Ứng dụng không có
+backend, API nghiệp vụ, database server hay biến môi trường runtime.
 
-## Lựa chọn deploy
+Dữ liệu người dùng được lưu bằng `localStorage` trong trình duyệt. Vì `localStorage` bị giới hạn
+theo origin, mỗi domain là một kho dữ liệu độc lập. Ứng dụng hiện có export/import JSON cho quẻ
+theo thời gian; dữ liệu Coin Casting chưa tham gia cơ chế sao lưu này.
 
-| Nơi deploy | Chi phí | Độ phức tạp setup | Ghi chú |
-|---|---|---|---|
-| **Cloudflare Pages** | Miễn phí | Rất thấp — kết nối repo Git, tự build & deploy mỗi lần push | **Khuyến nghị hàng đầu** — CDN toàn cầu, HTTPS tự động, không giới hạn băng thông đáng kể cho traffic cá nhân. |
-| **GitHub Pages** | Miễn phí | Rất thấp — bật trong repo settings hoặc dùng GitHub Actions build rồi publish | Đơn giản nhất nếu code đã ở GitHub, không cần tài khoản dịch vụ thứ ba nào khác. |
-| **Netlify** | Miễn phí (tier cá nhân) | Rất thấp — tương tự Cloudflare Pages | Tương đương Cloudflare Pages, UI thân thiện, có preview deploy cho mỗi PR. |
-| **Self-host tại nhà** (Raspberry Pi/NAS + Cloudflare Tunnel) | Miễn phí | Trung bình | Không cần thiết nữa với static site — chỉ hợp lý nếu muốn kiểm soát tuyệt đối, không phụ thuộc dịch vụ ngoài. |
+Ngoại lệ đối với mô hình "tự chứa hoàn toàn": stylesheet hiện tải Google Fonts từ
+`fonts.googleapis.com`/`fonts.gstatic.com`. Logic nghiệp vụ vẫn chạy hoàn toàn phía client, nhưng
+font cần mạng nếu chưa có trong cache.
 
-## Khuyến nghị
+## 2. Hạ tầng Cloudflare Pages hiện hành
 
-**Cloudflare Pages** (hoặc GitHub Pages nếu muốn tối giản tối đa số dịch vụ liên quan): kết nối repo Git, mỗi lần push lên nhánh chính → tự động `npm run build` → publish thư mục `dist/`. Không cần server, không cần Docker, không cần quản lý uptime/restart/volume.
+Hai môi trường là hai Pages project độc lập:
 
-## Kiến trúc deploy đề xuất
+| Môi trường | Pages project | Domain sử dụng | Domain kỹ thuật | Lệnh tiện ích hiện có |
+|---|---|---|---|---|
+| UAT | `qiching-uat` | `https://uat.qiching.org` | `https://qiching-uat.pages.dev` | `npm run deploy:uat` |
+| Production | `qiching` | `https://qiching.org` | `https://qiching.pages.dev` | `npm run deploy:prod` |
 
-```
-┌─────────────────────────────┐
-│  Git push lên nhánh chính    │
-└──────────────┬───────────────┘
-               │ trigger tự động
-               ▼
-┌─────────────────────────────┐
-│  Cloudflare Pages build      │
-│   npm run build → dist/      │
-└──────────────┬───────────────┘
-               │ publish
-               ▼
-┌─────────────────────────────┐
-│  CDN tĩnh (HTML/CSS/JS)      │
-│  + logic an quẻ/lịch âm      │
-│    chạy 100% trong trình     │
-│    duyệt người dùng          │
-│  + localStorage lưu quẻ đã   │
-│    xem (trên máy người dùng) │
-└──────────────┬───────────────┘
-               ▲
-               │ HTTPS (tự động)
-               │
-            Người dùng
+`www.qiching.org` cũng đang trỏ vào production. Domain chuẩn phải là
+`https://qiching.org`; xem chính sách redirect ở mục 8.
+
+Hai project đều có `Git Provider: No`. Cơ chế hiện tại là **Direct Upload bằng Wrangler từ máy
+chạy lệnh**, không phải Cloudflare tự build khi `git push`. Hai script trong `package.json` build
+lại `dist/`, rồi chạy tương đương:
+
+```bash
+wrangler pages deploy dist --project-name=PROJECT_NAME --branch=main
 ```
 
-Ưu điểm so với phương án backend cũ: **không server để vận hành/bảo trì**, chi phí **$0**, deploy chỉ là `git push`, không có khái niệm downtime/restart/cold-start vì không có process server nào chạy liên tục.
+`--branch=main` chọn production environment bên trong từng Pages project. Nó không chứng minh
+working tree thực sự đang checkout nhánh `main`, cũng không chứng minh artifact được tạo từ commit
+mà Cloudflare hiển thị.
 
-## Việc cần làm khi tới bước deploy (không làm ngay bây giờ)
+Có thể kiểm tra trạng thái ngoài Cloudflare bằng CLI cục bộ của dự án:
 
-- Cấu hình `vite.config.ts` với `base` path phù hợp nếu deploy vào subpath (ví dụ GitHub Pages dạng `username.github.io/repo`).
-- Nối domain riêng (nếu có) vào Cloudflare Pages/Netlify — cấu hình DNS, HTTPS tự động cấp.
-- Cân nhắc thêm PWA (service worker) để ứng dụng dùng được offline — hợp lý với kiến trúc static/client-side, không bắt buộc cho lần deploy đầu.
-- Không cần backup dữ liệu phía server; nếu muốn, có thể thêm chức năng "export/import quẻ đã lưu ra file JSON" ở tầng ứng dụng để người dùng tự sao lưu `localStorage`.
-</content>
-</invoke>
+```bash
+npx wrangler pages project list
+npx wrangler pages deployment list --project-name=qiching-uat
+npx wrangler pages deployment list --project-name=qiching
+```
+
+## 3. Ảnh chụp trạng thái đã xác minh
+
+Trạng thái sau chỉ là bằng chứng audit tại ngày **2026-08-31**, không phải cấu hình cố định:
+
+| Môi trường | Source SHA Cloudflare hiển thị | Trạng thái cần lưu ý |
+|---|---|---|
+| UAT | `af0f8aa` | Artifact đang phục vụ không khớp build sạch của SHA này |
+| Production | `469c602` | Artifact không khớp build sạch; SHA cũng thấp hơn `origin/main` lúc audit (`03aac90`) |
+
+Các endpoint chính, asset tĩnh và SPA fallback đều trả HTTP 200 tại thời điểm audit. Build hiện
+tại cũng vượt ngưỡng cảnh báo chunk 500 kB của Vite; đây là việc tối ưu hiệu năng, không phải lỗi
+deploy.
+
+## 4. Blocker: provenance của artifact
+
+Quy trình hiện tại cho phép deploy working tree có thay đổi chưa commit nhưng vẫn gắn deployment
+với SHA của `HEAD` và nhãn branch `main`. Audit đã tái lập được sai lệch này:
+
+| Môi trường | Asset đang phục vụ | Asset từ build sạch của SHA được ghi |
+|---|---|---|
+| UAT | `index-EHcyVPKW.js`, `index-fMQWkTbK.css` | `index-Dxj3mjTF.js`, `index-d4AA3ULX.css` |
+| Production | `index-ZE2D6osP.js`, `index-BsOsaVQB.css` | `index-DDEXsXz8.js`, `index-OzgscMln.css` |
+
+Do đó không được dùng Source SHA trên Cloudflare làm bằng chứng duy nhất để audit hoặc rollback
+những deployment hiện có.
+
+Trước lần phát hành production tiếp theo, quy trình bắt buộc phải bảo đảm:
+
+1. Working tree sạch; source và tài liệu cần phát hành đều đã commit.
+2. Commit đã được push. Production chỉ phát hành commit đã duyệt trên `main` và khớp
+   `origin/main`.
+3. Chạy lint, test và build thành công trước khi upload.
+4. Ghi lại full Git SHA, deployment ID và checksum của `dist/`.
+5. Artifact đã kiểm thử trên UAT phải là chính artifact đưa lên production; không sửa source hoặc
+   build lại bằng dependency/runtime khác ở giữa hai bước.
+
+Các script `deploy:uat`/`deploy:prod` hiện chỉ là lệnh tiện ích và **chưa phải release gate đầy
+đủ**: chúng build lại, không chạy lint/test, không chặn dirty tree và không kiểm tra nhánh. Cần sửa
+script hoặc bổ sung release script/CI riêng; chỉ đặt metadata `--commit-dirty=false` không thay thế
+được việc kiểm tra Git thật.
+
+## 5. Yêu cầu môi trường build
+
+- **Node.js >= 22.12.0**. Đây là giao của yêu cầu Vite 8 và Wrangler 4; nên pin một bản Node LTS
+  cụ thể trong `package.json#engines` và `.nvmrc`/`.node-version`.
+- Cài dependency từ lockfile bằng `npm ci` cho build/release tái lập.
+- Xác thực Cloudflare cho Wrangler (`npx wrangler whoami`). Credential chỉ phục vụ deploy, không
+  được nhúng vào bundle hoặc commit vào Git.
+- Trình duyệt đích phải hỗ trợ JavaScript hiện đại, Web Worker và `localStorage`.
+
+Ứng dụng hiện không cần `.env` để chạy. Nếu sau này thêm biến `VITE_*`, phải nhớ rằng giá trị đó
+được nhúng công khai vào JavaScript khi build và không được dùng để chứa secret.
+
+## 6. Quy trình phát hành
+
+Luồng chuẩn:
+
+```text
+Commit sạch đã push
+        ↓
+npm ci → lint → test → build một lần
+        ↓
+ghi SHA + checksum dist/
+        ↓
+upload UAT → smoke test/nghiệm thu
+        ↓ giữ nguyên artifact
+upload production → smoke test
+```
+
+### 6.1. Chuẩn bị và kiểm tra
+
+```bash
+git status --short
+git branch --show-current
+git rev-parse HEAD
+npm ci
+npm run lint
+npm test
+npm run build
+shasum -a 256 dist/index.html dist/assets/*
+```
+
+`git status --short` phải không có output. Với production, branch phải là `main` và SHA phải khớp
+commit đã duyệt trên remote. Lưu output checksum cùng thông tin release.
+
+Tại lần audit gần nhất, các gate trên working tree khi đó đều đạt: build thành công, lint sạch và
+63/63 test trong 8 test file đạt. Kết quả này không thay thế việc chạy lại gate cho release mới.
+
+### 6.2. Upload UAT
+
+Để giữ đúng một artifact, sau bước build nên upload trực tiếp `dist/` thay vì gọi script tiện ích
+đang build lại. Thay `FULL_GIT_SHA` bằng SHA đầy đủ đã ghi ở bước chuẩn bị:
+
+```bash
+npx wrangler pages deploy dist \
+  --project-name=qiching-uat \
+  --branch=main \
+  --commit-hash=FULL_GIT_SHA
+```
+
+Không sửa source hoặc `dist/` sau khi upload. Thực hiện checklist mục 7 và chỉ tiếp tục khi UAT
+được nghiệm thu.
+
+### 6.3. Upload production
+
+Upload nguyên `dist/` đã kiểm thử trên UAT:
+
+```bash
+npx wrangler pages deploy dist \
+  --project-name=qiching \
+  --branch=main \
+  --commit-hash=FULL_GIT_SHA
+```
+
+Ghi deployment ID, Git SHA và checksum artifact vào biên bản/release note, rồi chạy lại toàn bộ
+smoke test trên domain production.
+
+## 7. Checklist smoke test
+
+### Tự động/từ terminal
+
+- Domain chính trả HTTP 200.
+- `favicon.svg`, JavaScript, CSS và Web Worker được tham chiếu từ `index.html` đều tải được.
+- Một đường dẫn không tồn tại trên server trả về SPA shell thay vì lỗi 404.
+- Deployment mới nhất trong `wrangler pages deployment list` có đúng project và SHA dự kiến.
+
+Ví dụ kiểm tra tối thiểu:
+
+```bash
+curl -fsS https://uat.qiching.org/ > /dev/null
+curl -fsS https://uat.qiching.org/favicon.svg > /dev/null
+curl -fsS https://qiching.org/ > /dev/null
+curl -fsS https://qiching.org/favicon.svg > /dev/null
+```
+
+### Trên trình duyệt
+
+- Mở các màn hình chính và xác nhận không có lỗi console.
+- An quẻ và xem kết quả end-to-end.
+- Chạy “Tìm ngày tốt” để kiểm tra Web Worker.
+- Lưu một quẻ, reload trang và xác nhận dữ liệu còn trong `localStorage`.
+- Kiểm tra export/import JSON cho quẻ theo thời gian; không kỳ vọng dữ liệu Coin Casting được chuyển.
+- Kiểm tra viewport desktop và mobile quan trọng.
+- Production phải hiển thị đúng bản vừa nghiệm thu trên UAT.
+
+## 8. Canonical origin và dữ liệu người dùng
+
+Domain chuẩn của production là `https://qiching.org`. Cần cấu hình redirect vĩnh viễn
+`https://www.qiching.org/*` sang `https://qiching.org/*` trong Cloudflare và kiểm tra lại bằng HTTP
+status/`Location`. `qiching.pages.dev` chỉ là endpoint kỹ thuật, không nên phát cho người dùng như
+URL chính.
+
+Nếu không redirect, dữ liệu đã lưu ở `qiching.org`, `www.qiching.org` và `qiching.pages.dev` không
+nhìn thấy nhau vì đây là ba origin khác nhau. UAT là origin tách biệt theo chủ đích; không dùng dữ
+liệu UAT làm bằng chứng rằng production đã lưu đúng.
+
+## 9. Rollback và khôi phục
+
+1. Dừng các deployment tiếp theo và ghi nhận lỗi, deployment ID, SHA và thời điểm phát hiện.
+2. Xem lịch sử bằng `wrangler pages deployment list --project-name=PROJECT_NAME`.
+3. Chọn deployment production gần nhất đã biết là tốt và dùng chức năng rollback trong Cloudflare
+   Pages dashboard. Nếu có artifact đã lưu và kiểm chứng, có thể upload lại artifact đó.
+4. Chạy lại smoke test trên domain chính sau rollback.
+5. Không suy ra nội dung artifact chỉ từ SHA đối với các deployment cũ đã nêu ở mục 4.
+
+Hiện repo chưa lưu artifact release hay manifest checksum. Đây là khoảng trống cần khắc phục để
+rollback độc lập với dashboard và có thể đối chiếu chính xác nội dung đã phát hành.
+
+## 10. Security, cache và khả năng offline
+
+Repo hiện chưa có `public/_headers` hay cấu hình hosting tương đương. Live response có một số
+header mặc định của Cloudflare như `X-Content-Type-Options` và `Referrer-Policy`, nhưng chưa có
+policy được version hóa trong repo.
+
+Các việc cần thực hiện và kiểm thử riêng trước khi áp dụng production:
+
+- khai báo security headers phù hợp, gồm CSP, HSTS, chống nhúng frame và Permissions Policy;
+- đặt cache dài hạn/`immutable` cho asset có content hash trong `assets/`, nhưng để `index.html`
+  revalidate nhằm tránh giữ HTML trỏ tới asset cũ;
+- ghi lại redirect/domain rule đang nằm trên Cloudflare dashboard;
+- nếu giữ Google Fonts, CSP phải cho phép đúng hai origin font; ưu tiên self-host font nếu cần giảm
+  phụ thuộc mạng và tăng riêng tư;
+- nếu thêm PWA/service worker, kiểm thử chiến lược update và cache để không giữ phiên bản cũ sau
+  release.
+
+## 11. Ghi chú khi thay đổi nền tảng
+
+`vite.config.ts` hiện dùng `base="/"` mặc định, đúng với các custom domain và `pages.dev` ở root.
+Cloudflare Pages cũng đang cung cấp SPA fallback khi không có file `404.html` riêng.
+
+Nếu chuyển sang GitHub Pages ở subpath, phải thay `base`, bổ sung workflow publish và kiểm thử lại
+deep-link/404 fallback. Đây không phải cấu hình của hệ thống đang chạy hiện nay.
