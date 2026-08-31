@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QIChing - Xem quẻ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#574500",
+                    "primary-container": "#a12d2e",
+                    "lacquer-red": "#A12D2E",
+                    "surface-dim": "#e2dabf",
+                    "error-container": "#ffdad6",
+                    "outline-variant": "#dfbfbd",
+                    "inverse-primary": "#ffb3ae",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#ffdad7",
+                    "on-error-container": "#93000a",
+                    "ink-wash": "#4A4A4A",
+                    "surface-bright": "#fff9ed",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#aa3434",
+                    "surface": "#fff9ed",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed-variant": "#474746",
+                    "on-error": "#ffffff",
+                    "secondary": "#745b00",
+                    "on-primary-fixed-variant": "#891b1f",
+                    "surface-variant": "#ebe2c8",
+                    "on-tertiary": "#ffffff",
+                    "background": "#fff9ed",
+                    "on-secondary-container": "#725a00",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed": "#ffe089",
+                    "ink-black": "#1A1A1A",
+                    "surface-container-high": "#f1e8cd",
+                    "primary": "#80141a",
+                    "inverse-on-surface": "#faf0d5",
+                    "outline": "#8b716f",
+                    "primary-fixed-dim": "#ffb3ae",
+                    "tertiary": "#404040",
+                    "on-surface": "#1f1c0b",
+                    "surface-container-highest": "#ebe2c8",
+                    "on-tertiary-fixed": "#1c1b1b",
+                    "surface-container-low": "#fcf3d8",
+                    "paper-shadow": "#E6D9B8",
+                    "surface-container": "#f7eed2",
+                    "secondary-container": "#fcd353",
+                    "secondary-fixed-dim": "#eac243",
+                    "aged-paper": "#F4EBD0",
+                    "on-primary-container": "#ffbeba",
+                    "on-primary-fixed": "#410005",
+                    "on-secondary-fixed": "#241a00",
+                    "on-tertiary-container": "#d0cdcc",
+                    "on-background": "#1f1c0b",
+                    "inverse-surface": "#35301e",
+                    "tertiary-fixed-dim": "#c8c6c5",
+                    "on-surface-variant": "#584140",
+                    "muted-gold": "#C5A021",
+                    "tertiary-container": "#585757",
+                    "tertiary-fixed": "#e5e2e1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "margin-mobile": "20px",
+                    "unit": "8px",
+                    "margin-desktop": "64px",
+                    "container-max": "1100px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": [
+                            "Libre Caslon Text"
+                    ],
+                    "body-lg": [
+                            "Manrope"
+                    ],
+                    "body-md": [
+                            "Manrope"
+                    ],
+                    "headline-md": [
+                            "Libre Caslon Text"
+                    ],
+                    "headline-xl": [
+                            "Libre Caslon Text"
+                    ],
+                    "label-md": [
+                            "Manrope"
+                    ],
+                    "headline-lg": [
+                            "Libre Caslon Text"
+                    ],
+                    "label-sm": [
+                            "Manrope"
+                    ]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-xl": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "500"
+                            }
+                    ]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        body {
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100" height="100" filter="url(%23noise)" opacity="0.05"/></svg>');
+            background-color: #fff9ed; /* background */
+        }
+        .ancient-border {
+            position: relative;
+        }
+        .ancient-border::before, .ancient-border::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 1px solid #4A4A4A;
+        }
+        .ancient-border::before {
+            top: 4px;
+            left: 4px;
+            border-right: none;
+            border-bottom: none;
+        }
+        .ancient-border::after {
+            bottom: 4px;
+            right: 4px;
+            border-left: none;
+            border-top: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface bg-background pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-margin-mobile h-16 z-50 border-b border-ink-wash/10 dark:border-outline-variant/20 bg-surface dark:bg-surface-dim docked full-width top-0 sticky">
+<button class="scale-95 active:opacity-80 transition-all text-ink-wash dark:text-on-surface-variant hover:text-lacquer-red dark:hover:text-primary-container transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="text-headline-lg-mobile font-headline-lg-mobile text-lacquer-red dark:text-primary-container uppercase tracking-wider">QIChing</h1>
+<button class="scale-95 active:opacity-80 transition-all text-ink-wash dark:text-on-surface-variant hover:text-lacquer-red dark:hover:text-primary-container transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 grid grid-cols-4 md:grid-cols-12 gap-gutter">
+<!-- Input Section -->
+<section class="col-span-4 md:col-span-8 md:col-start-3 bg-aged-paper border border-ink-wash/20 p-6 shadow-inner ancient-border mb-8">
+<h2 class="text-label-md font-label-md text-ink-black mb-4 uppercase tracking-widest border-b border-ink-wash/10 pb-2">CÂU HỎI</h2>
+<div class="mb-6">
+<div class="flex flex-col sm:flex-row gap-4">
+<label class="flex items-center space-x-2 cursor-pointer">
+<input checked="" class="form-radio text-lacquer-red focus:ring-lacquer-red" name="question_type" type="radio"/>
+<span class="text-body-md font-body-md text-ink-black">Xem một việc</span>
+</label>
+<label class="flex items-center space-x-2 cursor-pointer">
+<input class="form-radio text-lacquer-red focus:ring-lacquer-red" name="question_type" type="radio"/>
+<span class="text-body-md font-body-md text-ink-black">Xem tổng quan</span>
+</label>
+<label class="flex items-center space-x-2 cursor-pointer">
+<input class="form-radio text-lacquer-red focus:ring-lacquer-red" name="question_type" type="radio"/>
+<span class="text-body-md font-body-md text-ink-black">Quẻ Cuộc Đời</span>
+</label>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+<div>
+<label class="block text-label-sm font-label-sm text-ink-wash mb-1">Chủ đề</label>
+<div class="relative">
+<select class="w-full bg-transparent border-0 border-b border-ink-wash focus:ring-0 focus:border-lacquer-red text-body-md font-body-md py-2 pl-0 pr-8 appearance-none">
+<option>Công việc / Công danh</option>
+<option>Tình cảm / Hôn nhân</option>
+<option>Tài lộc / Đầu tư</option>
+</select>
+<span class="material-symbols-outlined absolute right-0 top-2 pointer-events-none text-ink-wash">arrow_drop_down</span>
+</div>
+</div>
+<div>
+<label class="block text-label-sm font-label-sm text-ink-wash mb-1">Câu hỏi (không bắt buộc)</label>
+<input class="w-full bg-transparent border-0 border-b border-ink-wash focus:ring-0 focus:border-lacquer-red text-body-md font-body-md py-2 px-0 placeholder-ink-wash/50" placeholder="Ví dụ: Tôi có nên nhận công việc mới này không?" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+<div class="col-span-1 md:col-span-2">
+<label class="block text-label-sm font-label-sm text-ink-wash mb-1">Ngày lập quẻ</label>
+<div class="relative">
+<input class="w-full bg-transparent border-0 border-b border-ink-wash focus:ring-0 focus:border-lacquer-red text-body-md font-body-md py-2 pl-0 pr-8" type="date" value="2026-08-30"/>
+</div>
+</div>
+<div class="col-span-1 md:col-span-1">
+<label class="block text-label-sm font-label-sm text-ink-wash mb-1">Giờ</label>
+<div class="relative">
+<input class="w-full bg-transparent border-0 border-b border-ink-wash focus:ring-0 focus:border-lacquer-red text-body-md font-body-md py-2 pl-0 pr-8" type="time" value="15:28"/>
+</div>
+</div>
+<div class="col-span-2 md:col-span-1 flex items-end">
+<button class="w-full bg-lacquer-red text-on-primary text-label-md font-label-md py-3 px-4 rounded-none hover:bg-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                        Lập quẻ
+                    </button>
+</div>
+</div>
+</section>
+<!-- Result Section -->
+<section class="col-span-4 md:col-span-8 md:col-start-3 bg-aged-paper border border-ink-wash/20 p-6 shadow-inner ancient-border">
+<h2 class="text-label-md font-label-md text-ink-black mb-6 uppercase tracking-widest border-b border-ink-wash/10 pb-2">KẾT QUẢ</h2>
+<div class="flex flex-col items-center justify-center mb-8 text-center">
+<div class="flex items-center gap-4 mb-4">
+<h3 class="text-headline-md font-headline-md text-ink-black">ĐỊA THIÊN THÁI</h3>
+<span class="material-symbols-outlined text-ink-wash">arrow_right_alt</span>
+<h3 class="text-headline-md font-headline-md text-ink-wash">THỦY THIÊN NHU</h3>
+</div>
+<span class="inline-block bg-lacquer-red/5 text-lacquer-red text-label-md font-label-md py-1 px-3 border border-lacquer-red/20 rounded-sm">Khá Thuận</span>
+</div>
+<p class="text-body-md font-body-md text-ink-black leading-relaxed mb-8 italic text-center max-w-2xl mx-auto">
+                "Quẻ cho thấy tình thế hiện tại có xu hướng thuận lợi cho việc đang hỏi. Có thể cân nhắc chủ động xúc tiến, nhưng vẫn nên giữ đúng nguyên tắc, tránh chủ quan."
+            </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Điểm thuận -->
+<div>
+<h4 class="text-label-sm font-label-sm text-lacquer-red mb-3 uppercase tracking-widest flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-lacquer-red rounded-full"></span>
+                        ĐIỂM THUẬN
+                    </h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-2 text-body-md font-body-md text-ink-black/80">
+<span class="material-symbols-outlined text-lacquer-red text-[18px] mt-0.5">check</span>
+<span><strong>Thế Tài</strong> — Đoán về vợ, anh chị em dâu, đầy tớ gái. Đoán về của cải, tài sản, tiền bạc, lương thực và những vật dụng quí báu khác.</span>
+</li>
+<li class="flex items-start gap-2 text-body-md font-body-md text-ink-black/80">
+<span class="material-symbols-outlined text-lacquer-red text-[18px] mt-0.5">check</span>
+<span><strong>Quan Quỷ</strong> — Đoán về công danh, cầu quan, quan phù, trường quan, quỉ thần; nữ đoán về hôn nhân, vợ đoán chồng. Đoán về loạn thần, trộm cướp, tôn giáo, nghi ngờ, bệnh tật, thân thể.</span>
+</li>
+</ul>
+</div>
+<!-- Cần lưu ý -->
+<div>
+<h4 class="text-label-sm font-label-sm text-ink-wash mb-3 uppercase tracking-widest flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-ink-wash rounded-full"></span>
+                        CẦN LƯU Ý
+                    </h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-2 text-body-md font-body-md text-ink-black/80">
+<span class="material-symbols-outlined text-ink-wash text-[18px] mt-0.5">warning</span>
+<span><strong>Huynh Đệ</strong> — Anh em, chị em, anh em họ, kết bạn anh em, quan hệ bè bạn.</span>
+</li>
+<li class="flex items-start gap-2 text-body-md font-body-md text-ink-black/80">
+<span class="material-symbols-outlined text-ink-wash text-[18px] mt-0.5">warning</span>
+<span><strong>Tử Tôn</strong> — Con cái, phúc đức.</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-2 pb-safe border-t border-ink-wash/10 dark:border-outline-variant/20 bg-aged-paper dark:bg-surface-container-highest docked full-width bottom-0">
+<button class="flex flex-col items-center justify-center bg-secondary-container dark:bg-lacquer-red text-on-secondary-container dark:text-on-primary rounded-none p-2 Active: scale 0.95x transition-transform duration-150">
+<span class="material-symbols-outlined" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-label-sm font-label-sm mt-1">Xem quẻ</span>
+</button>
+<button class="flex flex-col items-center justify-center text-ink-wash dark:text-on-surface-variant p-2 hover:bg-surface-variant dark:hover:bg-tertiary-container transition-all">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="text-label-sm font-label-sm mt-1">64 Quẻ</span>
+</button>
+<button class="flex flex-col items-center justify-center text-ink-wash dark:text-on-surface-variant p-2 hover:bg-surface-variant dark:hover:bg-tertiary-container transition-all">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="text-label-sm font-label-sm mt-1">Ngày tốt</span>
+</button>
+<button class="flex flex-col items-center justify-center text-ink-wash dark:text-on-surface-variant p-2 hover:bg-surface-variant dark:hover:bg-tertiary-container transition-all">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-label-sm font-label-sm mt-1">Cá nhân</span>
+</button>
+</nav>
+</body></html>

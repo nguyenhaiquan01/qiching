@@ -16,6 +16,7 @@ export function QueDichView({
   vietNhanManh,
   tieuDe,
   noiBatVach,
+  onXemChiTiet,
 }: {
   que: QueDich;
   /** Lục Thân cần nhấn mạnh (tô đậm) — dùng cho tính năng "xem quẻ theo chủ đề". */
@@ -26,6 +27,9 @@ export function QueDichView({
    * người xem thấy ngay "hào nào động → biến thành hào nào" giữa 2 quẻ (mục 5, "phải làm
    * nổi bật transformation" của `05.1. Chỉnh UI-UX.md`). */
   noiBatVach?: number;
+  /** Bấm vào tên quẻ để xem trang chi tiết đầy đủ (tab "64 Quẻ Kinh Dịch") — nhận
+   * `tenQueChuan`. Không truyền thì tên quẻ chỉ hiện hover popup như cũ. */
+  onXemChiTiet?: (tenQueChuan: string) => void;
 }) {
   const noiDung = timNoiDungQue(que.tenQueDich);
 
@@ -34,7 +38,17 @@ export function QueDichView({
       {tieuDe && <div className="que-dich-cung">{tieuDe}</div>}
       <div className="que-dich-ten">
         {noiDung ? (
-          <HoverInfo trigger={que.tenQueDich}>
+          <HoverInfo
+            trigger={
+              onXemChiTiet ? (
+                <button type="button" className="que-dich-ten-link" onClick={() => onXemChiTiet(que.tenQueDich)}>
+                  {que.tenQueDich}
+                </button>
+              ) : (
+                que.tenQueDich
+              )
+            }
+          >
             <h4>Giải nghĩa</h4>
             <p>{noiDung.giaiNghia}</p>
             <h4>Dịch</h4>

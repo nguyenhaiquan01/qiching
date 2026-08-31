@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LUC_THAN, VUONG, HUNG, ThoiDiem } from "../core/const";
 import type { DongKetQua, ThongDiepTuWorker, YeuCauTimNgayTot } from "../core/timNgayTot.worker";
+import { CHU_DE } from "../ui/luanQue";
 
 function themNgay(ngay: string, soNgay: number): string {
   const d = new Date(ngay);
@@ -14,7 +15,7 @@ export function TimNgayTot() {
   const [ngayBatDau, setNgayBatDau] = useState(homNay);
   const [ngayKetThuc, setNgayKetThuc] = useState(themNgay(homNay, 15));
   const [gioHangNgay, setGioHangNgay] = useState("12:00");
-  const [viec, setViec] = useState<string>(LUC_THAN[0]);
+  const [viec, setViec] = useState<string>(CHU_DE[0].lucThan);
 
   const [dangChay, setDangChay] = useState(false);
   const [tienDo, setTienDo] = useState({ daXuLy: 0, uocLuongTong: 1 });
@@ -74,6 +75,8 @@ export function TimNgayTot() {
   };
 
   const phanTramTienDo = Math.min(100, Math.round((tienDo.daXuLy / tienDo.uocLuongTong) * 100));
+  const viecDaChon = CHU_DE.find((cd) => cd.lucThan === viec);
+  const nhanCotViec = viecDaChon ? `${viecDaChon.nhan} (${viecDaChon.lucThan})` : viec;
 
   return (
     <div>
@@ -91,9 +94,9 @@ export function TimNgayTot() {
           <div className="truong">
             <label htmlFor="viec">Việc</label>
             <select id="viec" value={viec} onChange={(e) => setViec(e.target.value)}>
-              {LUC_THAN.map((lt) => (
-                <option key={lt} value={lt}>
-                  {lt}
+              {CHU_DE.map((cd) => (
+                <option key={cd.nhan} value={cd.lucThan}>
+                  {cd.nhan}
                 </option>
               ))}
             </select>
@@ -142,7 +145,7 @@ export function TimNgayTot() {
                   <th>Ngày giờ</th>
                   <th>Quẻ dịch</th>
                   <th>Quẻ biến</th>
-                  <th>{viec}</th>
+                  <th>{nhanCotViec}</th>
                   {LUC_THAN.map((lt) => (
                     <th key={lt}>{lt}</th>
                   ))}

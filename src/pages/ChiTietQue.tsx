@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { HinhQue } from "../components/HinhQue";
 import type { NoiDungQueRow } from "../core/data/noiDungQue";
 
@@ -16,6 +17,12 @@ export function ChiTietQue({
   onChon: (que: NoiDungQueRow) => void;
   onVeDanhSach: () => void;
 }) {
+  // Cuộn lên đầu trang mỗi khi chuyển sang xem một quẻ khác — tránh vẫn ở vị trí cuộn cũ
+  // (ví dụ khi bấm tên quẻ từ trang Xem quẻ, hoặc bấm quẻ trước/sau).
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [que.tenQueChuan]);
+
   return (
     <div>
       <div className="hang-form khong-in" style={{ marginBottom: 12 }}>
@@ -69,7 +76,7 @@ export function ChiTietQue({
         <h2>Hào Từ</h2>
         {que.haoTu
           .slice()
-          .sort((a, b) => b.vach - a.vach)
+          .sort((a, b) => a.vach - b.vach)
           .map((h) => (
             <div key={h.vach} className="hao-tu-chi-tiet">
               <h3>

@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "deploy:uat": "npm run build && wrangler pages deploy dist --project-name=qiching-uat --branch=main",
+    "deploy:prod": "npm run build && wrangler pages deploy dist --project-name=qiching --branch=main"
   },
   "dependencies": {
     "lunar-calendar-ts-vi": "^1.0.2",
@@ -24,6 +26,7 @@
     "oxlint": "^1.79.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.2",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "wrangler": "^4.127.1"
   }
 }

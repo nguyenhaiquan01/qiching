@@ -31,7 +31,15 @@ function denChuoiGio(d: Date): string {
  * Câu hỏi → Kết quả → Luận giải → Căn cứ → Chi tiết chuyên môn, thay vì chỉ hiển thị dữ liệu
  * thô rồi để người dùng tự diễn giải.
  */
-export function XemQue({ thoiDiemBanDau }: { thoiDiemBanDau?: Date }) {
+export function XemQue({
+  thoiDiemBanDau,
+  onXemChiTietQue,
+}: {
+  thoiDiemBanDau?: Date;
+  /** Điều hướng sang trang chi tiết của một quẻ (tab "64 Quẻ Kinh Dịch") — dùng khi người
+   * dùng bấm vào tên quẻ chính/quẻ biến ở phần "Chi tiết Lục Hào". */
+  onXemChiTietQue?: (tenQueChuan: string) => void;
+}) {
   const gio = thoiDiemBanDau ?? new Date();
   const [ngayStr, setNgayStr] = useState(denChuoiNgay(gio));
   const [gioStr, setGioStr] = useState(denChuoiGio(gio));
@@ -55,7 +63,12 @@ export function XemQue({ thoiDiemBanDau }: { thoiDiemBanDau?: Date }) {
 
   const { que, loi } = useMemo(() => {
     try {
-      const q = loaiQue === "cuoc-doi" ? new QueDich(thoiDiem, true) : new QueDich(thoiDiem);
+      if (loaiQue === "cuoc-doi") {
+        const q = new QueDich(thoiDiem, true);
+        q.giaiQueCuocDoi();
+        return { que: q, loi: null as string | null };
+      }
+      const q = new QueDich(thoiDiem);
       q.giaiQue();
       return { que: q, loi: null as string | null };
     } catch (e) {
@@ -228,9 +241,14 @@ export function XemQue({ thoiDiemBanDau }: { thoiDiemBanDau?: Date }) {
               </span>
             </p>
             <div className="que-dich-view">
-              <QueDichView que={que} vietNhanManh={dungThan} tieuDe="Quẻ chính" />
+              <QueDichView que={que} vietNhanManh={dungThan} tieuDe="Quẻ chính" onXemChiTiet={onXemChiTietQue} />
               {que.queDichBien && (
-                <QueDichView que={que.queDichBien} tieuDe="Quẻ biến" noiBatVach={que.queBien} />
+                <QueDichView
+                  que={que.queDichBien}
+                  tieuDe="Quẻ biến"
+                  noiBatVach={que.queBien}
+                  onXemChiTiet={onXemChiTietQue}
+                />
               )}
             </div>
           </div>

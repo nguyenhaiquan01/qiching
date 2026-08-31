@@ -5,9 +5,13 @@ import { ChiTietQue } from "./ChiTietQue";
 
 const DANH_SACH = NOI_DUNG_QUE.slice().sort((a, b) => a.soThuTu - b.soThuTu);
 
-/** Tab "64 Quẻ Kinh Dịch" — danh sách + chi tiết, tương tự cohoc.net/64-que-dich.html. */
-export function Que64() {
-  const [dangXem, setDangXem] = useState<NoiDungQueRow | null>(null);
+/** Tab "64 Quẻ Kinh Dịch" — danh sách + chi tiết, tương tự cohoc.net/64-que-dich.html.
+ * `queMoDau` (tenQueChuan) cho phép mở thẳng trang chi tiết một quẻ — dùng khi điều hướng
+ * từ trang Xem quẻ (bấm vào tên quẻ chính/quẻ biến). */
+export function Que64({ queMoDau }: { queMoDau?: string }) {
+  const [dangXem, setDangXem] = useState<NoiDungQueRow | null>(
+    () => (queMoDau ? (DANH_SACH.find((q) => q.tenQueChuan === queMoDau) ?? null) : null),
+  );
 
   if (!dangXem) {
     return <DanhSachQue danhSach={DANH_SACH} onChon={setDangXem} />;

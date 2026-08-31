@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Manrope:wght@200..800&display=swap');
+
+/*
+ * Theme "Địa Thiên Thái" (Stitch UI Redesign) — áp cho toàn bộ app (class `.theme-stitch` đặt
+ * ở `.app-shell` trong App.tsx).
+ * Chỉ override các CSS custom properties dùng chung (định nghĩa ở index.css) trong phạm vi
+ * `.theme-stitch`, để toàn bộ style có sẵn (.the, .nut, .hero-*, .vuong-suy-*, .hao-*...) tự
+ * đổi màu theo mà không phải viết lại từng rule. Các rule bên dưới chỉ bổ sung phần Stitch
+ * không có tương đương sẵn: khung giấy cổ 4 góc, font tiêu đề, input dạng gạch chân.
+ */
+.theme-stitch {
+  --bg: #fff9ed;
+  --bg-elevated: #f4ebd0;
+  --text: #1a1a1a;
+  --text-dim: #4a4a4a;
+  --border: rgba(74, 74, 74, 0.28);
+  --accent: #a12d2e;
+  --accent-text: #ffffff;
+  --success: #a12d2e;
+  --success-bg: rgba(161, 45, 46, 0.06);
+  --warning: #745b00;
+  --warning-bg: rgba(197, 160, 33, 0.12);
+  --danger: #80141a;
+  --danger-bg: rgba(128, 20, 26, 0.08);
+  /* index.css chỉ khai báo 2 biến này ở :root dưới dạng var(--text)/var(--bg) — nếu không
+   * override lại ở đây, chúng "khóa cứng" theo giá trị --text/--bg của :root lúc trình duyệt
+   * ở dark mode (gần trắng) thay vì theo bảng màu đã đổi riêng cho theme này, khiến vạch
+   * hào dương gần như biến mất trên điện thoại để dark mode. */
+  --hao-duong: var(--text);
+  --hao-am-gap: var(--bg);
+
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  color: var(--text);
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at 20% 20%, rgba(197, 160, 33, 0.07) 0, transparent 30%),
+    radial-gradient(circle at 80% 5%, rgba(161, 45, 46, 0.06) 0, transparent 26%);
+  padding: 4px 0 8px;
+}
+
+.theme-stitch .the {
+  border-radius: 0;
+  border-color: var(--border);
+  box-shadow: inset 0 1px 8px rgba(26, 26, 26, 0.07);
+  position: relative;
+}
+
+.theme-stitch .the::before,
+.theme-stitch .the::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--text-dim);
+  pointer-events: none;
+}
+
+.theme-stitch .the::before {
+  top: 4px;
+  left: 4px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.theme-stitch .the::after {
+  bottom: 4px;
+  right: 4px;
+  border-left: none;
+  border-top: none;
+}
+
+.theme-stitch .the h2 {
+  font-size: 0.8rem;
+  letter-spacing: 0.13em;
+  color: var(--text);
+  border-bottom: 1px solid rgba(74, 74, 74, 0.15);
+  padding-bottom: 8px;
+  margin-bottom: 18px;
+}
+
+.theme-stitch .truong label {
+  letter-spacing: 0.04em;
+}
+
+.theme-stitch .truong input,
+.theme-stitch .truong select {
+  border: 0;
+  border-bottom: 1px solid rgba(74, 74, 74, 0.5);
+  border-radius: 0;
+  background: transparent;
+  padding: 8px 0;
+}
+
+.theme-stitch .truong input:focus,
+.theme-stitch .truong select:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.theme-stitch input[type="radio"] {
+  accent-color: var(--accent);
+}
+
+.theme-stitch .nut {
+  border-radius: 0;
+  border: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 12px 18px;
+}
+
+.theme-stitch .nut.phu {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.theme-stitch .hero-que-ten,
+.theme-stitch .que-dich-ten {
+  font-family: "Libre Caslon Text", "Times New Roman", serif;
+}
+
+.theme-stitch .hero-badge {
+  border-radius: 2px;
+  border: 1px solid currentColor;
+}
+
+.theme-stitch .hero-badge-canThanTrong {
+  background: var(--danger);
+  color: #fff;
+}
+
+.theme-stitch .vuong-suy-thanh.am {
+  background: var(--text-dim);
+}
+
+.theme-stitch .luoi-can-chi .o {
+  border-radius: 0;
+  border-color: var(--border);
+}
+
+.theme-stitch .the-que,
+.theme-stitch .dong-luu,
+.theme-stitch .diem-luc-than .o {
+  border-radius: 0;
+}
