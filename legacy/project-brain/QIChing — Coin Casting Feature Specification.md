@@ -38,8 +38,8 @@ Sau khi hoàn thành sáu hào, cả hai phải tạo ra cùng một domain inpu
 - Xác định Động/Tĩnh.
 - Xác định hào động.
 - Sinh Quẻ Chính.
-- Sinh Quẻ Biến khi có hào động.
-- Tái sử dụng engine Lục Hào hiện tại.
+- Sinh Quẻ Biến khi có một hoặc nhiều hào động.
+- Tái sử dụng engine Lục Hào hiện tại (mở rộng theo quy trình Section 3.1.1 nếu cần hỗ trợ nhiều hào động).
 - Lưu raw casting data.
 - Lưu phương pháp khởi quẻ.
 - Hiển thị lịch sử gieo khi xem lại quẻ.
@@ -55,7 +55,9 @@ Sau khi hoàn thành sáu hào, cả hai phải tạo ra cùng một domain inpu
 - “Thử vận may”.
 - “Gieo lại vì quẻ không mong muốn”.
 - Phương pháp Hai Số.
-- Thay đổi engine luận Lục Hào.
+- Thay đổi thuật toán Mai Hoa Dịch Số (an quẻ theo thời gian) hiện có — luồng khởi quẻ theo thời gian phải cho kết quả y hệt trước khi có Coin Casting.
+
+Việc **mở rộng** engine luận Lục Hào để hỗ trợ nhiều hào động cùng lúc (do Coin Casting có thể tạo ra) là cần thiết và được phép — xem quy trình bắt buộc ở Section 3.1.1.
 
 ---
 
@@ -82,6 +84,23 @@ LUẬN QUẺ
 ```
 
 Coin Casting module không chứa hoặc duplicate business logic luận Lục Hào.
+
+---
+
+## 3.1.1 Ngoại lệ đã chốt: engine hiện tại chỉ hỗ trợ đúng 1 hào động — được phép mở rộng, có quy trình bắt buộc
+
+Mai Hoa Dịch Số (thuật toán theo thời gian hiện có) luôn cho **đúng một** hào động — `business.bienQue()` và `QueDich.tinhDiemHao()` được viết theo giả định đó (một `queBien: number` duy nhất, không phải tập hợp).
+
+Coin Casting không có giả định đó: với xác suất mỗi hào động độc lập = 1/4, một lần gieo sáu hào có thể ra **0 hào động** (~17.8%), **1 hào động** (~35.6%), hoặc **từ 2 hào động trở lên** (~46.6%). Trường hợp ≥2 hào động là phổ biến, không phải edge case.
+
+**Quyết định**: được phép sửa/mở rộng engine luận Lục Hào để hỗ trợ 0–6 hào động đồng thời. Việc này phải theo đúng quy trình sau, không được code thẳng:
+
+1. **Đưa ra solution proposal trước** — mô tả rõ thay đổi ở `business.bienQue()`/`QueDich.tinhDiemHao()`/`QueDich.napGiap()` (hoặc thiết kế thay thế), dạng tài liệu thiết kế, chưa viết code.
+2. **Review kỹ solution đó** trước khi bắt đầu implement — đặc biệt phần suy Quẻ Biến và tính điểm vượng suy khi có nhiều hào động cùng lúc (hiện `tinhDiemHao()` chỉ cộng điểm Ngũ Hành của một hào động duy nhất).
+3. **Có bộ regression test cho toàn bộ case đúng hiện tại trước khi sửa** — bộ test hiện có ở `src/core/__tests__/` (5 file: `business.test.ts`, `dbexport.test.ts`, `noiDungQue.test.ts`, `que6Hao.test.ts`, `storage.test.ts`, tổng 43 test, đối chiếu trực tiếp với dữ liệu gốc `KinhDich.sdf`) **phải tiếp tục pass 100% không đổi** sau khi sửa engine — đây là oracle cho luồng Mai Hoa Dịch Số (đúng 1 hào động), không được để hồi quy.
+4. **Bổ sung test case mới cho Coin Casting** bao phủ đủ 0 hào động, 1 hào động, và ≥2 hào động (kể cả trường hợp 6/6 hào đều động), trước khi coi thay đổi engine là hoàn tất.
+
+Không thay đổi engine nếu chưa qua đủ 4 bước trên.
 
 ---
 
@@ -489,6 +508,8 @@ Existing Liu Yao Engine
 Existing Result / Interpretation
 ```
 
+`Existing Liu Yao Engine` ở đây là engine **sau khi** đã được mở rộng để hỗ trợ 0–6 hào động theo đúng quy trình ở Section 3.1.1 — không phải bản hiện tại (chỉ hỗ trợ 1 hào động) dùng nguyên trạng.
+
 Không copy logic Lục Hào vào Coin Casting module.
 
 `CoinCastingAdapter` truyền vào Existing Liu Yao Engine đúng hai nhóm input độc lập:
@@ -670,6 +691,14 @@ Sau khi lập đủ sáu hào, hệ thống tái sử dụng engine Lục Hào h
 
 Bước luận giải dùng `createdAt` (thời điểm xác nhận Hào 6) để tính Nhật Kiến/Nguyệt Kiến; thay đổi `createdAt` không được làm thay đổi Âm/Dương, Động/Tĩnh hay hào động của bất kỳ hào nào đã lập.
 
+### AC-22
+
+Một quẻ có thể có 0, 1, hoặc từ 2 đến 6 hào động cùng lúc; Quẻ Biến và điểm vượng suy Lục Thân phải tính đúng cho mọi số lượng hào động, không chỉ trường hợp đúng 1 hào động của Mai Hoa Dịch Số.
+
+### AC-23
+
+Toàn bộ 43 test hiện có ở `src/core/__tests__/` (luồng Mai Hoa Dịch Số) tiếp tục pass không đổi sau khi engine được mở rộng cho Coin Casting.
+
 ---
 
 # 20. QA decision table
@@ -712,7 +741,9 @@ Feature được coi là hoàn thành khi:
 - không thể reroll trong screen mode;
 - physical mode xử lý được lỗi nhập;
 - raw casting data được persist;
-- existing Liu Yao engine được tái sử dụng;
+- existing Liu Yao engine hỗ trợ đúng 0–6 hào động, theo solution đã được review (Section 3.1.1) — không phải bản cũ chỉ hỗ trợ 1 hào động;
+- toàn bộ 43 test hiện có của luồng Mai Hoa Dịch Số vẫn pass 100% sau khi engine thay đổi (AC-23);
+- có test case mới cho Coin Casting ở đủ các mức 0/1/≥2 hào động;
 - desktop và mobile hoàn thành;
 - accessibility cơ bản đạt yêu cầu;
 - QA pass toàn bộ decision table;
