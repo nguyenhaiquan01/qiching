@@ -215,13 +215,8 @@
 }
 
 .hover-bang {
-  position: absolute;
+  position: fixed;
   z-index: 30;
-  top: 100%;
-  left: 0;
-  margin-top: 6px;
-  width: min(420px, 80vw);
-  max-height: 340px;
   overflow-y: auto;
   background: var(--bg-elevated);
   border: 1px solid var(--border);

@@ -3,8 +3,8 @@ import { HoverInfo } from "../components/HoverInfo";
 import type { NoiDungQueRow } from "../core/data/noiDungQue";
 
 /** Danh sách 64 quẻ theo đúng thứ tự (tương tự cohoc.net/64-que-dich.html) — bấm vào một
- * quẻ để xem trang chi tiết, rê chuột vào ô quẻ để xem nhanh Giải nghĩa (cùng cơ chế
- * `HoverInfo` dùng ở phần Lập Quẻ/Kết quả). */
+ * quẻ để xem trang chi tiết, rê chuột vào ô quẻ để xem nhanh Giải nghĩa + Thoán Từ (cùng cơ
+ * chế `HoverInfo` dùng ở phần Lập Quẻ/Kết quả). */
 export function DanhSachQue({
   danhSach,
   onChon,
@@ -33,6 +33,9 @@ export function DanhSachQue({
           >
             <h4>Giải nghĩa</h4>
             <p>{q.giaiNghia}</p>
+            <h4>Thoán Từ</h4>
+            {q.thoanTu.hanTu && <p className="han-tu">{q.thoanTu.hanTu}</p>}
+            <p>{q.thoanTu.dich}</p>
           </HoverInfo>
         ))}
       </div>

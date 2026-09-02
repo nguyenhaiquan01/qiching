@@ -16,6 +16,7 @@ export function DanhSachHaoDich({
   noiDung,
   vietNhanManh,
   noiBatVach,
+  anVach,
 }: {
   que: QueDich;
   /** Nội dung Hào Từ dùng cho popup hover — không có thì chỉ hiện nạp giáp, không hover được. */
@@ -24,6 +25,9 @@ export function DanhSachHaoDich({
   vietNhanManh?: string;
   /** Vị trí hào (1-6) cần tô đỏ cưỡng bức — xem ghi chú ở `QueDichView`. */
   noiBatVach?: number | number[];
+  /** Ẩn cột vạch Âm/Dương — dùng khi trang đã vẽ hình quẻ riêng bên cạnh (`ChiTietQue`), tránh
+   * lặp lại cùng một thông tin hai lần. */
+  anVach?: boolean;
 }) {
   return (
     <>
@@ -42,16 +46,6 @@ export function DanhSachHaoDich({
         );
         return (
           <div key={i} className={`hao-hang${laDong ? " dong" : ""}`}>
-            <div className="hao-vach">
-              {vachAm(que.tenQueThuong, que.tenQueHa, i) ? (
-                <>
-                  <span className="thanh" />
-                  <span className="thanh" />
-                </>
-              ) : (
-                <span className="thanh" />
-              )}
-            </div>
             <div className="hao-nhan" style={{ fontWeight: daDam ? 700 : undefined }}>
               {haoTu ? (
                 <HoverInfo trigger={nhan}>
@@ -62,6 +56,18 @@ export function DanhSachHaoDich({
                 nhan
               )}
             </div>
+            {!anVach && (
+              <div className="hao-vach">
+                {vachAm(que.tenQueThuong, que.tenQueHa, i) ? (
+                  <>
+                    <span className="thanh" />
+                    <span className="thanh" />
+                  </>
+                ) : (
+                  <span className="thanh" />
+                )}
+              </div>
+            )}
             <div className="hao-than">{hao.than}</div>
           </div>
         );
