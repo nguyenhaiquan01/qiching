@@ -1,6 +1,6 @@
 # 08 – Thiết kế chương trình Tứ Trụ (kiến trúc & thuật toán)
 
-> **Trạng thái sau code review 2026-08-31:** chưa có code Tứ Trụ trong `src/`. Thiết kế này chỉ là proposal dựa trên [`07-tu-tru-tinh-toan.md`](./07-tu-tru-tinh-toan.md), chưa đủ điều kiện triển khai end-to-end. Có thể làm độc lập các bảng/hàm thuần Tàng Can, Thập Thần, Vòng Trường Sinh và nhận diện Ngũ Hợp; `anTru`, mốc khởi Đại Vận, Tam Hội/Bán Hợp, vượng suy có trọng số và nhiều rule Thần Sát vẫn cần contract hoặc nguồn nghiệp vụ được chốt.
+> **Trạng thái sau code review 2026-08-31:** chưa có code Tứ Trụ trong `src/`. Thiết kế này chỉ là proposal dựa trên [`07-tu-tru-tinh-toan.md`](./07-tu-tru-tinh-toan.md), chưa đủ điều kiện triển khai end-to-end. Có thể làm độc lập các bảng/hàm thuần Tàng Can, Thập Thần, Vòng Trường Sinh và nhận diện Ngũ Hợp; `anTru`, mốc khởi Đại Vận, Bán Hợp, vượng suy có trọng số và nhiều rule Thần Sát vẫn cần contract hoặc nguồn nghiệp vụ được chốt. (Cập nhật 2026-09-02: quy tắc Tam Hội — hội theo phương — đã được người dùng xác nhận, xem mục 4.6; vẫn chưa có code.)
 
 Mức sẵn sàng hiện tại:
 
@@ -279,7 +279,9 @@ const TAM_HOP: ReadonlyArray<{ nhom: [DiaChi, DiaChi, DiaChi]; hoaHanh: string }
 
 - **Tam Hợp**: 3 trong 4 Chi của lá số trùng đủ 1 bộ trên.
 - **Bán Hợp**: 2 trong 3 Chi của một bộ Tam Hợp cùng có mặt, **và** một trong hai Chi đó là Chi "vượng" của bộ (Tý/Ngọ/Mão/Dậu — 4 Chi chính giữa 4 mùa). Đây là quy tắc cổ điển phổ biến nhưng **cần xác nhận với người dùng/nguồn nghiệp vụ** trước khi khoá lại (mục 5, câu hỏi #3) vì có trường phái coi bất kỳ 2/3 cũng là bán hợp.
-- **Tam Hội** (hội theo phương, khác Tam Hợp theo cục): `{Dần,Mão,Thìn}→Mộc (Đông)`, `{Tỵ,Ngọ,Mùi}→Hỏa (Nam)`, `{Thân,Dậu,Tuất}→Kim (Tây)`, `{Hợi,Tý,Sửu}→Thủy (Bắc)` — cũng là kiến thức cổ điển phổ biến nhưng **cần xác nhận tương tự** (mục 5, câu hỏi #3) vì workbook không để lại gì để đối chiếu.
+- **Tam Hội** (hội theo phương, khác Tam Hợp theo cục): `{Dần,Mão,Thìn}→Mộc (Đông)`, `{Tỵ,Ngọ,Mùi}→Hỏa (Nam)`, `{Thân,Dậu,Tuất}→Kim (Tây)`, `{Hợi,Tý,Sửu}→Thủy (Bắc)`. **Đã chốt (2026-09-02):** người dùng xác nhận Tam Hội tính theo phương như trên (khác Tam Hợp theo cục) — không còn nằm trong câu hỏi #3 ở mục 5. Bán Hợp vẫn còn mở.
+
+> **Chưa áp dụng:** toàn bộ mục 4.6 (Tam Hợp/Tam Hội/Bán Hợp) vẫn chỉ là thiết kế trên giấy — chưa có dòng code nào trong `src/`. Việc chốt quy tắc Tam Hội ở trên chỉ giải quyết câu hỏi nghiệp vụ, chưa phải triển khai; `timTamHop()` và các hàm liên quan còn phải chờ Bán Hợp được chốt (và các block khác của Tứ Trụ theo mục "Mức sẵn sàng hiện tại" ở đầu tài liệu) trước khi viết code.
 
 Thiết kế hàm trả về danh sách tất cả tổ hợp khớp thay vì chỉ 3 cặp trụ như Excel (Excel thiếu hẳn tổ hợp Năm-Ngày-Giờ — 07 đã ghi nhận là bug), để không lặp lại giới hạn đó:
 
@@ -393,7 +395,7 @@ Engine chỉ kiểm tra đúng những vị trí mà từng rule khai báo; **kh
 |---|---|---|
 | 1 | Công thức suy Can trụ Tháng từ Can trụ Năm + Chi trụ Tháng ("Ngũ Hổ Độn") — dùng bảng cố định nào? | Không thấy trong workbook (Can Tháng ở đó là input tay) |
 | 2 | Chọn nguồn/thuật toán nào trả **instant giao 24 tiết khí** và bộ fixture chuẩn nào để kiểm chứng? | Wrapper hiện tại chỉ dùng nhãn tiết khí theo ngày; dữ liệu đó không đủ cho ca sinh trong ngày giao tiết và Đại Vận |
-| 3 | Quy tắc Bán Hợp và Tam Hội dùng đúng bản nào (có trường phái khác nhau)? | Workbook không để lại gì để đối chiếu (07 mục f) |
+| 3 | Quy tắc Bán Hợp dùng đúng bản nào (có trường phái khác nhau: bất kỳ 2/3 Chi hay bắt buộc có Chi vượng)? | Workbook không để lại gì để đối chiếu (07 mục f). ~~Tam Hội~~ đã chốt 2026-09-02: tính theo phương (mục 4.6). |
 | 4 | Có cần trọng số vượng suy theo lệnh tháng (Vượng/Tướng/Hưu/Tù/Tử) và theo vị trí Tàng Can (bản/trung/dư khí) ở bản đầu, hay chấp nhận đếm thô như workbook trước? | Ảnh hưởng trực tiếp độ chính xác của phần "luận", cần biết mức ưu tiên |
 | 5 | Công thức quy đổi khoảng cách tới Tiết chính thành năm/tháng/ngày khởi vận và cách hiển thị tuổi là gì? | Workbook chỉ `ROUND(ngày/3)` rồi hiển thị `D8-1`, không đủ làm contract |
 | 6 | Công thức Tiểu Vận (cột I/J của mục "Niên vận 100 năm") lấy từ nguồn nào? | 07 ghi rõ "cần xác nhận nghiệp vụ trước khi port", không tự suy diễn từ code hỏng |

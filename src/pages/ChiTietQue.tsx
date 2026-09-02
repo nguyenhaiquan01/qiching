@@ -1,5 +1,6 @@
-import { useEffect } from "react";
-import { HinhQue } from "../components/HinhQue";
+import { useEffect, useMemo } from "react";
+import { DanhSachHaoDich } from "../components/DanhSachHaoDich";
+import { QueDich } from "../core/queDich";
 import type { NoiDungQueRow } from "../core/data/noiDungQue";
 
 /** Trang chi tiết một quẻ — tương tự cấu trúc trang cohoc.net/&lt;ten-que&gt;.html: đồ hình,
@@ -23,6 +24,11 @@ export function ChiTietQue({
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [que.tenQueChuan]);
 
+  // Nạp giáp/Lục Thân/Thế-Ứng chỉ phụ thuộc cặp quẻ Thượng-Hạ, không phụ thuộc thời điểm gieo
+  // quẻ — dùng thời điểm hiện tại chỉ để tính Tuần Không/Lục Thần (đổi theo ngày xem), khớp
+  // đúng cách "Xem quẻ" hiển thị. `queBien` mặc định 0 nên không có hào nào bị tô đỏ ở đây.
+  const queDich = useMemo(() => new QueDich(new Date(), que.queThuong, que.queHa), [que.queThuong, que.queHa]);
+
   return (
     <div>
       <div className="hang-form khong-in" style={{ marginBottom: 12 }}>
@@ -43,7 +49,9 @@ export function ChiTietQue({
 
       <div className="the">
         <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
-          <HinhQue queThuong={que.queThuong} queHa={que.queHa} />
+          <div className="que-dich-cot">
+            <DanhSachHaoDich que={queDich} noiDung={que} />
+          </div>
           <div>
             <div className="que-dich-cung">Quẻ số {que.soThuTu}</div>
             <div className="que-dich-ten" style={{ fontSize: "1.3rem" }}>
@@ -63,13 +71,14 @@ export function ChiTietQue({
       </div>
 
       <div className="the">
-        <h2>Dịch</h2>
-        <p className="giai-thich">{que.dich}</p>
+        <h2>Thoán Từ</h2>
+        {que.thoanTu.hanTu && <p className="han-tu">{que.thoanTu.hanTu}</p>}
+        <p className="giai-thich">{que.thoanTu.dich}</p>
       </div>
 
       <div className="the">
-        <h2>Giảng</h2>
-        <p className="giai-thich">{que.giang}</p>
+        <h2>Giảng (Thoán Từ)</h2>
+        <p className="giai-thich">{que.thoanTu.giang}</p>
       </div>
 
       <div className="the">

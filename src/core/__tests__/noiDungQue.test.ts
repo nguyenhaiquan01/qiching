@@ -30,11 +30,18 @@ describe("NOI_DUNG_QUE — nội dung 64 quẻ (cohoc.net)", () => {
     }
   });
 
-  it("giaiNghia/dich/giang không rỗng ở tất cả 64 quẻ", () => {
+  it("giaiNghia/thoanTu.dich/thoanTu.giang không rỗng ở tất cả 64 quẻ", () => {
     for (const r of NOI_DUNG_QUE) {
       expect(r.giaiNghia, r.tenQueChuan).toBeTruthy();
-      expect(r.dich, r.tenQueChuan).toBeTruthy();
-      expect(r.giang, r.tenQueChuan).toBeTruthy();
+      expect(r.thoanTu.dich, r.tenQueChuan).toBeTruthy();
+      expect(r.thoanTu.giang, r.tenQueChuan).toBeTruthy();
+    }
+  });
+
+  it("thoanTu.hanTu không rỗng ở mọi quẻ trừ Càn (trang nguồn thiếu)", () => {
+    for (const r of NOI_DUNG_QUE) {
+      if (r.tenQueChuan === "CÀN VI THIÊN") continue;
+      expect(r.thoanTu.hanTu, r.tenQueChuan).toBeTruthy();
     }
   });
 

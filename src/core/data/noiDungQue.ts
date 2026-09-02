@@ -23,6 +23,20 @@
  * (nếu có) và dòng chữ Hán + phiên âm của Thoán Từ bị bỏ sót hoàn toàn, không nằm ở đâu trong
  * dữ liệu. Đã scrape lại từ `nguon` để đối chiếu và sửa cả hai: lỗi (1) sửa bằng cách dịch
  * chuyển cơ học (không cần tải lại), lỗi (2) bổ sung vào cuối `giaiNghia` và đầu `dich`.
+ *
+ * Lần sửa (2) ở trên vẫn còn sót một lỗi con: khi Thoán Từ (nhận biết được vì luôn mở đầu
+ * bằng dòng chữ Hán bắt đầu bằng tên quẻ viết tắt, dù trang có ghi nhãn "Thoán từ" hay
+ * không) dài tới mức chữ Hán và/hoặc phiên âm bị trang nguồn tách làm hai đoạn `<p>` liên
+ * tiếp, script chỉ lấy đoạn đầu rồi nhảy thẳng sang phần dịch nghĩa, làm rớt mất đoạn phiên
+ * âm (hoặc phần dịch) còn lại — ảnh hưởng 13 quẻ (4, 6, 7, 8, 18, 24, 25, 41, 45, 48, 51,
+ * 59, 62). Đã đối chiếu lại toàn bộ 64 trang nguồn và bổ sung phần bị rớt. Riêng quẻ 1
+ * (Càn) không có dòng chữ Hán/phiên âm cho Thoán Từ — bản thân trang nguồn thiếu, không
+ * phải lỗi scrape.
+ *
+ * Thoán Từ (nguyên văn chữ Hán + phiên âm, dịch nghĩa, giảng của quẻ nói chung) được tách
+ * thành trường riêng `thoanTu` để không lẫn với dịch/giảng của TỪNG HÀO — thứ nằm trong
+ * `haoTu[].noiDung` (vẫn giữ dạng chuỗi thô gộp chung Hán tự + phiên âm + dịch + giảng của
+ * hào đó, chưa tách).
  */
 import raw from "./noiDungQue.json";
 
@@ -32,6 +46,16 @@ export interface HaoTuRow {
   /** Tên hào chuẩn hoá, ví dụ "Sơ Cửu", "Lục Tứ", "Thượng Cửu" */
   nhan: string;
   noiDung: string;
+}
+
+export interface ThoanTuInfo {
+  /** Nguyên văn chữ Hán + phiên âm Hán Việt của Thoán Từ. Rỗng nếu trang nguồn không có
+   * (chỉ xảy ra ở quẻ 1 — Càn). */
+  hanTu: string;
+  /** Dịch nghĩa Thoán Từ — khác với dịch của từng hào trong `haoTu[].noiDung`. */
+  dich: string;
+  /** Giảng Thoán Từ — khác với giảng của từng hào trong `haoTu[].noiDung`. */
+  giang: string;
 }
 
 export interface NoiDungQueRow {
@@ -45,8 +69,7 @@ export interface NoiDungQueRow {
   queHa: string;
   haoThe: number;
   giaiNghia: string;
-  dich: string;
-  giang: string;
+  thoanTu: ThoanTuInfo;
   haoTu: HaoTuRow[];
   dungCuu: string | null;
   chuThich: string | null;

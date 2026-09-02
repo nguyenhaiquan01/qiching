@@ -327,6 +327,15 @@
   max-width: 720px;
 }
 
+.han-tu {
+  white-space: pre-wrap;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  max-width: 720px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
 table.bang-ket-qua {
   width: 100%;
   border-collapse: collapse;
@@ -430,12 +439,26 @@ table.bang-ket-qua th {
   gap: 8px;
 }
 
+/* HoverInfo bọc trọn ô quẻ (xem DanhSachQue.tsx) — wrapper/trigger phải là block để lấp đầy
+ * ô lưới thay vì co theo nội dung như mặc định inline-block/inline của HoverInfo. */
+.the-que-hover-boc {
+  display: block;
+}
+
+.the-que-hover-trigger {
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
+}
+
 .the-que {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
   padding: 8px 4px;
+  width: 100%;
+  box-sizing: border-box;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg);

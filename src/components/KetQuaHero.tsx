@@ -109,10 +109,11 @@ function TenQueVoiHover({
     >
       <h4>Giải nghĩa</h4>
       <p>{noiDung.giaiNghia}</p>
-      <h4>Dịch</h4>
-      <p>{noiDung.dich}</p>
-      <h4>Giảng</h4>
-      <p>{noiDung.giang}</p>
+      <h4>Thoán Từ</h4>
+      {noiDung.thoanTu.hanTu && <p className="han-tu">{noiDung.thoanTu.hanTu}</p>}
+      <p>{noiDung.thoanTu.dich}</p>
+      <h4>Giảng (Thoán Từ)</h4>
+      <p>{noiDung.thoanTu.giang}</p>
     </HoverInfo>
   );
 }

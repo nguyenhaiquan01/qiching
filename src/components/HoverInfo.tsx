@@ -11,16 +11,20 @@ export function HoverInfo({
   trigger,
   children,
   triggerClassName,
+  wrapperClassName,
 }: {
   trigger: ReactNode;
   children: ReactNode;
   triggerClassName?: string;
+  /** Thêm class cho span bọc ngoài (`hover-boc`) — dùng khi vùng rê chuột cần to hơn/khác
+   * mặc định inline-block, ví dụ bọc trọn một ô thẻ trong lưới. */
+  wrapperClassName?: string;
 }) {
   const [hien, setHien] = useState(false);
 
   return (
     <span
-      className="hover-boc"
+      className={`hover-boc${wrapperClassName ? ` ${wrapperClassName}` : ""}`}
       onMouseEnter={() => setHien(true)}
       onMouseLeave={() => setHien(false)}
     >
