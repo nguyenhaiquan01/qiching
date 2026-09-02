@@ -11,7 +11,7 @@ quyết định kiến trúc và lý do trong [`legacy/project-brain/`](legacy/p
 
 - [`01-tong-quan-du-an.md`](legacy/project-brain/01-tong-quan-du-an.md) — ứng dụng gốc làm gì
 - [`05-ke-hoach-migrate-web.md`](legacy/project-brain/05-ke-hoach-migrate-web.md) — kế hoạch migrate chi tiết theo từng giai đoạn
-- [`06-deployment.md`](legacy/project-brain/06-deployment.md) — kế hoạch deploy (Cloudflare Pages/GitHub Pages, static hosting)
+- [`06-deployment.md`](legacy/project-brain/06-deployment.md) — runbook deploy Cloudflare Pages (UAT + production đang chạy thật, xem mục Deploy bên dưới)
 
 ## Trạng thái hiện tại
 
@@ -36,9 +36,9 @@ quyết định kiến trúc và lý do trong [`legacy/project-brain/`](legacy/p
   migrate). Có thêm export/import JSON thủ công cho nhu cầu đồng bộ nhiều thiết bị.
 - `src/core/__tests__/` — test cho toàn bộ hàm/dữ liệu đã có, bao gồm `dbexport.test.ts` so
   trực tiếp từng bảng dữ liệu với `DBexport/*.csv` (chạy: `npm test`).
-- **Giao diện React (Giai đoạn 4)** — 5 trang:
+- **Giao diện React (Giai đoạn 4)** — 5 tab điều hướng:
   - `src/pages/XemQue.tsx` (frmKinhDich) — thiết kế lại theo
-    [`legacy/project-brain/05.1. Chỉnh UI-UX.md`](<legacy/project-brain/05.1. Chỉnh UI-UX.md/Chỉnh UI/Chỉnh UI/UX.md>):
+    [`legacy/project-brain/05.1-chinh-ui-ux.md`](legacy/project-brain/05.1-chinh-ui-ux.md):
     Câu hỏi (loại quẻ/chủ đề/câu hỏi) → **Kết quả** (quẻ chính → quẻ biến, mức độ thuận lợi,
     điểm thuận/cần lưu ý) → **Luận quẻ theo việc đang hỏi** (chỉ hiện khi có Dụng Thần cụ
     thể) → **Căn cứ luận quẻ** (accordion) → Lịch âm → **Vượng suy Lục Thân** (thanh phân
@@ -47,21 +47,43 @@ quyết định kiến trúc và lý do trong [`legacy/project-brain/`](legacy/p
     (mức độ thuận lợi tái dùng đúng ngưỡng Vượng/Hung đã có, không bịa ngưỡng mới), thuật
     ngữ ở `src/ui/thuatNgu.ts` + `src/components/ThuatNgu.tsx`. Tách rõ màu Ngũ Hành (phân
     loại) khỏi màu trạng thái UX (success/warning/danger) để tránh xung đột kiểu "Hỏa=đỏ=xấu".
+    Trang này còn đóng vai trò orchestrator cho cả 2 "Cách khởi quẻ" — Theo thời gian và
+    **Gieo đồng xu** (`src/pages/GieoDongXuFlow.tsx` + `src/core/coinCasting/`) — theo
+    [`legacy/project-brain/09-gop-gieo-dong-xu-vao-xem-que.md`](legacy/project-brain/09-gop-gieo-dong-xu-vao-xem-que.md):
+    Gieo đồng xu không phải trang top-level riêng mà dùng chung Chủ đề/Câu hỏi và khối kết
+    quả với nhánh Theo Thời Gian.
   - `src/pages/Que64.tsx` (`DanhSachQue.tsx` + `ChiTietQue.tsx`) — tra cứu 64 quẻ (lưới 8×8),
     nội dung đầy đủ từng quẻ lấy từ `src/core/data/noiDungQue.json` (scrape có đối chiếu từ
-    cohoc.net, xem comment đầu file).
+    cohoc.net, xem comment đầu file). Rê chuột vào một ô quẻ trong lưới hiện popup nhanh Giải
+    nghĩa + Thoán Từ (component dùng chung `src/components/HoverInfo.tsx` — panel định vị
+    `position: fixed` tính bằng JS thay vì `absolute`, tự lật lên trên khi không đủ chỗ, để
+    hover ở các quẻ hàng cuối không làm giãn/giật chiều cao trang). Trang chi tiết một quẻ hiện
+    hình quẻ Âm-Dương + tên, Giải nghĩa, Thoán Từ, Giảng, Hào Từ đầy đủ 6 hào, và Dụng Cửu/Dụng
+    Lục, Chú Thích, Phụ Lục khi quẻ đó có; không hiện bảng nạp giáp/Lục Thân/Thế-Ứng (bảng đó chỉ
+    dùng ở "Xem quẻ", qua `src/components/DanhSachHaoDich.tsx` dùng chung với `QueDichView.tsx`).
   - `src/pages/TimNgayTot.tsx` (frmTimNgayTotTheoQueDich): quét khoảng ngày giờ trong Web
     Worker (`src/core/timNgayTot.worker.ts`) để không chặn UI, có thanh tiến độ, hai chế độ
     quét (2 giờ/lần ngưỡng Vượng, hoặc hàng ngày ngưỡng Hung theo giờ cố định).
-  - `src/pages/QueDaLuu.tsx` (frmLoadQue): danh sách quẻ đã lưu, xem lại/xoá, xuất/nhập JSON.
+  - `src/pages/QueDaLuu.tsx` (frmLoadQue): danh sách quẻ đã lưu (theo thời gian lẫn gieo đồng
+    xu), xem lại/xoá, xuất/nhập JSON (dữ liệu Coin Casting chưa tham gia export/import JSON).
   - `src/pages/GioiThieu.tsx` (AboutBox).
   - Điều hướng bằng state đơn giản (không dùng router). Container rộng 1200px, đoạn văn dài
     giới hạn ~720px để dễ đọc (theo brief UI/UX). Hỗ trợ dark mode (bản gốc WinForms không có).
   - Đã chạy thử bằng Playwright (headless Chromium) qua tất cả các trang + trạng thái (xem
     một việc/tổng quan/quẻ cuộc đời, mobile 390px không bị tràn ngang), không có lỗi console.
 
-**Giai đoạn 1-4 của kế hoạch migrate đã hoàn tất** — toàn bộ tầng nghiệp vụ TypeScript có dữ
-liệu thật, `QueDich.giaiQue()` chạy được end-to-end, và có giao diện React dùng được thật sự.
+**Giai đoạn 1-4 của kế hoạch migrate đã hoàn tất**, cộng thêm tính năng Gieo đồng xu (Coin
+Casting) gộp vào "Xem quẻ" — toàn bộ tầng nghiệp vụ TypeScript có dữ liệu thật,
+`QueDich.giaiQue()` chạy được end-to-end, và có giao diện React dùng được thật sự.
+
+## Deploy
+
+Đã deploy lên Cloudflare Pages — UAT tại `https://uat.qiching.org`, production tại
+`https://qiching.org`. Quy trình phát hành đầy đủ (gate lint/test/build, yêu cầu nhánh `main`
+khớp `origin/main`, giữ nguyên một artifact từ UAT lên production, checklist smoke test) nằm ở
+[`legacy/project-brain/06-deployment.md`](legacy/project-brain/06-deployment.md) — đọc file đó
+trước khi phát hành, đừng chỉ chạy `npm run deploy:uat`/`deploy:prod` (hai script này chỉ là
+tiện ích build+upload nhanh, chưa enforce đủ gate của quy trình).
 
 ## Chạy thử
 
@@ -78,7 +100,9 @@ npm run build && npm run preview   # bản production — http://localhost:4173
    quả bản desktop trên nhiều mốc thời gian mẫu thật (giao thừa, tháng nhuận, giờ 23h-24h) —
    Giai đoạn 5 của kế hoạch. Hiện tại độ tin cậy dữ liệu đến từ đối chiếu trực tiếp với
    `KinhDich.sdf` gốc (xem `src/core/data/README.md`), không phải chạy song song desktop.
-2. Cân nhắc build + deploy lên Cloudflare Pages/GitHub Pages (`npm run build`) theo kế hoạch
-   ở `legacy/project-brain/06-deployment.md`.
-3. Bundle production hiện ~700KB (chủ yếu do `noiDungQue.json` ~480KB nhúng thẳng vào bundle)
-   — có thể lazy-load nếu cần tối ưu thời gian tải ban đầu, hiện chưa cần thiết cho dùng cá nhân.
+2. Bundle production hiện ~755KB (chủ yếu do `noiDungQue.json` nhúng thẳng vào bundle) — vượt
+   ngưỡng cảnh báo chunk 500KB của Vite, có thể lazy-load/code-split nếu cần tối ưu thời gian
+   tải ban đầu, hiện chưa cần thiết cho dùng cá nhân.
+3. Dữ liệu Coin Casting hiện chỉ lưu qua `localStorage` (`src/core/coinCasting/storage.ts`),
+   chưa tham gia cơ chế export/import JSON như "quẻ đã lưu theo thời gian" — cân nhắc bổ sung
+   nếu cần đồng bộ nhiều thiết bị cho luồng gieo đồng xu.

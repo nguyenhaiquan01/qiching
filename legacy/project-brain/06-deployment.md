@@ -48,29 +48,43 @@ npx wrangler pages deployment list --project-name=qiching
 
 ## 3. Ảnh chụp trạng thái đã xác minh
 
-Trạng thái sau chỉ là bằng chứng audit tại ngày **2026-08-31**, không phải cấu hình cố định:
+Trạng thái sau chỉ là bằng chứng audit tại ngày **2026-09-02**, không phải cấu hình cố định:
 
-| Môi trường | Source SHA Cloudflare hiển thị | Trạng thái cần lưu ý |
-|---|---|---|
-| UAT | `af0f8aa` | Artifact đang phục vụ không khớp build sạch của SHA này |
-| Production | `469c602` | Artifact không khớp build sạch; SHA cũng thấp hơn `origin/main` lúc audit (`03aac90`) |
+| Môi trường | Source SHA Cloudflare hiển thị | Deployment ID | Trạng thái cần lưu ý |
+|---|---|---|---|
+| UAT | `60311e2` | `2f439666-eacd-456c-81b1-bdfda2476f0d` | Artifact đang phục vụ **không khớp** build sạch của SHA này — vẫn tái lập đúng blocker ở mục 4: deploy bằng `npm run deploy:uat` trong lúc working tree có thay đổi chưa commit, commit đó (`b2e314a`) chỉ được tạo *sau* khi đã deploy |
+| Production | `b2e314a` | `2df24f42-a718-4cdb-9ab9-55ff638e7074` | Artifact **khớp** build sạch của SHA này (kiểm chứng lại được bằng cách build lại `b2e314a` rồi so tên file asset — xem bảng mục 4) |
+
+Theo ghi chép của người phát hành, lần upload production này đi đúng quy trình mục 6: build một lần
+từ `main` (đã khớp `origin/main`, working tree sạch), ghi checksum `dist/`, đối chiếu với artifact đã
+kiểm thử trên UAT rồi upload bằng `wrangler ... --commit-hash=b2e314a`. Lưu ý repo **không** lưu
+manifest/checksum của lần phát hành (xem mục 9), nên phần "đã đối chiếu checksum" không tự kiểm chứng
+lại được từ repo — thứ kiểm chứng được là tên file asset đang phục vụ so với build lại từ SHA.
 
 Các endpoint chính, asset tĩnh và SPA fallback đều trả HTTP 200 tại thời điểm audit. Build hiện
 tại cũng vượt ngưỡng cảnh báo chunk 500 kB của Vite; đây là việc tối ưu hiệu năng, không phải lỗi
 deploy.
 
+Rút ra từ lần phát hành này: đi đúng quy trình thủ công ở mục 6 (build một lần, ghi checksum, upload
+bằng `wrangler ... --commit-hash=FULL_SHA` thay vì script tiện ích) cho ra provenance đúng như kỳ
+vọng. Bản thân `deploy:uat`/`deploy:prod` trong `package.json` thì chưa đổi gì — vẫn là lệnh tiện ích
+nhanh cho mục đích xem trước, không phải release gate; xem mục 4.
+
 ## 4. Blocker: provenance của artifact
 
 Quy trình hiện tại cho phép deploy working tree có thay đổi chưa commit nhưng vẫn gắn deployment
-với SHA của `HEAD` và nhãn branch `main`. Audit đã tái lập được sai lệch này:
+với SHA của `HEAD` và nhãn branch `main`. Audit ngày 2026-09-02 lại tái lập được sai lệch này trên
+UAT (xem mục 3): `npm run deploy:uat` chạy lúc working tree có thay đổi chưa commit, commit tương
+ứng (`b2e314a`) chỉ xuất hiện sau đó. Đối chiếu bằng build lại thật (`git worktree` tại từng SHA →
+`npm ci` → `npm run build`):
 
-| Môi trường | Asset đang phục vụ | Asset từ build sạch của SHA được ghi |
-|---|---|---|
-| UAT | `index-EHcyVPKW.js`, `index-fMQWkTbK.css` | `index-Dxj3mjTF.js`, `index-d4AA3ULX.css` |
-| Production | `index-ZE2D6osP.js`, `index-BsOsaVQB.css` | `index-DDEXsXz8.js`, `index-OzgscMln.css` |
+| Môi trường | Source SHA Cloudflare hiển thị | Asset đang phục vụ | Asset từ build sạch của SHA được ghi | Asset từ build sạch của SHA khác |
+|---|---|---|---|---|
+| UAT | `60311e2` | `index-DvF2yFCD.js`, `index-BKmrAyUy.css` | `index-bd924_4L.js`, `index-B_XYWNC8.css` (**không khớp**) | `b2e314a` → `index-DvF2yFCD.js`, `index-BKmrAyUy.css` (**khớp**) |
 
-Do đó không được dùng Source SHA trên Cloudflare làm bằng chứng duy nhất để audit hoặc rollback
-những deployment hiện có.
+Nói cách khác: Cloudflare ghi UAT là `60311e2`, nhưng nội dung đang phục vụ thật sự là bản build của
+`b2e314a`. Do đó không được dùng Source SHA trên Cloudflare làm bằng chứng duy nhất để audit hoặc
+rollback những deployment hiện có — luôn đối chiếu bằng checksum/tên file asset thật sự đang phục vụ.
 
 Trước lần phát hành production tiếp theo, quy trình bắt buộc phải bảo đảm:
 
