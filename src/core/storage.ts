@@ -3,10 +3,15 @@
  * `dataAccess.SaveQueInfo`/`business.SaveQueInfo` của bản gốc (xem
  * project-brain/05-ke-hoach-migrate-web.md, Giai đoạn 3).
  *
- * Chỉ lưu `(time, binhchu)` giống đúng bản gốc — quẻ được tính lại từ `time` mỗi lần xem
- * (an quẻ xác định hoàn toàn từ ngày giờ), không lưu kết quả quẻ. Không migrate dữ liệu cũ
- * từ `InfoQue` (xem lý do ở kế hoạch migrate: tính năng lưu quẻ trên bản desktop nhiều khả
- * năng đã lỗi từ lâu, bảng gốc gần như rỗng).
+ * Chỉ lưu `(time, binhchu)` giống đúng bản gốc, cộng thêm `chuDe`/`cauHoi` nếu người dùng có
+ * nhập ở "Câu hỏi" (mở rộng so với bản gốc, vốn không có 2 trường này). Quẻ được tính lại từ
+ * `time` mỗi lần xem (an quẻ xác định hoàn toàn từ ngày giờ), không lưu kết quả quẻ. Không
+ * migrate dữ liệu cũ từ `InfoQue` (xem lý do ở kế hoạch migrate: tính năng lưu quẻ trên bản
+ * desktop nhiều khả năng đã lỗi từ lâu, bảng gốc gần như rỗng).
+ *
+ * `createdAt` (thời điểm thực tế bấm "Lưu quẻ") là khoá dùng để sắp xếp/hiển thị/xoá trong
+ * "Quẻ đã lưu" — tách khỏi `time` vì "Ngày lập quẻ" có thể bị người dùng chỉnh tay thành một
+ * thời điểm bất kỳ trong quá khứ/tương lai để an quẻ, không phản ánh lúc bản ghi được tạo.
  */
 import type { QueInfo } from "./types";
 
@@ -15,6 +20,9 @@ const STORAGE_KEY = "qiching.queInfo.v1";
 interface StoredQueInfo {
   time: string; // ISO 8601 — Date không serialize được trực tiếp qua JSON
   binhchu: string;
+  chuDe?: string;
+  cauHoi?: string;
+  createdAt: string;
 }
 
 function docTatCa(): StoredQueInfo[] {
@@ -35,23 +43,42 @@ function ghiTatCa(rows: StoredQueInfo[]): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
 }
 
-/** Port từ business.SaveQueInfo — lưu một quẻ đã xem (thời điểm + bình chú). */
-export function luuQueInfo(info: QueInfo): void {
+/**
+ * Port từ business.SaveQueInfo — lưu một quẻ đã xem (thời điểm + bình chú), mở rộng thêm
+ * chủ đề/câu hỏi nếu người dùng có nhập ở "Câu hỏi" (không có trong bản gốc). `createdAt`
+ * do hàm này tự sinh tại đúng lúc gọi (lúc bấm "Lưu quẻ"), không nhận từ caller.
+ */
+export function luuQueInfo(info: Omit<QueInfo, "createdAt">): void {
   const rows = docTatCa();
-  rows.push({ time: info.time.toISOString(), binhchu: info.binhchu });
+  rows.push({
+    time: info.time.toISOString(),
+    binhchu: info.binhchu,
+    ...(info.chuDe ? { chuDe: info.chuDe } : {}),
+    ...(info.cauHoi ? { cauHoi: info.cauHoi } : {}),
+    createdAt: new Date().toISOString(),
+  });
   ghiTatCa(rows);
 }
 
-/** Port từ frmLoadQue — tải danh sách quẻ đã lưu, mới nhất trước. */
+/**
+ * Port từ frmLoadQue — tải danh sách quẻ đã lưu, mới nhất trước theo `createdAt`. Bản ghi cũ
+ * (lưu trước khi có `createdAt`) dùng tạm `time` làm phương án dự phòng.
+ */
 export function taiDanhSachQueDaLuu(): QueInfo[] {
   return docTatCa()
-    .map((r) => ({ time: new Date(r.time), binhchu: r.binhchu }))
-    .sort((a, b) => b.time.getTime() - a.time.getTime());
+    .map((r) => ({
+      time: new Date(r.time),
+      binhchu: r.binhchu,
+      chuDe: r.chuDe,
+      cauHoi: r.cauHoi,
+      createdAt: new Date(r.createdAt ?? r.time),
+    }))
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
-/** Xoá một quẻ đã lưu theo thời điểm chính xác (dùng làm khoá vì không có id riêng). */
-export function xoaQueInfo(time: Date): void {
-  const rows = docTatCa().filter((r) => r.time !== time.toISOString());
+/** Xoá một quẻ đã lưu theo `createdAt` chính xác (dùng làm khoá vì không có id riêng). */
+export function xoaQueInfo(createdAt: Date): void {
+  const rows = docTatCa().filter((r) => (r.createdAt ?? r.time) !== createdAt.toISOString());
   ghiTatCa(rows);
 }
 

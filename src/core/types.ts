@@ -39,9 +39,18 @@ export function taoHaoMoi(): Hao {
 
 /** Port từ Business/QueInfo.cs — bản ghi "quẻ đã lưu". Lưu vào localStorage, không phải DB. */
 export interface QueInfo {
+  /** Thời điểm dùng để an quẻ ("Ngày lập quẻ"/"Giờ") — người dùng có thể chỉnh tay để xem quẻ
+   * cho một thời điểm bất kỳ (quá khứ/tương lai), nên KHÔNG dùng field này để sắp xếp/hiển thị
+   * trong "Quẻ đã lưu" (dùng `createdAt`). */
   time: Date;
   /** Bình chú — ghi chú người dùng viết cho lần xem quẻ này */
   binhchu: string;
+  /** Chủ đề đã chọn ở "Câu hỏi" (vd: Công danh, Tài lộc...) — không bắt buộc, chỉ có khi xem "một việc". */
+  chuDe?: string;
+  /** Câu hỏi người dùng gõ ở "Câu hỏi" — không bắt buộc. */
+  cauHoi?: string;
+  /** Thời điểm thực tế bấm "Lưu quẻ" — dùng để lưu trữ/hiển thị/sắp xếp trong "Quẻ đã lưu". */
+  createdAt: Date;
 }
 
 /** Port từ kinhdich.xsd — dòng dữ liệu bảng QueKinhDich (8 dòng, theo 8 quẻ đơn Tiên Thiên). */

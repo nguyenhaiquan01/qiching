@@ -95,7 +95,12 @@ export function XemQue({
   const { thuan, canLuuY } = que ? diemThuanVaCanLuuY(que) : { thuan: [], canLuuY: [] };
 
   const luuLai = () => {
-    luuQueInfo({ time: thoiDiem, binhchu: binhChu });
+    luuQueInfo({
+      time: thoiDiem,
+      binhchu: binhChu,
+      chuDe: loaiQue === "mot-viec" ? chuDe : undefined,
+      cauHoi: cauHoi || undefined,
+    });
     setDaLuu(true);
     setTimeout(() => setDaLuu(false), 2000);
   };

@@ -35,8 +35,8 @@ export function QueDaLuu({
     setDsGieoDongXu(taiDanhSachGieoQue());
   };
 
-  const xoaTheoThoiGian = (time: Date) => {
-    xoaQueInfo(time);
+  const xoaTheoThoiGian = (createdAt: Date) => {
+    xoaQueInfo(createdAt);
     setDsThoiGian(taiDanhSachQueDaLuu());
   };
 
@@ -71,7 +71,7 @@ export function QueDaLuu({
   };
 
   const danhSachGop: DongDaLuu[] = [
-    ...dsThoiGian.map((info) => ({ loai: "THEO_THOI_GIAN" as const, thoiDiem: info.time.getTime(), info })),
+    ...dsThoiGian.map((info) => ({ loai: "THEO_THOI_GIAN" as const, thoiDiem: info.createdAt.getTime(), info })),
     ...dsGieoDongXu.map((info) => ({
       loai: "GIEO_DONG_XU" as const,
       thoiDiem: new Date(info.createdAt).getTime(),
@@ -113,14 +113,29 @@ export function QueDaLuu({
           <div className="danh-sach-luu">
             {danhSachGop.map((dong) =>
               dong.loai === "THEO_THOI_GIAN" ? (
-                <div className="dong-luu" key={`t-${dong.info.time.toISOString()}`}>
-                  <span className="thoi-diem">{dong.info.time.toLocaleString("vi-VN")}</span>
-                  <span className="que-dich-cung">Theo thời gian</span>
-                  <span className="binh-chu">{dong.info.binhchu || "(không có ghi chú)"}</span>
+                <div className="dong-luu" key={`t-${dong.info.createdAt.toISOString()}`}>
+                  <span className="thoi-diem">{dong.info.createdAt.toLocaleString("vi-VN")}</span>
+                  <span className="que-dich-cung">
+                    Theo thời gian
+                    {dong.info.chuDe ? ` — ${dong.info.chuDe}` : ""}
+                  </span>
+                  <span className="binh-chu">
+                    {dong.info.cauHoi ? `"${dong.info.cauHoi}"` : ""}
+                    {dong.info.cauHoi && dong.info.binhchu ? " — " : ""}
+                    {dong.info.binhchu}
+                    {!dong.info.cauHoi && !dong.info.binhchu ? "(không có ghi chú)" : ""}
+                    {Math.abs(dong.info.time.getTime() - dong.info.createdAt.getTime()) > 60_000
+                      ? ` (lập quẻ cho ${dong.info.time.toLocaleString("vi-VN")})`
+                      : ""}
+                  </span>
                   <button className="nut phu" type="button" onClick={() => onXemLaiTheoThoiGian(dong.info.time)}>
                     Xem lại
                   </button>
-                  <button className="nut nguy-hiem" type="button" onClick={() => xoaTheoThoiGian(dong.info.time)}>
+                  <button
+                    className="nut nguy-hiem"
+                    type="button"
+                    onClick={() => xoaTheoThoiGian(dong.info.createdAt)}
+                  >
                     Xoá
                   </button>
                 </div>
