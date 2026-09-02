@@ -1,0 +1,11 @@
+# qiching.org — xem legacy/project-brain/10-ke-hoach-seo.md (Giai đoạn 0 / D)
+# robots.txt quản lý CRAWL, không phải canonicalization và không phải cơ chế bảo mật.
+# Việc chặn index môi trường phụ (UAT, mirror pages.dev) làm bằng X-Robots-Tag/redirect
+# trong `_headers`/`_redirects`, KHÔNG bằng Disallow ở đây — vì crawler phải đọc được
+# response thì mới thấy được noindex.
+
+User-agent: *
+Allow: /
+
+# Sitemap: chưa công bố. Chỉ thêm dòng `Sitemap:` sau khi sitemap.xml thật sự tồn tại,
+# chỉ chứa URL canonical được phép index và trả HTTP 200 (Giai đoạn D2 của kế hoạch).

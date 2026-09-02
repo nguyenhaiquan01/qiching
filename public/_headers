@@ -1,0 +1,16 @@
+# Cloudflare Pages headers — xem legacy/project-brain/10-ke-hoach-seo.md (Giai đoạn 0).
+#
+# UAT và production dùng CHUNG một artifact `dist/` (bắt buộc theo 06-deployment.md mục 6),
+# nên không thể chặn index UAT bằng một file khác nhau giữa hai môi trường. Cách làm ở đây là
+# match theo absolute URL: rule chỉ áp dụng cho đúng hostname được ghi, nên cùng một file này
+# nằm trên cả hai project vẫn cho ra hành vi khác nhau theo hostname.
+#
+# LƯU Ý: mỗi lần deploy Cloudflare còn sinh một hostname preview dạng
+# `<hash>.qiching-uat.pages.dev` / `<hash>.qiching.pages.dev` — các hostname đó KHÔNG khớp
+# rule dưới đây. Cần một Cloudflare rule ở tầng dashboard để phủ hết `*.pages.dev`.
+
+https://uat.qiching.org/*
+  X-Robots-Tag: noindex, nofollow
+
+https://qiching-uat.pages.dev/*
+  X-Robots-Tag: noindex, nofollow

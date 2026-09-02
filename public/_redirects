@@ -1,0 +1,11 @@
+# Cloudflare Pages redirects — xem legacy/project-brain/10-ke-hoach-seo.md (Giai đoạn 0).
+#
+# Gộp mọi mirror của PRODUCTION về đúng một origin canonical `https://qiching.org`, giữ
+# nguyên path và query (`:splat`). Redirect sạch hơn canonical/noindex cho mirror.
+#
+# QUAN TRỌNG: KHÔNG dùng wildcard kiểu `https://*.pages.dev/*` ở đây. File này cũng được
+# deploy lên project UAT (chung artifact), nên một rule quá rộng sẽ đá `qiching-uat.pages.dev`
+# về production và làm mất luôn đường vào UAT. Hai rule dưới chỉ khớp đúng hostname production.
+
+https://www.qiching.org/* https://qiching.org/:splat 301
+https://qiching.pages.dev/* https://qiching.org/:splat 301

@@ -4,7 +4,39 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QIChing</title>
+
+    <!-- Metadata TĨNH, dùng chung cho toàn site — xem legacy/project-brain/10-ke-hoach-seo.md
+         (Giai đoạn 0). Đây là fallback cho bot không chạy JavaScript (Facebook/Zalo/Slack...),
+         KHÔNG phải đích đến: khi có prerender + head riêng từng route (Giai đoạn B/C), phải rà
+         lại để mỗi trang chỉ còn đúng một <title>/description/canonical, tránh metadata trùng. -->
+    <title>QIChing — Gieo quẻ, luận quẻ Lục Hào và tra cứu 64 quẻ Kinh Dịch</title>
+    <meta
+      name="description"
+      content="Công cụ khởi quẻ Kinh Dịch theo Mai Hoa Dịch Số hoặc gieo đồng xu, luận quẻ bằng Lục Hào Nạp Giáp (Thế–Ứng, Lục Thân, vượng suy) và tra cứu 64 quẻ. Chạy hoàn toàn trên trình duyệt, không gửi dữ liệu lên máy chủ."
+    />
+    <link rel="canonical" href="https://qiching.org/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="QIChing" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:url" content="https://qiching.org/" />
+    <meta property="og:title" content="QIChing — Gieo quẻ, luận quẻ Lục Hào và tra cứu 64 quẻ Kinh Dịch" />
+    <meta
+      property="og:description"
+      content="Khởi quẻ theo Mai Hoa Dịch Số hoặc gieo đồng xu, luận quẻ bằng Lục Hào Nạp Giáp và tra cứu 64 quẻ. Chạy hoàn toàn trên trình duyệt."
+    />
+    <meta property="og:image" content="https://qiching.org/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="QIChing — Hiểu Dịch · Hiểu Thời · Hiểu Mình" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="QIChing — Gieo quẻ, luận quẻ Lục Hào và tra cứu 64 quẻ Kinh Dịch" />
+    <meta
+      name="twitter:description"
+      content="Khởi quẻ theo Mai Hoa Dịch Số hoặc gieo đồng xu, luận quẻ bằng Lục Hào Nạp Giáp và tra cứu 64 quẻ."
+    />
+    <meta name="twitter:image" content="https://qiching.org/og-image.png" />
   </head>
   <body>
     <div id="root"></div>
