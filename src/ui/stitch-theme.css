@@ -6,77 +6,20 @@
  * production: CLS 0.0264 (desktop) / 0.0691 (mobile mạng chậm), và về 0.0000 khi chặn font.
  * Xem `project-brain/10-ke-hoach-seo.md` mục 1.3.
  *
- * Các khai báo dưới đây là BẢN SAO ĐÚNG NGUYÊN những gì Google Fonts đang phục vụ (cùng
- * family/style/weight/unicode-range), nên kết quả render không đổi — chỉ khác ở chỗ font nằm
- * cùng origin và được preload trong index.html. Đã bỏ 2 subset cyrillic/greek của Manrope:
- * nội dung site là tiếng Việt nên `unicode-range` không bao giờ khớp, tải về cũng vô ích.
+ * Các khai báo dưới đây giữ nguyên family/style/weight/unicode-range như Google Fonts phục vụ,
+ * chỉ khác ở chỗ file nằm cùng origin và được preload trong index.html. Đã bỏ 2 subset
+ * cyrillic/greek của Manrope: nội dung site là tiếng Việt nên `unicode-range` không bao giờ
+ * khớp, tải về cũng vô ích.
  *
- * Lưu ý: Libre Caslon Text KHÔNG có subset `vietnamese` (Google cũng không phục vụ), nên các
- * ký tự U+1EA0-1EF9 trong tên quẻ vẫn rơi về "Times New Roman" như trước. Đây là vấn đề có sẵn,
- * không phải do lần đổi này gây ra — xử lý riêng nếu quyết định đổi bộ chữ.
+ * MỘT FONT DUY NHẤT CHO TOÀN SITE (Manrope). Trước đây tên quẻ (`.hero-que-ten`,
+ * `.que-dich-ten`) dùng Libre Caslon Text, nhưng font đó KHÔNG có glyph cho dải U+1EA0-1EF9
+ * (ị, ầ, ế, ộ, ữ, ẻ...) — Google cũng không phục vụ subset `vietnamese` cho nó — nên chính
+ * những cái tên quan trọng nhất bị render lẫn hai kiểu chữ: phần lớn là Caslon, riêng ký tự có
+ * dấu rơi về "Times New Roman". Manrope có subset `vietnamese` đầy đủ nên dùng một font vừa
+ * thống nhất được nhận diện, vừa hết cảnh lẫn chữ, vừa bớt 6 file font phải tải.
  *
- * Cả hai font đều theo giấy phép SIL OFL 1.1, được phép self-host.
+ * Manrope theo giấy phép SIL OFL 1.1, được phép self-host.
  */
-
-/* latin-ext */
-@font-face {
-  font-family: 'Libre Caslon Text';
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/libre-caslon-text-latin-ext-italic-400.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* latin */
-@font-face {
-  font-family: 'Libre Caslon Text';
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/libre-caslon-text-latin-italic-400.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* latin-ext */
-@font-face {
-  font-family: 'Libre Caslon Text';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/libre-caslon-text-latin-ext-normal-400.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* latin */
-@font-face {
-  font-family: 'Libre Caslon Text';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/libre-caslon-text-latin-normal-400.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* latin-ext */
-@font-face {
-  font-family: 'Libre Caslon Text';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/libre-caslon-text-latin-ext-normal-700.woff2') format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* latin */
-@font-face {
-  font-family: 'Libre Caslon Text';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/libre-caslon-text-latin-normal-700.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
 
 /* vietnamese */
 @font-face {
@@ -224,7 +167,7 @@
 
 .theme-stitch .hero-que-ten,
 .theme-stitch .que-dich-ten {
-  font-family: "Libre Caslon Text", "Times New Roman", serif;
+  font-family: "Manrope", "Segoe UI", sans-serif;
 }
 
 .theme-stitch .hero-badge {

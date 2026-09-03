@@ -5,10 +5,10 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Preload font thân bài (Manrope) — xem `src/ui/stitch-theme.css` để biết vì sao bỏ
-         `@import` từ Google Fonts. Chỉ preload 2 subset thực sự dùng ngay khi vẽ trang đầu
-         (latin + vietnamese); latin-ext và Libre Caslon Text để trình duyệt tự tải theo
-         `unicode-range` vì chúng chỉ cần khi hiện tên quẻ, không phải lúc first paint.
+    <!-- Preload font (Manrope) — xem `src/ui/stitch-theme.css` để biết vì sao bỏ `@import`
+         từ Google Fonts. Toàn site dùng DUY NHẤT Manrope, nên preload 2 subset cần ngay khi
+         vẽ trang đầu (latin + vietnamese); latin-ext để trình duyệt tự tải theo `unicode-range`
+         khi thực sự gặp ký tự thuộc dải đó.
          `crossorigin` là BẮT BUỘC kể cả với font cùng origin — thiếu nó trình duyệt sẽ tải
          lại lần hai thay vì dùng bản đã preload. -->
     <link rel="preload" as="font" type="font/woff2" crossorigin
