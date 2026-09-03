@@ -74,6 +74,30 @@ parse/execute và trải nghiệm trên thiết bị yếu. Một phép đo synt
 LCP khoảng 2,15 giây và CLS 0,065, nên hiệu năng chưa phải blocker lớn bằng indexability. Đây không
 thay cho dữ liệu field/CrUX; chỉ tối ưu sâu sau khi có baseline và trace xác nhận nút thắt.
 
+**Cập nhật 2026-09-03 — đã có field data, và nó chỉ ra CLS do font:**
+
+Cloudflare Web Analytics báo CLS phần lớn ở mức Poor, Debug View quy trách nhiệm cho
+`#root>div.app-shell.theme-stitch>main` và `header.app-header>span.app-slogan`. Thí nghiệm đối chứng
+bằng Playwright trên chính production xác nhận nguyên nhân:
+
+| Kịch bản | CLS | Thời điểm shift |
+|---|---|---|
+| Desktop 1280px, mạng vừa, font bật | 0.0264 | ~3,5s |
+| Desktop, **chặn Google Fonts** | **0.0000** | — |
+| Mobile 390px, mạng chậm, font bật | 0.0691 | ~7,3s |
+| Mobile, **chặn Google Fonts** | **0.0000** | — |
+
+Cơ chế: `src/ui/stitch-theme.css` dòng 1 nạp font bằng `@import` **bên trong CSS đã bundle** →
+trình duyệt phải tải CSS rồi mới khám phá ra font rồi mới tải font. Font về sau 3–7 giây, metrics chữ
+đổi, header cao lên, đẩy toàn bộ `main` xuống. Đây chính là chuỗi request nối tiếp đã nêu ở Giai đoạn H
+— giờ có bằng chứng field lẫn lab.
+
+**Chưa kết luận được về mức độ:** đo thực tế chỉ ra 0.026–0.069 (vẫn thuộc "Good"), lệch xa mức Poor mà
+field data báo. Hai khả năng chưa loại trừ: (a) mẫu field quá nhỏ và bị nhiễm bởi traffic test —
+`uat.qiching.org` chiếm hơn nửa số lượt; (b) cột "CLS" trong Debug View hiện đúng số `1` ở mọi dòng nên
+nhiều khả năng là *chỉ báo xếp loại*, không phải điểm CLS. Vì vậy: fix font là việc đúng và rẻ, nhưng
+**đừng dùng con số "88% Poor" làm mốc trước/sau** — phải đo lại bằng dữ liệu đã lọc hostname.
+
 **Điểm thuận lợi:** vì không có backend, toàn bộ nội dung là dữ liệu tĩnh biết trước tại thời điểm
 build — điều kiện lý tưởng cho prerender/SSG mà không cần vận hành server, giữ đúng mô hình "static
 SPA, không backend" hiện tại.
@@ -190,9 +214,13 @@ redirect về URL chuẩn hoặc trả 404; không để router chấp nhận v�
 > | `noindex` cho `uat.qiching.org`, `qiching-uat.pages.dev`, `qiching.pages.dev` (`public/_headers`) | ✅ đã kiểm chứng bằng HTTP |
 > | Hostname preview `<hash>.pages.dev` | ✅ Cloudflare tự gắn `x-robots-tag: noindex`, không cần làm gì |
 > | 301 `www.qiching.org` → apex, giữ path/query | ✅ Cloudflare Redirect Rule (zone), đã kiểm chứng 3 case |
-> | Đăng ký Search Console/Bing + baseline (mục 1, 2) | ⬜ chưa làm |
+> | Google Search Console — xác minh quyền sở hữu | ✅ 2026-09-03, property URL-prefix `https://qiching.org/`, xác minh bằng **2 phương thức song song**: (1) **HTML tag** trong `index.html` — không chọn "HTML file" vì SPA fallback trả 200 cho mọi URL; (2) **Domain name provider** — TXT record tại apex trên Cloudflare. Nhờ (2) mà việc dọn `<head>` ở Giai đoạn C không làm mất quyền sở hữu, nhưng vẫn **không nên xoá** thẻ ở (1) |
+> | Bing Webmaster Tools | ⬜ chưa làm |
+> | Baseline Search Console (mục 2) | ✅ 2026-09-03: clicks 0 / impressions 0 / chưa có query ("No data" — property mới verify, Search Console không có dữ liệu hồi tố). Trang chủ **đã được index** (`Page is indexed`), `URL has no enhancements`. Đã Request Indexing để lấy lại bản có title/description/OG mới |
 > | Registry quyền sử dụng `noiDungQue.json` (mục 3) | ⬜ chưa làm — G1 đang **đóng băng** theo quyết định của owner |
-> | Analytics + định nghĩa event | ⬜ chưa làm |
+> | Analytics — pageview + CWV field data | ✅ Cloudflare Web Analytics đang chạy: **automatic setup ở tầng zone** `qiching.org`, Cloudflare tự chèn beacon ở edge (không có gì trong repo, bundle không tăng). Token `546a4737…c13` **dùng chung cho mọi hostname trong zone** nên `uat.qiching.org` cũng bị tính; `*.pages.dev` thì không (ngoài zone) |
+> | Vệ sinh dữ liệu analytics | ⚠️ Xử lý bằng **lọc lúc đọc**, không chặn thu thập: luôn thêm filter `Hostname equals qiching.org` (+ `Exclude bots`) khi xem báo cáo — nên bookmark URL đã có filter. Bỏ quên filter thì mọi con số bị thổi phồng, đặc biệt nguy hiểm khi đo trước/sau Core Web Vitals. Phương án chặn triệt để (tắt automatic setup, chèn beacon thủ công có điều kiện hostname) đã cân nhắc và **cố ý không chọn** vì không đáng đánh đổi độ phức tạp trong `index.html` |
+> | Custom event (`tool_start`, `tool_complete`, …) | ⬜ chưa làm — hoãn tới sau Giai đoạn A, vì funnel "guide → tool" chưa biểu diễn được khi toàn site còn 1 URL. Cloudflare Web Analytics không hỗ trợ custom event |
 
 1. Đăng ký Google Search Console và Bing Webmaster Tools; bật analytics bảo vệ riêng tư và định nghĩa
    event `tool_start`, `tool_complete`, `guide_to_tool`, `save`, `share`. Tuyệt đối không gửi nội dung
@@ -269,6 +297,25 @@ gắn `noindex` là phương án chuyển tiếp, không phải trạng thái ho
 - Có test cho path trực tiếp, refresh, back/forward, trailing slash, slug sai và URL ngẫu nhiên.
 
 ### Giai đoạn B — Prerender/SSG (quyết định phạm vi trước khi làm)
+
+> **Bằng chứng 2026-09-03 — Googlebot RENDER ĐƯỢC app, nên B hạ ưu tiên so với A.**
+> URL Inspection → Live Test → rendered HTML của `https://qiching.org/` cho thấy Google dựng được
+> toàn bộ cây DOM của React: header, nav 5 tab, khối "Cách khởi quẻ", form "Câu hỏi", nút "Lập quẻ".
+> Không phải `<div id="root">` rỗng. Kết luận: giả định "CSR khiến Google không thấy nội dung" **không
+> đúng với Googlebot** ở thời điểm này.
+>
+> Ba hệ quả:
+> 1. **Nút thắt thật sự là Giai đoạn A, không phải B.** Google render tốt nhưng rendered HTML cho thấy
+>    điều hướng vẫn là `<button type="button">64 Quẻ Kinh Dịch</button>` — **không có một `<a href>`
+>    nào**. Google dựng được trang, rồi không có đường nào đi tiếp. Một URL, zero outgoing link.
+> 2. **B vẫn cần, nhưng vì lý do khác** — không phải để Googlebot thấy nội dung, mà cho: bot preview
+>    mạng xã hội (không chạy JS), Bing (JS-rendering yếu hơn Google), và tốc độ/độ tin cậy của việc
+>    index hàng loạt URL sau khi có router.
+> 3. **Xác nhận rủi ro hydration đã cảnh báo:** rendered HTML có `value="2026-09-02"` và `value="18:27"`
+>    trong khi test chạy lúc Sep 3 08:27 (giờ VN) — tức renderer của Google chạy ở múi giờ khác
+>    (UTC-7). Đây chính là hệ quả của `new Date()` trong initializer của `XemQue`/`TimNgayTot`. Khi làm
+>    prerender, giá trị phụ thuộc "hôm nay" **bắt buộc** phải tách sang client effect hoặc render
+>    placeholder ổn định, nếu không HTML tĩnh sẽ đóng băng một ngày sai.
 
 Phạm vi prerender và phạm vi index là hai quyết định khác nhau. Một route có thể được prerender để
 deep-link/UX ổn định nhưng vẫn `noindex`. Kết luận hiện tại:

@@ -17,7 +17,7 @@ export function GioiThieu() {
           <tbody>
             <tr>
               <th>Khởi quẻ</th>
-              <td>Mai Hoa Dịch Số</td>
+              <td>Mai Hoa Dịch Số hoặc gieo đồng xu</td>
             </tr>
             <tr>
               <th>Luận quẻ</th>
@@ -26,9 +26,15 @@ export function GioiThieu() {
           </tbody>
         </table>
         <p>
+          Khác với nhiều công cụ chỉ dừng ở việc tạo quẻ và lập Lục Hào, QIChing luận giải theo
+          đúng <strong>Dụng Thần</strong> — Lục Thân đại diện cho việc bạn đang hỏi (công việc,
+          tài lộc, con cái...) — rồi xét <strong>vượng suy</strong> của riêng hào đó theo
+          Nhật–Nguyệt, sinh khắc Ngũ Hành, hào động và quẻ biến, thay vì chỉ đọc chung ý nghĩa cả
+          quẻ.
+        </p>
+        <p>
           Trong quá trình luận quẻ, QIChing sử dụng các thông tin như Nạp Giáp, Lục Thân,
-          Thế–Ứng, Nhật–Nguyệt, hào động và quẻ biến; đồng thời xét quan hệ Ngũ Hành, sinh khắc và
-          vượng suy để làm căn cứ diễn giải.
+          Thế–Ứng, Nhật–Nguyệt, hào động và quẻ biến làm căn cứ diễn giải.
         </p>
         <p>
           QIChing hướng đến việc trình bày Dịch học theo cách rõ ràng, có căn cứ và dễ kiểm tra:
@@ -72,7 +78,7 @@ export function GioiThieu() {
             </tr>
             <tr>
               <th>Phương pháp khởi quẻ</th>
-              <td>Mai Hoa Dịch Số</td>
+              <td>Mai Hoa Dịch Số hoặc gieo đồng xu</td>
             </tr>
             <tr>
               <th>Phương pháp luận quẻ</th>

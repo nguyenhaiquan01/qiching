@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Preload font thân bài (Manrope) — xem `src/ui/stitch-theme.css` để biết vì sao bỏ
+         `@import` từ Google Fonts. Chỉ preload 2 subset thực sự dùng ngay khi vẽ trang đầu
+         (latin + vietnamese); latin-ext và Libre Caslon Text để trình duyệt tự tải theo
+         `unicode-range` vì chúng chỉ cần khi hiện tên quẻ, không phải lúc first paint.
+         `crossorigin` là BẮT BUỘC kể cả với font cùng origin — thiếu nó trình duyệt sẽ tải
+         lại lần hai thay vì dùng bản đã preload. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="/fonts/manrope-latin-normal-200_800.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+          href="/fonts/manrope-vietnamese-normal-200_800.woff2" />
+
     <!-- Xác minh quyền sở hữu Google Search Console (property https://qiching.org/).
          KHÔNG được xoá kể cả sau khi verify thành công — gỡ đi là mất quyền sở hữu property.
          Chọn phương thức "HTML tag" thay vì "HTML file" vì Cloudflare Pages đang SPA-fallback:
@@ -15,10 +26,10 @@
          (Giai đoạn 0). Đây là fallback cho bot không chạy JavaScript (Facebook/Zalo/Slack...),
          KHÔNG phải đích đến: khi có prerender + head riêng từng route (Giai đoạn B/C), phải rà
          lại để mỗi trang chỉ còn đúng một <title>/description/canonical, tránh metadata trùng. -->
-    <title>QIChing — Gieo quẻ, luận quẻ Lục Hào và tra cứu 64 quẻ Kinh Dịch</title>
+    <title>QIChing — Luận Lục Hào theo Vượng Suy Dụng Thần, gieo quẻ Kinh Dịch</title>
     <meta
       name="description"
-      content="Công cụ khởi quẻ Kinh Dịch theo Mai Hoa Dịch Số hoặc gieo đồng xu, luận quẻ bằng Lục Hào Nạp Giáp (Thế–Ứng, Lục Thân, vượng suy) và tra cứu 64 quẻ. Chạy hoàn toàn trên trình duyệt, không gửi dữ liệu lên máy chủ."
+      content="QIChing luận Lục Hào theo vượng suy của Dụng Thần — hào đại diện đúng việc bạn hỏi, không chỉ tạo quẻ. Khởi quẻ Mai Hoa hoặc đồng xu, chạy trên trình duyệt."
     />
     <link rel="canonical" href="https://qiching.org/" />
 
@@ -26,10 +37,10 @@
     <meta property="og:site_name" content="QIChing" />
     <meta property="og:locale" content="vi_VN" />
     <meta property="og:url" content="https://qiching.org/" />
-    <meta property="og:title" content="QIChing — Gieo quẻ, luận quẻ Lục Hào và tra cứu 64 quẻ Kinh Dịch" />
+    <meta property="og:title" content="QIChing — Luận Lục Hào theo Vượng Suy Dụng Thần, gieo quẻ Kinh Dịch" />
     <meta
       property="og:description"
-      content="Khởi quẻ theo Mai Hoa Dịch Số hoặc gieo đồng xu, luận quẻ bằng Lục Hào Nạp Giáp và tra cứu 64 quẻ. Chạy hoàn toàn trên trình duyệt."
+      content="QIChing luận Lục Hào theo vượng suy đúng hào đại diện việc bạn hỏi (Dụng Thần) — không chỉ tạo quẻ như nhiều công cụ khác. Khởi quẻ Mai Hoa hoặc đồng xu, chạy trên trình duyệt."
     />
     <meta property="og:image" content="https://qiching.org/og-image.png" />
     <meta property="og:image:width" content="1200" />
@@ -37,10 +48,10 @@
     <meta property="og:image:alt" content="QIChing — Hiểu Dịch · Hiểu Thời · Hiểu Mình" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="QIChing — Gieo quẻ, luận quẻ Lục Hào và tra cứu 64 quẻ Kinh Dịch" />
+    <meta name="twitter:title" content="QIChing — Luận Lục Hào theo Vượng Suy Dụng Thần, gieo quẻ Kinh Dịch" />
     <meta
       name="twitter:description"
-      content="Khởi quẻ theo Mai Hoa Dịch Số hoặc gieo đồng xu, luận quẻ bằng Lục Hào Nạp Giáp và tra cứu 64 quẻ."
+      content="QIChing luận Lục Hào theo vượng suy đúng hào đại diện việc bạn hỏi (Dụng Thần) — không chỉ tạo quẻ như nhiều công cụ khác."
     />
     <meta name="twitter:image" content="https://qiching.org/og-image.png" />
   </head>
