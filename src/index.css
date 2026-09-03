@@ -65,6 +65,18 @@ body {
   padding: 0;
 }
 
+/* Nhích cỡ chữ gốc lên một nấc (16px -> 17px với mặc định trình duyệt). EB Garamond là
+ * old-style serif, x-height nhỏ hơn hẳn font sans trước đây, nên ở cùng `font-size` chữ trông
+ * nhỏ và mảnh hơn — đặc biệt khi đọc trên điện thoại.
+ *
+ * Dùng `%` chứ KHÔNG dùng `px`: cách này vẫn nhân theo cỡ chữ mặc định mà người dùng tự đặt
+ * trong trình duyệt (người mắt kém hay chỉnh lên), còn đặt cứng bằng px sẽ vô hiệu hoá lựa
+ * chọn đó. Gần như toàn bộ `font-size` trong App.css tính bằng `rem` nên chỉ cần sửa ở đây là
+ * cả giao diện giãn đều. */
+html {
+  font-size: 106.25%;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
