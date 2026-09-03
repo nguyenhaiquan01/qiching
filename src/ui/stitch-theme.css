@@ -7,49 +7,82 @@
  * Xem `project-brain/10-ke-hoach-seo.md` mục 1.3.
  *
  * Các khai báo dưới đây giữ nguyên family/style/weight/unicode-range như Google Fonts phục vụ,
- * chỉ khác ở chỗ file nằm cùng origin và được preload trong index.html. Đã bỏ 2 subset
- * cyrillic/greek của Manrope: nội dung site là tiếng Việt nên `unicode-range` không bao giờ
- * khớp, tải về cũng vô ích.
+ * chỉ khác ở chỗ file nằm cùng origin và được preload trong index.html. Chỉ giữ 3 subset
+ * latin / latin-ext / vietnamese (mỗi subset có cả normal lẫn italic); đã bỏ cyrillic,
+ * cyrillic-ext, greek, greek-ext vì nội dung site là tiếng Việt nên `unicode-range` không bao
+ * giờ khớp, tải về cũng vô ích.
  *
- * MỘT FONT DUY NHẤT CHO TOÀN SITE (Manrope). Trước đây tên quẻ (`.hero-que-ten`,
+ * MỘT FONT DUY NHẤT CHO TOÀN SITE: EB Garamond — old-style serif, hợp theme giấy cổ "Địa
+ * Thiên Thái". Trước đây thân bài dùng Manrope còn tên quẻ (`.hero-que-ten`,
  * `.que-dich-ten`) dùng Libre Caslon Text, nhưng font đó KHÔNG có glyph cho dải U+1EA0-1EF9
  * (ị, ầ, ế, ộ, ữ, ẻ...) — Google cũng không phục vụ subset `vietnamese` cho nó — nên chính
  * những cái tên quan trọng nhất bị render lẫn hai kiểu chữ: phần lớn là Caslon, riêng ký tự có
- * dấu rơi về "Times New Roman". Manrope có subset `vietnamese` đầy đủ nên dùng một font vừa
- * thống nhất được nhận diện, vừa hết cảnh lẫn chữ, vừa bớt 6 file font phải tải.
+ * dấu rơi về "Times New Roman". EB Garamond có subset `vietnamese` đầy đủ cho cả normal lẫn
+ * italic, nên một font vừa thống nhất nhận diện, vừa hết cảnh lẫn chữ, vừa giữ vẻ sách cổ.
  *
- * Manrope theo giấy phép SIL OFL 1.1, được phép self-host.
+ * EB Garamond theo giấy phép SIL OFL 1.1, được phép self-host.
  */
-
-/* vietnamese */
-@font-face {
-  font-family: 'Manrope';
-  font-style: normal;
-  font-weight: 200 800;
-  font-display: swap;
-  src: url('/fonts/manrope-vietnamese-normal-200_800.woff2') format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
 
 /* latin-ext */
 @font-face {
-  font-family: 'Manrope';
+  font-family: 'EB Garamond';
   font-style: normal;
-  font-weight: 200 800;
+  font-weight: 400 800;
   font-display: swap;
-  src: url('/fonts/manrope-latin-ext-normal-200_800.woff2') format('woff2');
+  src: url('/fonts/eb-garamond-latin-ext-normal-400_800.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
 /* latin */
 @font-face {
-  font-family: 'Manrope';
+  font-family: 'EB Garamond';
   font-style: normal;
-  font-weight: 200 800;
+  font-weight: 400 800;
   font-display: swap;
-  src: url('/fonts/manrope-latin-normal-200_800.woff2') format('woff2');
+  src: url('/fonts/eb-garamond-latin-normal-400_800.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
+/* vietnamese */
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-vietnamese-normal-400_800.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-latin-ext-italic-400_800.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* latin */
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-latin-italic-400_800.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* vietnamese */
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url('/fonts/eb-garamond-vietnamese-italic-400_800.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
 
 /*
  * Theme "Địa Thiên Thái" (Stitch UI Redesign) — áp cho toàn bộ app (class `.theme-stitch` đặt
@@ -80,7 +113,7 @@
   --hao-duong: var(--text);
   --hao-am-gap: var(--bg);
 
-  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-family: "EB Garamond", "Times New Roman", serif;
   color: var(--text);
   background-color: var(--bg);
   background-image: radial-gradient(circle at 20% 20%, rgba(197, 160, 33, 0.07) 0, transparent 30%),
@@ -163,11 +196,6 @@
   background: transparent;
   border: 1px solid var(--accent);
   color: var(--accent);
-}
-
-.theme-stitch .hero-que-ten,
-.theme-stitch .que-dich-ten {
-  font-family: "Manrope", "Segoe UI", sans-serif;
 }
 
 .theme-stitch .hero-badge {

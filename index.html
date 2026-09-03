@@ -5,16 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Preload font (Manrope) — xem `src/ui/stitch-theme.css` để biết vì sao bỏ `@import`
-         từ Google Fonts. Toàn site dùng DUY NHẤT Manrope, nên preload 2 subset cần ngay khi
-         vẽ trang đầu (latin + vietnamese); latin-ext để trình duyệt tự tải theo `unicode-range`
-         khi thực sự gặp ký tự thuộc dải đó.
+    <!-- Preload font (EB Garamond) — xem `src/ui/stitch-theme.css` để biết vì sao bỏ `@import`
+         từ Google Fonts. Toàn site dùng DUY NHẤT EB Garamond, nên preload 2 subset cần ngay
+         khi vẽ trang đầu (latin + vietnamese, kiểu normal); latin-ext và bản italic để trình
+         duyệt tự tải theo `unicode-range`/`font-style` khi thực sự gặp.
          `crossorigin` là BẮT BUỘC kể cả với font cùng origin — thiếu nó trình duyệt sẽ tải
          lại lần hai thay vì dùng bản đã preload. -->
     <link rel="preload" as="font" type="font/woff2" crossorigin
-          href="/fonts/manrope-latin-normal-200_800.woff2" />
+          href="/fonts/eb-garamond-latin-normal-400_800.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin
-          href="/fonts/manrope-vietnamese-normal-200_800.woff2" />
+          href="/fonts/eb-garamond-vietnamese-normal-400_800.woff2" />
 
     <!-- Xác minh quyền sở hữu Google Search Console (property https://qiching.org/).
          KHÔNG được xoá kể cả sau khi verify thành công — gỡ đi là mất quyền sở hữu property.
