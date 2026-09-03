@@ -98,6 +98,27 @@ field data báo. Hai khả năng chưa loại trừ: (a) mẫu field quá nhỏ 
 nhiều khả năng là *chỉ báo xếp loại*, không phải điểm CLS. Vì vậy: fix font là việc đúng và rẻ, nhưng
 **đừng dùng con số "88% Poor" làm mốc trước/sau** — phải đo lại bằng dữ liệu đã lọc hostname.
 
+### ĐÃ XỬ LÝ 2026-09-03 — self-host font, và hợp nhất về một font duy nhất
+
+Đã lên production (`3037ff9`, deployment `1eff3650-7993-4152-9070-88c50bac4b44`). Ba việc gộp làm một:
+
+1. **Self-host font, bỏ `@import`** → cắt chuỗi request nối tiếp, thêm `<link rel=preload>` trong
+   `index.html`. Kết quả đo A/B trên CDN thật: CLS **0.0234 → 0.0000** (desktop), **0.0691 → 0.0000**
+   (mobile mạng chậm); site không còn gọi `fonts.googleapis.com`/`fonts.gstatic.com`.
+2. **Một font duy nhất cho toàn site.** Trước đây thân bài dùng Manrope, tên quẻ dùng Libre Caslon
+   Text — mà Libre Caslon **không có glyph** cho dải U+1EA0-1EF9, nên chính tên quẻ (chữ to nhất màn
+   hình) bị render lẫn hai kiểu chữ. Đã thử Manrope-cho-tất-cả trước, rồi chốt **EB Garamond**:
+   old-style serif hợp theme giấy cổ, có subset `vietnamese` đủ cho cả normal lẫn italic.
+3. **Thứ tự khai báo `@font-face` là chi tiết có ảnh hưởng thật.** `latin-ext` và `vietnamese` trùng
+   nhau ở ă/đ; theo CSS thì rule khai báo sau thắng. Google xếp `latin-ext` sau nên trình duyệt tải
+   thêm 2 file nặng (111KB + 86KB) dù nội dung thuần tiếng Việt. Đảo để `vietnamese` đứng sau:
+   payload font **309KB → 112KB**, ảnh chụp khác **0/4.720.000 pixel**.
+
+Bài học phương pháp cho lần sau: mọi kết luận ở trên đều đến từ **đo trên app thật** (Playwright +
+so pixel). Các ảnh mockup dựng riêng để so font đã cho kết quả sai hoàn toàn — font Google không nạp
+trong môi trường headless, khiến mọi phương án đều ra serif mặc định, và phép đo bề rộng chữ cũng sai
+vì đo trước khi `document.fonts.load()` hoàn tất. Đừng tin mockup; dựng thẳng trên app rồi chụp.
+
 **Điểm thuận lợi:** vì không có backend, toàn bộ nội dung là dữ liệu tĩnh biết trước tại thời điểm
 build — điều kiện lý tưởng cho prerender/SSG mà không cần vận hành server, giữ đúng mô hình "static
 SPA, không backend" hiện tại.
