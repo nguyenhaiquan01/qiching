@@ -188,9 +188,11 @@ redirect về URL chuẩn hoặc trả 404; không để router chấp nhận v�
    funnel organic → công cụ. Nếu chưa đủ dữ liệu thì ghi `chưa có baseline`, không tự đặt target.
 3. Lập registry quyền sử dụng cho `noiDungQue.json`; đóng băng việc mở index detail quẻ tới khi G1–G3
    có owner và checklist.
-4. Redirect 301 `www.qiching.org/*` và production `qiching.pages.dev/*` về
-   `https://qiching.org/:splat`, giữ path/query. Đây là mirror production nên redirect sạch hơn
-   `noindex`.
+4. Redirect 301 `www.qiching.org/*` về `https://qiching.org/:splat`, giữ path/query. **Phải làm bằng
+   Cloudflare Redirect Rules ở tầng zone (dashboard)** — không làm được từ repo, xem kết quả kiểm
+   chứng bên dưới. Với mirror `qiching.pages.dev`, redirect sạch hơn `noindex` nhưng không đặt được
+   Redirect Rule (domain này không thuộc zone qiching.org); phương án khả thi từ repo là `noindex`,
+   muốn redirect thật thì tắt/đổi domain trong Pages settings.
 5. Với `uat.qiching.org` và `qiching-uat.pages.dev`, ưu tiên Cloudflare Access. Nếu cần public cho
    tester, trả `X-Robots-Tag: noindex` và vẫn cho crawler đọc response; không `Disallow` bằng robots
    cùng lúc.
@@ -199,6 +201,17 @@ UAT và production dùng chung artifact **không ngăn** cấu hình header riê
 `_headers` hỗ trợ pattern URL tuyệt đối, ví dụ `https://uat.qiching.org/*`. Nếu response chuyển sang
 Pages Functions/Worker thì header phải được gắn trong code response vì `_headers` không áp dụng cho
 response do Function sinh.
+
+**Kiểm chứng 2026-09-02 trên UAT — `_headers` và `_redirects` KHÔNG giống nhau ở điểm này:**
+
+| Cơ chế | Match theo hostname (absolute URL ở vế nguồn) | Bằng chứng |
+|---|---|---|
+| `_headers` | **Có** | `https://uat.qiching.org/*` → response trả đúng `x-robots-tag: noindex, nofollow`; hostname khác không bị ảnh hưởng |
+| `_redirects` | **Không** | Cùng một deployment: rule đường dẫn `/__seo-path-test/* → /64-que 301` cho **HTTP 301**, trong khi rule `https://<host>/__seo-redirect-test/* → ... 301` cho **HTTP 200, không redirect** |
+
+Hệ quả thực tế: rule dạng `https://www.qiching.org/* https://qiching.org/:splat 301` trong
+`_redirects` là **rule chết** — im lặng không làm gì và tạo ảo giác "đã xong Giai đoạn E". Vì vậy
+`public/_redirects` hiện cố ý để trống, chỉ dùng cho redirect theo đường dẫn trong cùng site.
 
 Các quick win độc lập có thể đi cùng giai đoạn này:
 

@@ -14,3 +14,10 @@ https://uat.qiching.org/*
 
 https://qiching-uat.pages.dev/*
   X-Robots-Tag: noindex, nofollow
+
+# Mirror kỹ thuật của production. Lẽ ra nên 301 về apex, nhưng `_redirects` không match được
+# hostname (xem `_redirects`), và `pages.dev` không nằm trong zone của qiching.org nên cũng
+# không đặt Redirect Rule cho nó được. `noindex` là phương án khả thi từ repo; muốn redirect
+# thật thì phải tắt/đổi domain trong Pages settings.
+https://qiching.pages.dev/*
+  X-Robots-Tag: noindex, nofollow

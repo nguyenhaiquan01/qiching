@@ -1,11 +1,18 @@
 # Cloudflare Pages redirects — xem legacy/project-brain/10-ke-hoach-seo.md (Giai đoạn 0).
 #
-# Gộp mọi mirror của PRODUCTION về đúng một origin canonical `https://qiching.org`, giữ
-# nguyên path và query (`:splat`). Redirect sạch hơn canonical/noindex cho mirror.
+# CỐ Ý ĐỂ TRỐNG (không có rule nào).
 #
-# QUAN TRỌNG: KHÔNG dùng wildcard kiểu `https://*.pages.dev/*` ở đây. File này cũng được
-# deploy lên project UAT (chung artifact), nên một rule quá rộng sẽ đá `qiching-uat.pages.dev`
-# về production và làm mất luôn đường vào UAT. Hai rule dưới chỉ khớp đúng hostname production.
-
-https://www.qiching.org/* https://qiching.org/:splat 301
-https://qiching.pages.dev/* https://qiching.org/:splat 301
+# Đã kiểm chứng trên UAT ngày 2026-09-02: Pages `_redirects` KHÔNG match theo hostname ở vế
+# nguồn. Bằng chứng, cùng một deployment:
+#   - `/__seo-path-test/*  ->  /64-que  301`                    => HTTP 301 (file có được parse)
+#   - `https://<host>/__seo-redirect-test/*  ->  ...  301`       => HTTP 200, không redirect
+# Nên rule dạng `https://www.qiching.org/* ... 301` là rule CHẾT: im lặng không làm gì, dễ
+# gây ảo giác "đã xong redirect".
+#
+# Vì vậy:
+#   - Gộp `www.qiching.org` -> apex: phải làm bằng Cloudflare **Redirect Rules** ở tầng zone
+#     (dashboard), không làm được từ repo.
+#   - Chặn mirror `qiching.pages.dev`: dùng `X-Robots-Tag: noindex` trong `_headers` — cơ chế
+#     match theo absolute URL ở `_headers` ĐÃ được kiểm chứng là hoạt động.
+#
+# Chỉ thêm rule vào file này khi đó là redirect theo ĐƯỜNG DẪN trong cùng một site.
