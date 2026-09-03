@@ -5,6 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Xác minh quyền sở hữu Google Search Console (property https://qiching.org/).
+         KHÔNG được xoá kể cả sau khi verify thành công — gỡ đi là mất quyền sở hữu property.
+         Chọn phương thức "HTML tag" thay vì "HTML file" vì Cloudflare Pages đang SPA-fallback:
+         mọi URL không tồn tại đều trả HTTP 200, dễ làm bước verify bằng file thất bại. -->
+    <meta name="google-site-verification" content="3wnaZHQR4sB9K2cFjwEaCEkd4D8-EJlS2AkJLxr0Yo8" />
+
     <!-- Metadata TĨNH, dùng chung cho toàn site — xem legacy/project-brain/10-ke-hoach-seo.md
          (Giai đoạn 0). Đây là fallback cho bot không chạy JavaScript (Facebook/Zalo/Slack...),
          KHÔNG phải đích đến: khi có prerender + head riêng từng route (Giai đoạn B/C), phải rà

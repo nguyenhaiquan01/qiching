@@ -181,6 +181,19 @@ redirect về URL chuẩn hoặc trả 404; không để router chấp nhận v�
 
 ### Giai đoạn 0 — Baseline, governance và domain hygiene (làm ngay)
 
+> **Tiến độ 2026-09-03** (đã lên production, SHA `e46cb41` — xem `06-deployment.md` mục 3.1):
+>
+> | Việc | Trạng thái |
+> |---|---|
+> | `robots.txt` hợp lệ (`text/plain`, không còn app shell) | ✅ đã lên prod |
+> | Meta/OG/Twitter/canonical tĩnh trong `index.html` + ảnh OG 1200×630 (`public/og-image.png`) | ✅ đã lên prod |
+> | `noindex` cho `uat.qiching.org`, `qiching-uat.pages.dev`, `qiching.pages.dev` (`public/_headers`) | ✅ đã kiểm chứng bằng HTTP |
+> | Hostname preview `<hash>.pages.dev` | ✅ Cloudflare tự gắn `x-robots-tag: noindex`, không cần làm gì |
+> | 301 `www.qiching.org` → apex, giữ path/query | ✅ Cloudflare Redirect Rule (zone), đã kiểm chứng 3 case |
+> | Đăng ký Search Console/Bing + baseline (mục 1, 2) | ⬜ chưa làm |
+> | Registry quyền sử dụng `noiDungQue.json` (mục 3) | ⬜ chưa làm — G1 đang **đóng băng** theo quyết định của owner |
+> | Analytics + định nghĩa event | ⬜ chưa làm |
+
 1. Đăng ký Google Search Console và Bing Webmaster Tools; bật analytics bảo vệ riêng tư và định nghĩa
    event `tool_start`, `tool_complete`, `guide_to_tool`, `save`, `share`. Tuyệt đối không gửi nội dung
    câu hỏi/kết quả vào event payload.

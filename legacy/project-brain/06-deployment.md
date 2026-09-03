@@ -48,6 +48,25 @@ npx wrangler pages deployment list --project-name=qiching
 
 ## 3. Ảnh chụp trạng thái đã xác minh
 
+### 3.1. Phát hành 2026-09-03 (`e46cb41`) — đi đúng quy trình mục 6
+
+| Hạng mục | Giá trị |
+|---|---|
+| Git SHA | `e46cb41005973ddd4be972e74db78c5d2e9f42dd`, nhánh `main`, đã push, working tree sạch |
+| Deployment ID (production) | `b3252509-ed6c-477c-b9b5-97d5f3974573`, Source hiển thị `e46cb41` — **khớp** |
+| Artifact | `index-DPFxBg86.js`, `index-BKmrAyUy.css` — cùng một `dist/` đã upload lên UAT trước, **không build lại** giữa hai bước |
+| Gate | `npm ci` → lint sạch → 83/83 test → build → ghi checksum `dist/` |
+
+Khác với lần trước, lần này UAT cũng được upload bằng `wrangler ... --commit-hash=e46cb41` thay vì
+script tiện ích, nên Source SHA trên cả hai môi trường đều phản ánh đúng nội dung đang phục vụ.
+
+Smoke test production sau phát hành: trang chủ, `favicon.svg`, SPA fallback đều 200; `robots.txt` trả
+`text/plain` (trước đó là app shell HTML); `og-image.png` 200. Hai kiểm tra quan trọng về scoping của
+`_headers`: `qiching.org` **không** dính `X-Robots-Tag`, còn `qiching.pages.dev` **có**
+`noindex, nofollow` — đúng thiết kế.
+
+### 3.2. Audit 2026-09-02 (bối cảnh của blocker ở mục 4)
+
 Trạng thái sau chỉ là bằng chứng audit tại ngày **2026-09-02**, không phải cấu hình cố định:
 
 | Môi trường | Source SHA Cloudflare hiển thị | Deployment ID | Trạng thái cần lưu ý |
@@ -207,14 +226,31 @@ curl -fsS https://qiching.org/favicon.svg > /dev/null
 
 ## 8. Canonical origin và dữ liệu người dùng
 
-Domain chuẩn của production là `https://qiching.org`. Cần cấu hình redirect vĩnh viễn
-`https://www.qiching.org/*` sang `https://qiching.org/*` trong Cloudflare và kiểm tra lại bằng HTTP
-status/`Location`. `qiching.pages.dev` chỉ là endpoint kỹ thuật, không nên phát cho người dùng như
-URL chính.
+Domain chuẩn của production là `https://qiching.org`.
+
+**Đã cấu hình xong 2026-09-03** — redirect vĩnh viễn `https://www.qiching.org/*` →
+`https://qiching.org/*` bằng **Cloudflare Redirect Rule ở tầng zone** (dynamic redirect,
+`concat("https://qiching.org", http.request.uri.path)`, 301, bật *Preserve query string*).
+Kiểm chứng bằng HTTP thật:
+
+| Request | Kết quả |
+|---|---|
+| `https://www.qiching.org/` | 301 → `https://qiching.org/` |
+| `https://www.qiching.org/64-que` | 301 → `https://qiching.org/64-que` (giữ path) |
+| `https://www.qiching.org/64-que?x=1` | 301 → `https://qiching.org/64-que?x=1` (giữ query), 1 hop, kết thúc ở 200 |
+
+**Không** làm được việc này bằng `public/_redirects`: Pages `_redirects` không match theo hostname ở
+vế nguồn (bằng chứng ở mục 4 của `10-ke-hoach-seo.md`), rule sẽ im lặng không chạy.
+
+`qiching.pages.dev` chỉ là endpoint kỹ thuật, không phát cho người dùng như URL chính; hiện được gắn
+`X-Robots-Tag: noindex, nofollow` qua `public/_headers`. Các hostname preview dạng
+`<hash>.qiching.pages.dev` đã được chính Cloudflare gắn `x-robots-tag: noindex` sẵn.
 
 Nếu không redirect, dữ liệu đã lưu ở `qiching.org`, `www.qiching.org` và `qiching.pages.dev` không
-nhìn thấy nhau vì đây là ba origin khác nhau. UAT là origin tách biệt theo chủ đích; không dùng dữ
-liệu UAT làm bằng chứng rằng production đã lưu đúng.
+nhìn thấy nhau vì đây là ba origin khác nhau. Lưu ý: redirect `www` gộp origin cho lần truy cập
+**sau**, nhưng **không** di chuyển dữ liệu `localStorage` mà người dùng đã lưu ở origin `www` trước
+đó — dữ liệu đó vẫn nằm lại ở origin cũ và không còn đường truy cập qua trình duyệt. UAT là origin
+tách biệt theo chủ đích; không dùng dữ liệu UAT làm bằng chứng rằng production đã lưu đúng.
 
 ## 9. Rollback và khôi phục
 
