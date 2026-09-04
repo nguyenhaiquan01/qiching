@@ -253,6 +253,10 @@ sách landing page phải tạo bằng mọi giá.
 | Giới thiệu/phương pháp/nguồn | `/gioi-thieu` và route trust cần thiết | Index nếu có nội dung hữu ích, không tạo trang hình thức |
 | Quẻ đã lưu/kết quả cá nhân | `/que-da-luu`, state kết quả | `noindex`, không sitemap, không public hóa dữ liệu |
 | Hướng dẫn Nạp Giáp/Lục Thân/Thế–Ứng | `/huong-dan/nap-giap`, `/huong-dan/luc-than`, `/huong-dan/the-ung` (đề xuất 2026-09-04 — xem research SERP mục 1.4; URL cuối vẫn cần domain reviewer duyệt) | Ưu tiên viết trước — SERP hiện yếu/cũ (forum 2010s, không có nội dung hiện đại). Mỗi trang: định nghĩa, cách tính, ví dụ, link sang công cụ và quẻ minh hoạ. Qua đủ G2 (copyedit/domain review) trước khi index, tránh cannibalization với nhau và với `/gioi-thieu` |
+| Hướng dẫn Quẻ biến/Hào động | `/huong-dan/que-bien` (đề xuất 2026-09-04) | Cạnh tranh vừa (đã có vài site làm bài bản: votranh.com, horos.vn) — vẫn đáng làm vì đúng phần QIChing tự tính. **Rủi ro domain riêng**: SERP hiện lẫn thuật ngữ Thể/Dụng (Mai Hoa Dịch Số) vào bài giải thích hào động/quẻ biến — bài phải tách rõ khỏi Thế/Ứng (Lục Hào), không dùng lẫn hai khung lý thuyết |
+| Hướng dẫn Tuần Không | `/huong-dan/tuan-khong` (đề xuất 2026-09-04) | Cạnh tranh vừa (kinhdichluchao.vn, votranh.com đã viết khá tốt) nhưng vẫn còn dư địa; đúng dữ liệu QIChing tự tính. Cần phân biệt rõ với Triệt Không/Tử Vi (nhầm lẫn phổ biến trên các forum) |
+| Hướng dẫn Lục Thần (Thanh Long/Bạch Hổ...) | Chưa quyết định URL | **Không nên dùng title/từ khóa rộng** "Lục Thần Kinh Dịch" — SERP bị Tứ Tượng phong thủy (chủ đề khác, phổ biến hơn nhiều) lấn át hoàn toàn. Nếu làm, phải long-tail rõ ("Lục Thần trong Bốc Dịch Lục Hào") — ưu tiên thấp hơn 2 dòng trên |
+| "Cách đọc kết quả" | Không tách URL riêng | Gộp vào `/gioi-thieu` hoặc trang chủ — tách riêng dễ cannibalize, và đây không phải một khái niệm để rank từ khóa mà là hướng dẫn dùng công cụ |
 
 Mỗi quẻ có một URL canonical cho mọi alias. Slug sai, alias URL hoặc biến thể trailing slash phải
 redirect về URL chuẩn hoặc trả 404; không để router chấp nhận vô hạn URL khác nhau cho cùng `soThuTu`.
