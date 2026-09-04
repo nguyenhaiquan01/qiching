@@ -70,9 +70,17 @@ export function phanGiaiSlugQue(slug: string | undefined): KetQuaPhanGiai {
     const so = Number(khopSo[1]);
     const que = DANH_SACH_QUE.find((q) => q.soThuTu === so);
     if (!que) return { trangThai: "khongThay" };
-    return chuanHoa === slugQue(que)
-      ? { trangThai: "khop", que }
-      : { trangThai: "canRedirect", que, duongDanChuan: duongDanQue(que) };
+    if (chuanHoa === slugQue(que)) return { trangThai: "khop", que };
+    // CHỈ redirect khi slug đúng dạng "chỉ có số" (`/64-que/46`) — đây cũng chính là dạng được
+    // `_redirects` xử lý bằng 301 ở tầng hosting, nên client và server nói cùng một thứ.
+    //
+    // Còn slug có phần chữ nhưng SAI (`/64-que/46-sai-be-bet`) thì coi như không tồn tại. Lý do:
+    // hosting không có file cho URL đó nên trả 404 + `404.html`; nếu client lại tự redirect thì
+    // hai bên bất đồng, vừa gây hydration mismatch vừa cho một URL bịa ra được "sống" bằng 301.
+    if (khopSo[2] === undefined) {
+      return { trangThai: "canRedirect", que, duongDanChuan: duongDanQue(que) };
+    }
+    return { trangThai: "khongThay" };
   }
 
   const theoTen = DANH_SACH_QUE.filter((q) => boDau(q.tenQue) === chuanHoa);
@@ -81,3 +89,17 @@ export function phanGiaiSlugQue(slug: string | undefined): KetQuaPhanGiai {
   }
   return { trangThai: "khongThay" };
 }
+
+/** Các route tĩnh (không tính 64 trang chi tiết quẻ). Thứ tự này cũng là thứ tự trong menu. */
+export const DUONG_DAN_TINH = ["/", "/tim-ngay-tot", "/64-que", "/que-da-luu", "/gioi-thieu"] as const;
+
+/**
+ * TOÀN BỘ đường dẫn hợp lệ của site — nguồn dùng chung cho prerender (Giai đoạn B) và sitemap
+ * (Giai đoạn D2). Sinh từ chính `DANH_SACH_QUE` nên không thể lệch với router: thêm/bớt quẻ là
+ * cả hai nơi cùng đổi.
+ *
+ * Quan trọng với Giai đoạn B: chỉ khi MỌI route hợp lệ đều có file HTML riêng thì mới được
+ * thêm `404.html`, vì `404.html` sẽ tắt SPA fallback của Cloudflare Pages — route nào thiếu
+ * file sẽ thành 404 thật.
+ */
+export const DANH_SACH_DUONG_DAN: string[] = [...DUONG_DAN_TINH, ...DANH_SACH_QUE.map(duongDanQue)];

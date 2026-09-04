@@ -67,14 +67,20 @@ describe("phanGiaiSlugQue", () => {
     }
   });
 
-  it("số đúng nhưng phần chữ sai thì REDIRECT chứ không phục vụ cùng nội dung ở URL khác", () => {
-    for (const slug of ["46-sai-be-bet", "46", "46-dia-phong"]) {
-      const kq = phanGiaiSlugQue(slug);
-      expect(kq.trangThai).toBe("canRedirect");
-      if (kq.trangThai === "canRedirect") {
-        expect(kq.que.soThuTu).toBe(46);
-        expect(kq.duongDanChuan).toBe("/64-que/46-dia-phong-thang");
-      }
+  it("chỉ có số thì redirect về canonical", () => {
+    const kq = phanGiaiSlugQue("46");
+    expect(kq.trangThai).toBe("canRedirect");
+    if (kq.trangThai === "canRedirect") {
+      expect(kq.que.soThuTu).toBe(46);
+      expect(kq.duongDanChuan).toBe("/64-que/46-dia-phong-thang");
+    }
+  });
+
+  it("số đúng nhưng phần chữ SAI thì coi như không tồn tại, không redirect", () => {
+    // Hosting không có file tĩnh cho URL bịa ra nên trả 404; client phải nói cùng một thứ, nếu
+    // không sẽ vừa lệch hydration vừa cho URL bịa "sống" bằng 301.
+    for (const slug of ["46-sai-be-bet", "46-dia-phong", "46-"]) {
+      expect(phanGiaiSlugQue(slug).trangThai).toBe("khongThay");
     }
   });
 

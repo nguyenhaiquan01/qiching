@@ -9,6 +9,7 @@ import { QueDaLuu } from "./pages/QueDaLuu";
 import { GioiThieu } from "./pages/GioiThieu";
 import { DANH_SACH_QUE, duongDanQue, phanGiaiSlugQue, timQueTheoTenChuan } from "./ui/duongDan";
 import type { QueDaGieoDaLuu } from "./core/coinCasting/storage";
+import { MetaQue, MetaTrang } from "./ui/MetaTrang";
 
 /** Menu điều hướng. Mỗi mục là một URL thật (`<a href>` qua `NavLink`) chứ không phải
  * `<button>` như trước — bot mới có đường bò sang các trang khác, xem
@@ -82,7 +83,13 @@ function TrangXemQue() {
   const state = (location.state ?? null) as StateXemLai | null;
 
   return (
-    <XemQue
+    <>
+      <MetaTrang
+        tieuDe="QIChing — Luận Lục Hào theo Vượng Suy Dụng Thần, gieo quẻ Kinh Dịch"
+        moTa="Khởi quẻ Kinh Dịch theo Mai Hoa Dịch Số hoặc gieo đồng xu, rồi luận Lục Hào theo vượng suy của Dụng Thần — hào đại diện đúng việc bạn hỏi. Chạy hoàn toàn trên trình duyệt."
+        duongDan="/"
+      />
+      <XemQue
       // Remount khi chọn "Xem lại" một quẻ khác: `location.key` đổi theo từng lần điều hướng
       // nên thay được cho `key` cũ ghép từ createdAt/thời điểm.
       key={location.key}
@@ -92,7 +99,8 @@ function TrangXemQue() {
         const que = timQueTheoTenChuan(tenQueChuan);
         if (que) navigate(duongDanQue(que));
       }}
-    />
+      />
+    </>
   );
 }
 
@@ -107,11 +115,14 @@ function TrangChiTietQue() {
 
   const viTri = DANH_SACH_QUE.findIndex((q) => q.tenQueChuan === ketQua.que.tenQueChuan);
   return (
-    <ChiTietQue
+    <>
+      <MetaQue que={ketQua.que} />
+      <ChiTietQue
       que={ketQua.que}
       quaTruoc={viTri > 0 ? DANH_SACH_QUE[viTri - 1] : undefined}
       quaSau={viTri < DANH_SACH_QUE.length - 1 ? DANH_SACH_QUE[viTri + 1] : undefined}
-    />
+      />
+    </>
   );
 }
 
@@ -120,7 +131,12 @@ function TrangQueDaLuu() {
   return (
     <>
       {/* Trang chứa dữ liệu cá nhân, không được index — xem mục 3.2 của kế hoạch SEO. */}
-      <meta name="robots" content="noindex, follow" />
+      <MetaTrang
+        tieuDe="Quẻ đã lưu | QIChing"
+        moTa="Danh sách quẻ bạn đã lưu trên thiết bị này. Dữ liệu nằm trong trình duyệt, không gửi lên máy chủ."
+        duongDan="/que-da-luu"
+        khongIndex
+      />
       <QueDaLuu
         onXemLaiTheoThoiGian={(time) => navigate("/", { state: { thoiDiem: time.getTime() } satisfies StateXemLai })}
         onXemLaiGieoDongXu={(gieoQue) => navigate("/", { state: { gieoQue } satisfies StateXemLai })}
@@ -136,7 +152,12 @@ function TrangQueDaLuu() {
 function KhongTimThay() {
   return (
     <>
-      <meta name="robots" content="noindex, follow" />
+      <MetaTrang
+        tieuDe="Không tìm thấy trang | QIChing"
+        moTa="Đường dẫn không tồn tại hoặc đã thay đổi."
+        duongDan="/404"
+        khongIndex
+      />
       <div className="the">
         <h2>Không tìm thấy trang</h2>
         <p className="giai-thich">
@@ -149,16 +170,57 @@ function KhongTimThay() {
   );
 }
 
+function TrangDanhSachQue() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="64 quẻ Kinh Dịch — danh sách đầy đủ, tra theo số và tên quẻ | QIChing"
+        moTa="Danh sách đầy đủ 64 quẻ Kinh Dịch theo đúng thứ tự, kèm đồ hình sáu hào. Mở từng quẻ để xem cấu trúc, nội/ngoại quái, cung, Thoán Từ và Hào Từ."
+        duongDan="/64-que"
+      />
+      <DanhSachQue danhSach={DANH_SACH_QUE} />
+    </>
+  );
+}
+
+function TrangTimNgayTot() {
+  return (
+    <>
+      {/* Tiêu đề nói đúng thứ tính năng làm: quét theo điểm Lục Hào. KHÔNG hứa lịch vạn niên
+          (tuổi, 12 Trực, hoàng/hắc đạo) vì sản phẩm không tính những thứ đó — mục 1.4 kế hoạch. */}
+      <MetaTrang
+        tieuDe="Tìm thời điểm thuận theo quẻ Dịch — quét theo Lục Hào | QIChing"
+        moTa="Quét một khoảng ngày giờ và chấm điểm từng thời điểm theo vượng suy Lục Hào của việc bạn hỏi. Đây là công cụ theo phương pháp Dịch học, không phải lịch vạn niên."
+        duongDan="/tim-ngay-tot"
+      />
+      <TimNgayTot />
+    </>
+  );
+}
+
+function TrangGioiThieu() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="Giới thiệu QIChing — phương pháp, nguồn dữ liệu và giới hạn"
+        moTa="QIChing khởi quẻ theo Mai Hoa Dịch Số hoặc gieo đồng xu và luận quẻ bằng Lục Hào Nạp Giáp. Trang này nói rõ phương pháp, dữ liệu dùng và giới hạn của công cụ."
+        duongDan="/gioi-thieu"
+      />
+      <GioiThieu />
+    </>
+  );
+}
+
 function App() {
   return (
     <Routes>
       <Route element={<BoCuc />}>
         <Route index element={<TrangXemQue />} />
-        <Route path="tim-ngay-tot" element={<TimNgayTot />} />
-        <Route path="64-que" element={<DanhSachQue danhSach={DANH_SACH_QUE} />} />
+        <Route path="tim-ngay-tot" element={<TrangTimNgayTot />} />
+        <Route path="64-que" element={<TrangDanhSachQue />} />
         <Route path="64-que/:slug" element={<TrangChiTietQue />} />
         <Route path="que-da-luu" element={<TrangQueDaLuu />} />
-        <Route path="gioi-thieu" element={<GioiThieu />} />
+        <Route path="gioi-thieu" element={<TrangGioiThieu />} />
         <Route path="*" element={<KhongTimThay />} />
       </Route>
     </Routes>

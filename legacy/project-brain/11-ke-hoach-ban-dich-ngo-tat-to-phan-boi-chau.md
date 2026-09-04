@@ -1,7 +1,25 @@
 # 11 – Kế hoạch bổ sung 2 bản dịch (Ngô Tất Tố, Phan Bội Châu) + toggle giao diện
 
-> **Trạng thái:** kế hoạch/khảo sát — CHƯA triển khai code. Việc (a) và (b) mô tả dưới đây là
-> việc cần làm, không phải việc đã làm.
+> **Trạng thái (2026-09-04): đã triển khai và deploy thử lên UAT.**
+> - Việc (a): `src/core/data/noiDungQueNgoTatTo.{json,ts}` và `noiDungQuePhanBoiChau.{json,ts}`
+>   — theo đúng Phương án B đã chốt, cả 64 quẻ × 2 nguồn, có test cấu trúc riêng
+>   (`src/core/__tests__/noiDungQueNgoTatTo.test.ts`, `...PhanBoiChau.test.ts`).
+> - Việc (b): toggle 3 bản trong `src/pages/ChiTietQue.tsx`, lazy-load qua `import()` động khi
+>   đổi bản, ghi nhớ lựa chọn bằng `localStorage`, có xử lý SSR-safe (khởi tạo ổn định rồi đọc
+>   `localStorage` trong effect — tránh hydration mismatch, cùng pattern đã dùng ở
+>   `QueDaLuu.tsx`).
+> - Đã build + kiểm tra bằng Playwright (chụp màn hình cả 3 bản, kiểm tra chuyển quẻ trước/sau
+>   khi đang ở bản khác mặc định, kiểm tra `localStorage` giữ lựa chọn qua reload) rồi deploy
+>   thử: https://cb8fdaba.qiching-uat.pages.dev — chưa commit vào git (chờ owner duyệt).
+> - **Phát hiện ngoài phạm vi việc này**: lỗi hydration mismatch (React error #418) xuất hiện
+>   trên hầu hết route sau khi prerender (kể cả `/gioi-thieu`, quẻ không liên quan tới toggle) —
+>   đã xác nhận đây là lỗi có sẵn từ trước, không phải do việc (a)/(b) gây ra, và không làm
+>   hỏng nội dung hiển thị (React tự phục hồi), nhưng cần được điều tra riêng.
+> - Đã biết còn thiếu: hàng loạt LỜI KINH/GIẢI NGHĨA của Ngô Tất Tố không tách theo tác giả (Trình
+>   Di/Chu Hy/Tiên Nho — xem comment đầu `noiDungQueNgoTatTo.ts`); vài chỗ nội dung rơi vào
+>   nhầm field (`dichAm` thay vì `dichNghia`) khi nguồn OCR sai nhãn hiếm gặp; 1 quẻ (32) hào 1
+>   Ngô Tất Tố mất hẳn Hào Từ (nguồn tự thiếu, không phải lỗi trích xuất) — không chặn việc
+>   dùng thử ở UAT nhưng nên biết trước khi mở public.
 
 > **Quyết định của owner (chốt, thay thế các khuyến nghị mâu thuẫn bên dưới):**
 > 1. **Quyền sử dụng: OK** — Ngô Tất Tố mất 1954, Phan Bội Châu mất 1940, cả hai đã hơn 50 năm kể

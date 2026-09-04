@@ -11,9 +11,19 @@ function themNgay(ngay: string, soNgay: number): string {
 
 /** Trang "Tìm ngày tốt" — port từ frmTimNgayTotTheoQueDich, chạy vòng quét trong Web Worker. */
 export function TimNgayTot() {
-  const homNay = new Date().toISOString().slice(0, 10);
-  const [ngayBatDau, setNgayBatDau] = useState(homNay);
-  const [ngayKetThuc, setNgayKetThuc] = useState(themNgay(homNay, 15));
+  // Khởi tạo rỗng rồi điền sau khi mount — xem ghi chú cùng lý do ở `XemQue.tsx`: "hôm nay"
+  // không deterministic nên không được nướng vào HTML prerender.
+  const [ngayBatDau, setNgayBatDau] = useState("");
+  const [ngayKetThuc, setNgayKetThuc] = useState("");
+
+  useEffect(() => {
+    const homNay = new Date().toISOString().slice(0, 10);
+    // Cố ý set trong effect: giá trị phụ thuộc
+    // thời điểm/thiết bị nên KHÔNG được nướng vào HTML prerender (Giai đoạn B). Khởi
+    // tạo ổn định rồi set sau khi mount là cách tránh hydration mismatch.
+    setNgayBatDau(homNay);
+    setNgayKetThuc(themNgay(homNay, 15));
+  }, []);
   const [gioHangNgay, setGioHangNgay] = useState("12:00");
   const [viec, setViec] = useState<string>(CHU_DE[0].lucThan);
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { QueDich } from "../core/queDich";
 import { tinhAmLich } from "../core/lunar";
 import { luuQueInfo } from "../core/storage";
@@ -57,9 +57,23 @@ export function XemQue({
   const [cauHoi, setCauHoi] = useState(gieoQueBanDau?.cauHoi ?? "");
 
   // --- Nhánh "Theo thời gian" ---
-  const gio = thoiDiemBanDau ?? new Date();
-  const [ngayStr, setNgayStr] = useState(denChuoiNgay(gio));
-  const [gioStr, setGioStr] = useState(denChuoiGio(gio));
+  // Giá trị mặc định là "bây giờ", mà "bây giờ" KHÔNG deterministic: khi trang được prerender
+  // (Giai đoạn B của kế hoạch SEO) thì HTML tĩnh sẽ đóng băng đúng thời điểm build, rồi lệch
+  // với lần render đầu ở client -> hydration mismatch, và người dùng thấy ngày cũ. Vì vậy khởi
+  // tạo rỗng (ổn định trên cả server lẫn client) rồi mới điền trong effect sau khi mount.
+  // Trường hợp `thoiDiemBanDau` (xem lại quẻ đã lưu) thì giá trị đến từ props nên vẫn ổn định.
+  const [ngayStr, setNgayStr] = useState(thoiDiemBanDau ? denChuoiNgay(thoiDiemBanDau) : "");
+  const [gioStr, setGioStr] = useState(thoiDiemBanDau ? denChuoiGio(thoiDiemBanDau) : "");
+
+  useEffect(() => {
+    if (thoiDiemBanDau) return;
+    const bayGio = new Date();
+    // Cố ý set trong effect: giá trị phụ thuộc
+    // thời điểm/thiết bị nên KHÔNG được nướng vào HTML prerender (Giai đoạn B). Khởi
+    // tạo ổn định rồi set sau khi mount là cách tránh hydration mismatch.
+    setNgayStr(denChuoiNgay(bayGio));
+    setGioStr(denChuoiGio(bayGio));
+  }, [thoiDiemBanDau]);
   const [loaiQue, setLoaiQue] = useState<LoaiQue>("mot-viec");
   const [binhChu, setBinhChu] = useState("");
   const [daLuu, setDaLuu] = useState(false);
@@ -69,6 +83,11 @@ export function XemQue({
   const dungThan = loaiQue === "mot-viec" ? dungThanTuChuDe(chuDe, vietTrucTiep) : undefined;
 
   const thoiDiem = useMemo(() => {
+    // Trước khi mount, `ngayStr`/`gioStr` còn rỗng (xem ghi chú ở phần khởi tạo) nên phép
+    // parse cho ra Invalid Date và làm thư viện âm lịch ném lỗi giữa lúc prerender. Trả về một
+    // mốc CỐ ĐỊNH ở đây: vừa deterministic (server và client cho ra HTML giống nhau), vừa vô
+    // hại vì `daLapQue` lúc đó là false nên không có kết quả nào được hiển thị.
+    if (!ngayStr || !gioStr) return new Date(2000, 0, 1, 12, 0, 0);
     const [y, m, d] = ngayStr.split("-").map(Number);
     const [h, min] = gioStr.split(":").map(Number);
     return new Date(y, m - 1, d, h, min, 0);

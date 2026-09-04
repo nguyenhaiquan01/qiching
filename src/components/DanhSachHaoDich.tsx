@@ -46,16 +46,6 @@ export function DanhSachHaoDich({
         );
         return (
           <div key={i} className={`hao-hang${laDong ? " dong" : ""}`}>
-            <div className="hao-nhan" style={{ fontWeight: daDam ? 700 : undefined }}>
-              {haoTu ? (
-                <HoverInfo trigger={nhan}>
-                  <h4>Hào Từ — {haoTu.nhan}</h4>
-                  <p>{haoTu.noiDung}</p>
-                </HoverInfo>
-              ) : (
-                nhan
-              )}
-            </div>
             {!anVach && (
               <div className="hao-vach">
                 {vachAm(que.tenQueThuong, que.tenQueHa, i) ? (
@@ -68,6 +58,16 @@ export function DanhSachHaoDich({
                 )}
               </div>
             )}
+            <div className="hao-nhan" style={{ fontWeight: daDam ? 700 : undefined }}>
+              {haoTu ? (
+                <HoverInfo trigger={nhan}>
+                  <h4>Hào Từ — {haoTu.nhan}</h4>
+                  <p>{haoTu.noiDung}</p>
+                </HoverInfo>
+              ) : (
+                nhan
+              )}
+            </div>
             <div className="hao-than">{hao.than}</div>
           </div>
         );

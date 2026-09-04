@@ -22,38 +22,11 @@
          mọi URL không tồn tại đều trả HTTP 200, dễ làm bước verify bằng file thất bại. -->
     <meta name="google-site-verification" content="3wnaZHQR4sB9K2cFjwEaCEkd4D8-EJlS2AkJLxr0Yo8" />
 
-    <!-- Metadata TĨNH, dùng chung cho toàn site — xem legacy/project-brain/10-ke-hoach-seo.md
-         (Giai đoạn 0). Đây là fallback cho bot không chạy JavaScript (Facebook/Zalo/Slack...),
-         KHÔNG phải đích đến: khi có prerender + head riêng từng route (Giai đoạn B/C), phải rà
-         lại để mỗi trang chỉ còn đúng một <title>/description/canonical, tránh metadata trùng. -->
-    <title>QIChing — Luận Lục Hào theo Vượng Suy Dụng Thần, gieo quẻ Kinh Dịch</title>
-    <meta
-      name="description"
-      content="QIChing luận Lục Hào theo vượng suy của Dụng Thần — hào đại diện đúng việc bạn hỏi, không chỉ tạo quẻ. Khởi quẻ Mai Hoa hoặc đồng xu, chạy trên trình duyệt."
-    />
-    <link rel="canonical" href="https://qiching.org/" />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="QIChing" />
-    <meta property="og:locale" content="vi_VN" />
-    <meta property="og:url" content="https://qiching.org/" />
-    <meta property="og:title" content="QIChing — Luận Lục Hào theo Vượng Suy Dụng Thần, gieo quẻ Kinh Dịch" />
-    <meta
-      property="og:description"
-      content="QIChing luận Lục Hào theo vượng suy đúng hào đại diện việc bạn hỏi (Dụng Thần) — không chỉ tạo quẻ như nhiều công cụ khác. Khởi quẻ Mai Hoa hoặc đồng xu, chạy trên trình duyệt."
-    />
-    <meta property="og:image" content="https://qiching.org/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="QIChing — Hiểu Dịch · Hiểu Thời · Hiểu Mình" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="QIChing — Luận Lục Hào theo Vượng Suy Dụng Thần, gieo quẻ Kinh Dịch" />
-    <meta
-      name="twitter:description"
-      content="QIChing luận Lục Hào theo vượng suy đúng hào đại diện việc bạn hỏi (Dụng Thần) — không chỉ tạo quẻ như nhiều công cụ khác."
-    />
-    <meta name="twitter:image" content="https://qiching.org/og-image.png" />
+    <!-- KHÔNG khai title/description/canonical/OG ở đây nữa.
+         Từ Giai đoạn C, metadata do `src/ui/MetaTrang.tsx` render theo từng route và React 19
+         tự hoist lên <head>. Giữ thêm bản tĩnh ở đây sẽ thành hai bộ thẻ song song, trùng và
+         mâu thuẫn nhau (yêu cầu 1 của Giai đoạn C trong project-brain/10-ke-hoach-seo.md).
+         Bot không chạy JS đọc được metadata nhờ HTML đã prerender ở Giai đoạn B. -->
   </head>
   <body>
     <div id="root"></div>

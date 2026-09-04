@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   taiDanhSachQueDaLuu,
   xoaQueInfo,
@@ -25,8 +25,19 @@ export function QueDaLuu({
   onXemLaiTheoThoiGian: (time: Date) => void;
   onXemLaiGieoDongXu: (gieoQue: QueDaGieoDaLuu) => void;
 }) {
-  const [dsThoiGian, setDsThoiGian] = useState<QueInfo[]>(() => taiDanhSachQueDaLuu());
-  const [dsGieoDongXu, setDsGieoDongXu] = useState<QueDaGieoDaLuu[]>(() => taiDanhSachGieoQue());
+  // `localStorage` không tồn tại khi render phía server lúc prerender, và nội dung của nó khác
+  // nhau theo từng máy nên không thể nướng vào HTML tĩnh. Khởi tạo rỗng (HTML prerender ổn
+  // định, giống nhau với mọi người) rồi nạp trong effect sau khi mount.
+  const [dsThoiGian, setDsThoiGian] = useState<QueInfo[]>([]);
+  const [dsGieoDongXu, setDsGieoDongXu] = useState<QueDaGieoDaLuu[]>([]);
+
+  useEffect(() => {
+    // Cố ý set trong effect: giá trị phụ thuộc
+    // thời điểm/thiết bị nên KHÔNG được nướng vào HTML prerender (Giai đoạn B). Khởi
+    // tạo ổn định rồi set sau khi mount là cách tránh hydration mismatch.
+    setDsThoiGian(taiDanhSachQueDaLuu());
+    setDsGieoDongXu(taiDanhSachGieoQue());
+  }, []);
   const [loi, setLoi] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run build:ssr && npm run prerender",
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
     "deploy:uat": "npm run build && wrangler pages deploy dist --project-name=qiching-uat --branch=main",
-    "deploy:prod": "npm run build && wrangler pages deploy dist --project-name=qiching --branch=main"
+    "deploy:prod": "npm run build && wrangler pages deploy dist --project-name=qiching --branch=main",
+    "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist-ssr",
+    "prerender": "node scripts/prerender.mjs"
   },
   "dependencies": {
     "lunar-calendar-ts-vi": "^1.0.2",
