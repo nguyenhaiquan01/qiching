@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { QueDich } from "../core/queDich";
 import type { AmLich } from "../core/lunar";
 import { KetQuaHero } from "./KetQuaHero";
+import { LuuYThamKhao } from "./LuuYThamKhao";
 import { LuanQueTheoViec } from "./LuanQueTheoViec";
 import { CanCuLuanQue } from "./CanCuLuanQue";
 import { AmLichView } from "./AmLichView";
@@ -57,6 +58,8 @@ export function KetQuaXemQue({
         diemCanLuuY={diemCanLuuY}
         onXemChiTiet={onXemChiTietQue}
       />
+
+      <LuuYThamKhao />
 
       {dungThan && mucDo && (
         <LuanQueTheoViec

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { LUC_THAN, VUONG, HUNG, ThoiDiem } from "../core/const";
 import type { DongKetQua, ThongDiepTuWorker, YeuCauTimNgayTot } from "../core/timNgayTot.worker";
 import { CHU_DE } from "../ui/luanQue";
+import { LuuYThamKhao } from "../components/LuuYThamKhao";
 
 function themNgay(ngay: string, soNgay: number): string {
   const d = new Date(ngay);
@@ -142,6 +143,8 @@ export function TimNgayTot() {
           </div>
         )}
       </div>
+
+      <LuuYThamKhao />
 
       <div className="the">
         <h2>Kết quả ({ketQua.length})</h2>
