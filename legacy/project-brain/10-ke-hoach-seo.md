@@ -152,6 +152,17 @@ Trọng". Khi trải nghiệm có thể ảnh hưởng quyết định tài chí
 - Sửa bất nhất thuật ngữ: UI có hai cách khởi quẻ (Mai Hoa và ba đồng xu), trong khi trang Giới thiệu
   hiện chỉ mô tả khởi quẻ bằng Mai Hoa.
 
+> **G3 (trust & safety) ĐÃ LÀM 2026-09-04** (`b58ea74`, lên production). Thêm component
+> `LuuYThamKhao` (cảnh báo "chỉ tham khảo/chiêm nghiệm, không thay thế tư vấn y tế/pháp lý/tài
+> chính, không nên là căn cứ duy nhất") hiển thị ở kết quả Xem quẻ, Gieo đồng xu và Tìm ngày tốt.
+> `/gioi-thieu` bổ sung mục "Giới hạn & mức độ tin cậy" (nói rõ parity với app 2011 không phải
+> bằng chứng đúng đắn nghiệp vụ; nhiều hào động cùng lúc chưa có oracle độc lập), "Nguồn nội dung
+> 64 quẻ" (liệt kê 3 bản dịch, tác giả, tình trạng bản quyền từng bản) và "Góp ý & đính chính".
+> Bản quyền phần mềm đã tách khỏi nội dung bên thứ ba (sửa lỗi mục 7.1). Bất nhất thuật ngữ Mai
+> Hoa/ba đồng xu ở trên đã không còn tái hiện trên `/gioi-thieu` hiện tại (đã liệt kê cả hai).
+> Chưa làm: chưa có "người review" độc lập với tác giả chính, chỉ mới công bố rõ giới hạn thay vì
+> có quy trình review chính thức — xem thêm mục 7.1 registry.
+
 ### 1.6. Hiện chưa có hệ đo thành công
 
 Mục tiêu cũ chủ yếu là output kỹ thuật (URL, meta, sitemap). Cần thêm baseline và outcome:
@@ -638,7 +649,7 @@ nội dung hàng loạt. Ghi nguồn referral/link earned để biết nội dun
 | Đã giảm 2026-09-04 | Quyền sử dụng bản dịch/giảng | G1 đã mở cho bản **Phan Bội Châu** (public domain, hết hạn bảo hộ) và lên production; bản mặc định site đã đổi sang bản này để tránh index nhầm bản còn bảo hộ. Bản **Nguyễn Hiến Lê** (còn bảo hộ tới ~2034) vẫn `noindex`/chỉ xem qua toggle client — vẫn Blocker cho riêng bản đó tới khi có registry/giấy phép. Registry chính thức bằng văn bản cho cả hai bản vẫn ⬜ chưa lập |
 | Blocker | Nghiệp vụ nhiều hào động chưa có oracle độc lập | Không claim accuracy; domain review và test fixture độc lập trước content promise |
 | Cao | 64 trang templated ít giá trị hoặc lỗi OCR | Pilot 8, editorial gate và đánh giá dữ liệu trước scale |
-| Cao | Câu hỏi sức khỏe/tài chính gây hiểu như lời khuyên | Disclaimer tại điểm dùng, sửa prompt mặc định, không dùng kết quả làm căn cứ duy nhất |
+| Đã giảm 2026-09-04 | Câu hỏi sức khỏe/tài chính gây hiểu như lời khuyên | Disclaimer (`LuuYThamKhao`) đã hiển thị tại điểm dùng (Xem quẻ, Gieo đồng xu, Tìm ngày tốt) và trên production; `/gioi-thieu` có mục Giới hạn & mức độ tin cậy. Chưa làm: sửa prompt mặc định trong UI câu hỏi mẫu (đầu tư/sức khỏe) nếu còn gợi ý những chủ đề này quá cụ thể |
 | Cao | Duplicate host và UAT bị index | 301 mirror production; Access/noindex UAT; monitor Search Console |
 | Cao | SPA fallback tạo infinite soft-404 | Static file cho route hợp lệ + 404/edge allowlist |
 | Cao | Hydration mismatch/stale date/localStorage | Deterministic SSR, client-only initialization có chủ đích, test console/DOM |
