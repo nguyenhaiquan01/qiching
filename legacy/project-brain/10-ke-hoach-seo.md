@@ -287,6 +287,26 @@ là một tín hiệu để search engine lựa chọn URL đại diện.
 
 ### Giai đoạn A — Hạ tầng URL (điều kiện tiên quyết cho mọi việc còn lại)
 
+> **ĐÃ LÀM 2026-09-04** (`d18e72e`, đang ở UAT, chưa lên production).
+>
+> | Hạng mục | Trạng thái |
+> |---|---|
+> | 6 route có URL riêng, đúng bảng bên dưới | ✅ |
+> | `src/ui/duongDan.ts` — nguồn duy nhất sinh/phân giải đường dẫn | ✅ dùng chung cho router, link, và sitemap sau này |
+> | Slug sai/thiếu → redirect canonical | ✅ `/64-que/46`, `/64-que/46-sai`, `/64-que/dia-phong-thang` đều về `/64-que/46-dia-phong-thang` |
+> | Trailing slash → chuẩn hoá | ✅ `ChuanHoaDuongDan` trong layout |
+> | `<button>` → `<a href>` (nav, 64 ô quẻ, nút trước/sau) | ✅ đếm được đúng 64 link trong lưới |
+> | Dữ liệu cá nhân không lên URL | ✅ "Xem lại" truyền qua history state, URL sạch |
+> | Catch-all + `/que-da-luu` gắn `noindex` | ✅ (biện pháp chuyển tiếp) |
+> | **HTTP 404 thật cho URL sai** | ❌ **CÒN NỢ** — mọi URL vẫn trả 200 do SPA fallback, kiểm chứng lại trên UAT sau khi deploy. Phải đợi Giai đoạn B: thêm `404.html` trước khi mọi route hợp lệ có file HTML riêng sẽ tắt SPA fallback và làm hỏng deep-link |
+>
+> Kiểm chứng: 15 unit test URL contract + 36 test Playwright, chạy cả trên local lẫn trên bản
+> UAT thật (deep link, refresh, back/forward, trailing slash, slug sai, URL rác, phân biệt quẻ 1
+> với quẻ 52). Không lỗi console. Bundle 756KB → 796KB do thêm `react-router`.
+>
+> Việc mở khoá tiếp theo: Giai đoạn C (head/canonical theo route) giờ đã làm được, vì trước đây
+> toàn site chỉ có một URL nên không có gì để phân biệt.
+
 Thêm client-side router (khuyến nghị `react-router` — hiện `package.json` chỉ có `react`,
 `react-dom`, `lunar-calendar-ts-vi`, nên đây là dependency mới) để mỗi trang và mỗi quẻ có URL
 riêng:
