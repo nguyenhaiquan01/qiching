@@ -213,7 +213,7 @@ sách landing page phải tạo bằng mọi giá.
 |---|---|---|
 | Gieo/xem quẻ Kinh Dịch online | `/` | Index + prerender; công cụ và hướng dẫn ngắn cùng trang |
 | Tra cứu 64 quẻ | `/64-que` | Index + prerender; hub có link thật tới detail |
-| Ý nghĩa một quẻ | `/64-que/<so>-<slug>` | URL ổn định nhưng `noindex` tới khi vượt G1–G4 |
+| Ý nghĩa một quẻ | `/64-que/<so>-<slug>` | **Cập nhật 2026-09-04:** index cho nội dung bản **Phan Bội Châu** (G1 owner đã duyệt, xem Giai đoạn 0/B) — bản mặc định/prerender trên URL này. Bản Nguyễn Hiến Lê vẫn `noindex` (chỉ xem qua toggle client), không nằm trong HTML index tới khi có registry quyền riêng cho bản đó |
 | Tìm thời điểm theo Lục Hào | `/tim-ngay-tot` | Index sau khi copy giải thích đúng phương pháp và intent |
 | Giới thiệu/phương pháp/nguồn | `/gioi-thieu` và route trust cần thiết | Index nếu có nội dung hữu ích, không tạo trang hình thức |
 | Quẻ đã lưu/kết quả cá nhân | `/que-da-luu`, state kết quả | `noindex`, không sitemap, không public hóa dữ liệu |
@@ -236,9 +236,12 @@ redirect về URL chuẩn hoặc trả 404; không để router chấp nhận v�
 > | Hostname preview `<hash>.pages.dev` | ✅ Cloudflare tự gắn `x-robots-tag: noindex`, không cần làm gì |
 > | 301 `www.qiching.org` → apex, giữ path/query | ✅ Cloudflare Redirect Rule (zone), đã kiểm chứng 3 case |
 > | Google Search Console — xác minh quyền sở hữu | ✅ 2026-09-03, property URL-prefix `https://qiching.org/`, xác minh bằng **2 phương thức song song**: (1) **HTML tag** trong `index.html` — không chọn "HTML file" vì SPA fallback trả 200 cho mọi URL; (2) **Domain name provider** — TXT record tại apex trên Cloudflare. Nhờ (2) mà việc dọn `<head>` ở Giai đoạn C không làm mất quyền sở hữu, nhưng vẫn **không nên xoá** thẻ ở (1) |
-> | Bing Webmaster Tools | ⬜ chưa làm |
+> | Bing Webmaster Tools | ✅ 2026-09-04 — property `qiching.org/` verify xong, `sitemap.xml` submit thành công (Status: Success, 0 lỗi, 0 warning, **68/68 URL discovered** — khớp đúng số URL canonical trên production) |
 > | Baseline Search Console (mục 2) | ✅ 2026-09-03: clicks 0 / impressions 0 / chưa có query ("No data" — property mới verify, Search Console không có dữ liệu hồi tố). Trang chủ **đã được index** (`Page is indexed`), `URL has no enhancements`. Đã Request Indexing để lấy lại bản có title/description/OG mới |
-> | Registry quyền sử dụng `noiDungQue.json` (mục 3) | ⬜ chưa làm — G1 đang **đóng băng** theo quyết định của owner |
+> | Submit `sitemap.xml` — Google Search Console | ✅ 2026-09-04, `/sitemap.xml` Status **Success**, **68 discovered pages**, 0 discovered videos — khớp đúng số URL canonical prerender |
+> | Submit `sitemap.xml` — Bing Webmaster Tools | ✅ 2026-09-04, property `qiching.org/` verify xong, sitemap Status **Success**, 0 lỗi, 0 warning, **68/68 URL discovered** |
+> | URL Inspection — trang quẻ sau khi mở index G1 (PBC) | ✅ 2026-09-04: `/64-que/1-thuan-can` — "URL is on Google", `Page indexing: Page is indexed`. `/64-que/46-dia-phong-thang` — Live Test "URL is available to Google", `Page can be indexed`, đã **Request Indexing**. Chưa đối chiếu nội dung crawl chi tiết để xác nhận Google lấy đúng văn bản bản Phan Bội Châu (không còn bản Nguyễn Hiến Lê) — nên làm khi có dữ liệu Performance non-brand đầu tiên |
+> | Registry quyền sử dụng `noiDungQue.json` (mục 3) | ⚠️ **G1 đã mở một phần 2026-09-04** (`6083c57`) — owner duyệt index cho bản **Phan Bội Châu** (mất 1940, hết hạn bảo hộ đời + 50 năm) và đổi làm bản dịch mặc định/được prerender. Bản **Nguyễn Hiến Lê** (còn bảo hộ tới ~2034) vẫn xem được qua toggle client nhưng không nằm trong HTML index. Registry chính thức (nguồn/tác giả/phạm vi trích cho từng bản) vẫn ⬜ chưa lập thành văn bản riêng |
 > | Analytics — pageview + CWV field data | ✅ Cloudflare Web Analytics đang chạy: **automatic setup ở tầng zone** `qiching.org`, Cloudflare tự chèn beacon ở edge (không có gì trong repo, bundle không tăng). Token `546a4737…c13` **dùng chung cho mọi hostname trong zone** nên `uat.qiching.org` cũng bị tính; `*.pages.dev` thì không (ngoài zone) |
 > | Vệ sinh dữ liệu analytics | ⚠️ Xử lý bằng **lọc lúc đọc**, không chặn thu thập: luôn thêm filter `Hostname equals qiching.org` (+ `Exclude bots`) khi xem báo cáo — nên bookmark URL đã có filter. Bỏ quên filter thì mọi con số bị thổi phồng, đặc biệt nguy hiểm khi đo trước/sau Core Web Vitals. Phương án chặn triệt để (tắt automatic setup, chèn beacon thủ công có điều kiện hostname) đã cân nhắc và **cố ý không chọn** vì không đáng đánh đổi độ phức tạp trong `index.html` |
 > | Custom event (`tool_start`, `tool_complete`, …) | ⬜ chưa làm — hoãn tới sau Giai đoạn A, vì funnel "guide → tool" chưa biểu diễn được khi toàn site còn 1 URL. Cloudflare Web Analytics không hỗ trợ custom event |
@@ -287,7 +290,8 @@ là một tín hiệu để search engine lựa chọn URL đại diện.
 
 ### Giai đoạn A — Hạ tầng URL (điều kiện tiên quyết cho mọi việc còn lại)
 
-> **ĐÃ LÀM 2026-09-04** (`d18e72e`, đang ở UAT, chưa lên production).
+> **ĐÃ LÀM 2026-09-04** (`d18e72e`). **ĐÃ LÊN PRODUCTION 2026-09-04** cùng Giai đoạn B/C/D2 —
+> xem ghi chú deploy dưới Giai đoạn B.
 >
 > | Hạng mục | Trạng thái |
 > |---|---|
@@ -362,7 +366,21 @@ gắn `noindex` là phương án chuyển tiếp, không phải trạng thái ho
 > tên 301 về canonical; URL rác 404; `/64-que/thuan-can` 404 vì nhập nhằng giữa quẻ 1 và 52 —
 > cố ý không đoán.
 >
-> **Phạm vi index chưa đổi:** 64 trang quẻ vẫn `noindex` theo quyết định đóng băng G1.
+> **Cập nhật 2026-09-04 — G1 mở cho bản Phan Bội Châu, 64 trang quẻ hết `noindex` (`6083c57`):**
+> owner duyệt index cho bản Phan Bội Châu (public domain, xem ghi chú Giai đoạn 0/registry); bản
+> dịch mặc định trên site đổi từ Nguyễn Hiến Lê sang Phan Bội Châu vì bản index/prerender luôn là
+> bản mặc định trên cùng URL — giữ mặc định cũ sẽ vô tình đưa đúng bản còn bảo hộ ra SERP. Dữ liệu
+> mỗi trang được nhúng trực tiếp (`src/ui/duLieuNhung.ts`, ~12KB/quẻ trong thẻ `<script
+> type="application/json">`) để prerender và client khớp nhau mà không kéo cả 480KB gzip vào bundle
+> chính. Đã kiểm 64/64 quẻ đủ trường, không lỗi OCR đã biết trước khi mở index.
+>
+> **Đã lên production 2026-09-04:** deploy `dist` build từ SHA `ec1238f7eb441eb1744b505bee262d513665aeb6`
+> (gồm Giai đoạn A/B/C, việc mở index G1 và sitemap D2) — deployment ID
+> `bf37edff-1a24-424e-9e1e-e2482b054283`, cùng artifact đã nghiệm thu trên UAT (deployment ID
+> `b17566c5-8a46-412b-bcd1-6d1ad31daddf`) theo đúng quy trình mục 6 của `06-deployment.md`. Smoke
+> test + hydration test (`npm run smoke:hydration`) pass trên cả UAT và `https://qiching.org`;
+> `www` vẫn 301 về apex; mirror `qiching.pages.dev` vẫn `x-robots-tag: noindex`; trang chi tiết quẻ
+> trên production không còn meta `noindex` và canonical tự trỏ đúng.
 
 > **Bằng chứng 2026-09-03 — Googlebot RENDER ĐƯỢC app, nên B hạ ưu tiên so với A.**
 > URL Inspection → Live Test → rendered HTML của `https://qiching.org/` cho thấy Google dựng được
@@ -442,6 +460,19 @@ từ component và hoist lên `<head>` — không bắt buộc dùng `react-helm
    vẫn hữu ích cho tab trình duyệt/Google render, nhưng không đáp ứng mục tiêu preview đầy đủ.
 
 ### Giai đoạn D — Crawl/indexation files và Search Console validation
+
+> **D2 (sitemap.xml) ĐÃ LÀM 2026-09-04** (`ec1238f`, lên production cùng đợt với Giai đoạn A/B/C —
+> xem ghi chú deploy ở Giai đoạn B). `scripts/prerender.mjs` tự sinh `dist/sitemap.xml` từ cùng
+> nguồn route canonical với prerender (`DANH_SACH_DUONG_DAN`), loại trừ các route `noindex`. Kiểm
+> chứng trên production: `content-type: application/xml`, **68 URL**, `robots.txt` (`Allow: /` +
+> dòng `Sitemap: /sitemap.xml`) đã trỏ đúng.
+>
+> **Submit + URL Inspection ĐÃ LÀM 2026-09-04:** `sitemap.xml` submit thành công trên cả Google
+> Search Console (Status Success, 68 discovered pages) và Bing Webmaster Tools (Status Success,
+> 68/68 URL, 0 lỗi/warning). URL Inspection xác nhận `/64-que/1-thuan-can` đã index (`Page is
+> indexed`), `/64-que/46-dia-phong-thang` available to Google và đã Request Indexing — chi tiết ở
+> bảng Giai đoạn 0. Chưa đối chiếu nội dung crawl để xác nhận Google lấy đúng văn bản bản Phan Bội
+> Châu thay vì Nguyễn Hiến Lê.
 
 - Search Console/Bing và baseline thuộc Giai đoạn 0; không đợi router.
 - `robots.txt` hợp lệ cũng làm ngay. Nó quản lý crawl, không phải công cụ canonicalization hoặc bảo
@@ -604,7 +635,7 @@ nội dung hàng loạt. Ghi nguồn referral/link earned để biết nội dun
 
 | Mức | Rủi ro/quyết định | Cách xử lý |
 |---|---|---|
-| Blocker | Quyền sử dụng bản dịch/giảng chưa xác minh | Không index/scale; lập registry và xin phép hoặc thay nội dung |
+| Đã giảm 2026-09-04 | Quyền sử dụng bản dịch/giảng | G1 đã mở cho bản **Phan Bội Châu** (public domain, hết hạn bảo hộ) và lên production; bản mặc định site đã đổi sang bản này để tránh index nhầm bản còn bảo hộ. Bản **Nguyễn Hiến Lê** (còn bảo hộ tới ~2034) vẫn `noindex`/chỉ xem qua toggle client — vẫn Blocker cho riêng bản đó tới khi có registry/giấy phép. Registry chính thức bằng văn bản cho cả hai bản vẫn ⬜ chưa lập |
 | Blocker | Nghiệp vụ nhiều hào động chưa có oracle độc lập | Không claim accuracy; domain review và test fixture độc lập trước content promise |
 | Cao | 64 trang templated ít giá trị hoặc lỗi OCR | Pilot 8, editorial gate và đánh giá dữ liệu trước scale |
 | Cao | Câu hỏi sức khỏe/tài chính gây hiểu như lời khuyên | Disclaimer tại điểm dùng, sửa prompt mặc định, không dùng kết quả làm căn cứ duy nhất |
