@@ -27,3 +27,7 @@ export { DANH_SACH_DUONG_DAN } from "./ui/duongDan";
 
 /** Xuất thêm cho script prerender dùng khi sinh redirect slug không chuẩn. */
 export { DANH_SACH_QUE, duongDanQue, boDau } from "./ui/duongDan";
+
+/** Dùng cho prerender: nạp sẵn bản dịch mặc định (Phan Bội Châu) để HTML tĩnh có kinh văn. */
+export { datDuLieuPrerender, ID_THE_DU_LIEU } from "./ui/duLieuNhung";
+export { NOI_DUNG_QUE_PHAN_BOI_CHAU } from "./core/data/noiDungQuePhanBoiChau";

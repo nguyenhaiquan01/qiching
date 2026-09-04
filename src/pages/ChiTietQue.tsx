@@ -5,6 +5,7 @@ import type { NoiDungQueRow } from "../core/data/noiDungQue";
 import type { NoiDungQueNgoTatToRow, MenhDeNgoTatTo } from "../core/data/noiDungQueNgoTatTo";
 import type { NoiDungQuePhanBoiChauRow } from "../core/data/noiDungQuePhanBoiChau";
 import { duongDanQue } from "../ui/duongDan";
+import { docBanPhanBoiChauNhung } from "../ui/duLieuNhung";
 
 type NguonDichGia = "nguyen-hien-le" | "ngo-tat-to" | "phan-boi-chau";
 
@@ -12,6 +13,14 @@ const NHAN_NGUON: Record<NguonDichGia, string> = {
   "nguyen-hien-le": "Nguyễn Hiến Lê",
   "ngo-tat-to": "Ngô Tất Tố",
   "phan-boi-chau": "Phan Bội Châu",
+};
+
+/** Tên tác phẩm + tác giả hiển thị ở dòng "Nguồn:" — khớp cách ghi nguồn của chính từng bản
+ * dịch, thay cho URL thô. */
+const NHAN_NGUON_TAC_PHAM: Record<NguonDichGia, string> = {
+  "nguyen-hien-le": "Kinh Dịch - Đạo của người quân tử - Tác giả: Nguyễn Hiến Lê",
+  "ngo-tat-to": "Kinh Dịch Trọn Bộ - Tác giả: Ngô Tất Tố",
+  "phan-boi-chau": "Quốc Văn Chu Dịch Diễn Giải - Tác giả: Sào Nam Phan Bội Châu",
 };
 
 const KHOA_NGUON_DA_LUU = "qiching-nguon-dich-gia";
@@ -63,18 +72,26 @@ export function ChiTietQue({
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [que.tenQueChuan]);
 
-  // Luôn khởi tạo bằng "nguyen-hien-le" (khớp HTML đã prerender ở server, nơi không có
-  // localStorage) rồi mới đọc lựa chọn đã lưu trong effect bên dưới (chỉ chạy ở client, sau
-  // hydrate) — đọc localStorage ngay trong initializer của useState sẽ làm HTML client hydrate
-  // khác HTML server prerender, gây lỗi hydration mismatch (React error #418).
-  const [nguon, setNguon] = useState<NguonDichGia>("nguyen-hien-le");
+  // Mặc định là bản PHAN BỘI CHÂU: đây là bản được prerender vào HTML tĩnh và do đó là bản
+  // Google index. Chọn bản này vì tác giả mất năm 1940 nên tác phẩm đã hết thời hạn bảo hộ
+  // (đời + 50 năm), khác với bản Nguyễn Hiến Lê còn được bảo hộ tới khoảng 2034. Bản Nguyễn
+  // Hiến Lê vẫn xem được đầy đủ khi người dùng tự chọn — chỉ là không nằm trong HTML được
+  // index. Xem `project-brain/10-ke-hoach-seo.md` gate G1.
+  //
+  // Luôn khởi tạo bằng đúng giá trị mà server dùng (không đọc localStorage trong initializer)
+  // rồi mới đọc lựa chọn đã lưu trong effect bên dưới, tránh hydration mismatch (React #418).
+  const [nguon, setNguon] = useState<NguonDichGia>("phan-boi-chau");
   const [ngoTatTo, setNgoTatTo] = useState<NoiDungQueNgoTatToRow | undefined>();
-  const [phanBoiChau, setPhanBoiChau] = useState<NoiDungQuePhanBoiChauRow | undefined>();
+  // Dữ liệu bản mặc định được nhúng sẵn trong chính trang (xem `ui/duLieuNhung.ts`) nên đọc
+  // được đồng bộ ngay lần render đầu, ở cả server lẫn client.
+  const [phanBoiChau, setPhanBoiChau] = useState<NoiDungQuePhanBoiChauRow | undefined>(() =>
+    docBanPhanBoiChauNhung(que.tenQueChuan),
+  );
   const [dangTai, setDangTai] = useState(false);
 
   useEffect(() => {
     const daLuu = docNguonDaLuu();
-    if (daLuu !== "nguyen-hien-le") setNguon(daLuu);
+    if (daLuu !== "phan-boi-chau") setNguon(daLuu);
   }, []);
 
   function doiNguon(n: NguonDichGia) {
@@ -91,7 +108,8 @@ export function ChiTietQue({
   // Lê đã có sẵn trong prop `que`, không cần tải thêm. Dữ liệu 2 bản mới khá lớn (>1MB mỗi
   // bản), không nên bundle tĩnh vào chunk chính khi đa số người dùng không đổi bản mặc định.
   useEffect(() => {
-    if (nguon === "nguyen-hien-le") return;
+    if (nguon === "nguyen-hien-le") return; // đã có sẵn trong prop `que`
+    if (nguon === "phan-boi-chau" && phanBoiChau) return; // đã nhúng sẵn trong trang
     let huy = false;
     setDangTai(true);
     if (nguon === "ngo-tat-to") {
@@ -110,10 +128,12 @@ export function ChiTietQue({
     return () => {
       huy = true;
     };
-  }, [nguon, que.tenQueChuan]);
+  }, [nguon, que.tenQueChuan, phanBoiChau]);
 
   const nguonHienTai =
     nguon === "nguyen-hien-le" ? que.nguon : nguon === "ngo-tat-to" ? ngoTatTo?.nguon : phanBoiChau?.nguon;
+  // Hiện tên tác phẩm/tác giả thay vì URL thô — khớp cách ghi nguồn của chính từng bản dịch.
+  const nhanNguonHienTai = NHAN_NGUON_TAC_PHAM[nguon];
 
   return (
     <div>
@@ -336,7 +356,7 @@ export function ChiTietQue({
         <p className="que-dich-cung khong-in">
           Nguồn:{" "}
           <a href={nguonHienTai} target="_blank" rel="noreferrer">
-            {nguonHienTai}
+            {nhanNguonHienTai}
           </a>
         </p>
       )}

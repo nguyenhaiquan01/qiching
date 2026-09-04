@@ -59,9 +59,9 @@ export function MetaQue({ que }: { que: NoiDungQueRow }) {
       tieuDe={`Quẻ ${que.soThuTu} ${que.tenQue} (${que.tenQueChuan}) — Kinh Dịch | QIChing`}
       moTa={moTaQue(que)}
       duongDan={duongDanQue(que)}
-      // Nội dung diễn giải trên trang này lấy từ nguồn bên thứ ba, chưa qua gate G1 (quyền sử
-      // dụng) và G2 (biên tập) nên chưa được phép index — xem mục 3.1/3.2 của kế hoạch.
-      khongIndex
+      // ĐƯỢC index từ 2026-09-04: gate G1 mở với phạm vi "bản Phan Bội Châu" — bản dịch đã hết
+      // thời hạn bảo hộ (tác giả mất 1940, đời + 50 năm) và cũng chính là bản được prerender
+      // vào HTML tĩnh, tức bản mà công cụ tìm kiếm đọc. Xem mục 3.1 của kế hoạch SEO.
     />
   );
 }

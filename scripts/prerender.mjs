@@ -45,10 +45,39 @@ function kiemTraMetadata(duongDan, metadata) {
   return loi.map((l) => `  ${duongDan}: ${l}`);
 }
 
+/** Bản sao quy tắc slug của `src/ui/duongDan.ts` — chỉ dùng để ghép khoá tra cứu. */
+function boDauSlug(s) {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 async function main() {
   const mauHtml = readFileSync(join(THU_MUC_DIST, "index.html"), "utf-8");
-  const { render, DANH_SACH_DUONG_DAN } = await import(
-    pathToFileURL(join(GOC_DU_AN, "dist-ssr", "entry-server.js")).href
+  const {
+    render,
+    DANH_SACH_DUONG_DAN,
+    datDuLieuPrerender,
+    ID_THE_DU_LIEU,
+    NOI_DUNG_QUE_PHAN_BOI_CHAU,
+    DANH_SACH_QUE: DS_QUE,
+  } = await import(pathToFileURL(join(GOC_DU_AN, "dist-ssr", "entry-server.js")).href);
+
+  // Nạp bản dịch mặc định (Phan Bội Châu) để component đọc được ĐỒNG BỘ lúc render — nếu để nó
+  // lazy-load như hai bản còn lại thì effect không chạy khi prerender và HTML tĩnh sẽ không có
+  // chữ nào của kinh văn. Xem `src/ui/duLieuNhung.ts`.
+  const banPBC = new Map(NOI_DUNG_QUE_PHAN_BOI_CHAU.map((r) => [r.tenQueChuan, r]));
+  datDuLieuPrerender(banPBC);
+
+  /** `/64-que/<slug>` -> bản Phan Bội Châu của đúng quẻ đó, để nhúng riêng vào trang đó. */
+  const pbcTheoDuongDan = new Map(
+    DS_QUE.map((q) => [`/64-que/${q.soThuTu}-${boDauSlug(q.tenQue)}`, banPBC.get(q.tenQueChuan)]),
   );
 
   if (!mauHtml.includes('<div id="root"></div>')) {
@@ -66,9 +95,16 @@ async function main() {
     }
     loi.push(...kiemTraMetadata(duongDan, metadata));
 
+    // Nhúng dữ liệu bản dịch mặc định của RIÊNG quẻ này (~7KB gzip) để client hydrate đọc
+    // được đồng bộ, thay vì phải bundle cả 64 quẻ (~480KB gzip) hoặc lazy-load gây mismatch.
+    const pbc = pbcTheoDuongDan.get(duongDan);
+    const theDuLieu = pbc
+      ? `\n    <script id="${ID_THE_DU_LIEU}" type="application/json">${JSON.stringify(pbc).replace(/</g, "\\u003c")}</script>`
+      : "";
+
     const html = mauHtml
       .replace("</head>", `  ${metadata.join("\n    ")}\n  </head>`)
-      .replace('<div id="root"></div>', `<div id="root">${than}</div>`);
+      .replace('<div id="root"></div>', `<div id="root">${than}</div>${theDuLieu}`);
 
     // Ghi ra file PHẲNG `<path>.html` chứ KHÔNG phải `<path>/index.html`.
     //
