@@ -1,6 +1,8 @@
 import { useEffect } from "react";
+import { Link } from "react-router";
 import { HinhQue } from "../components/HinhQue";
 import type { NoiDungQueRow } from "../core/data/noiDungQue";
+import { duongDanQue } from "../ui/duongDan";
 
 /** Trang chi tiết một quẻ — tương tự cấu trúc trang cohoc.net/&lt;ten-que&gt;.html: đồ hình,
  * Giải nghĩa, Dịch, Giảng, Hào Từ đầy đủ 6 hào, Dụng Cửu/Lục và Chú Thích (nếu có). */
@@ -8,14 +10,10 @@ export function ChiTietQue({
   que,
   quaTruoc,
   quaSau,
-  onChon,
-  onVeDanhSach,
 }: {
   que: NoiDungQueRow;
   quaTruoc?: NoiDungQueRow;
   quaSau?: NoiDungQueRow;
-  onChon: (que: NoiDungQueRow) => void;
-  onVeDanhSach: () => void;
 }) {
   // Cuộn lên đầu trang mỗi khi chuyển sang xem một quẻ khác — tránh vẫn ở vị trí cuộn cũ
   // (ví dụ khi bấm tên quẻ từ trang Xem quẻ, hoặc bấm quẻ trước/sau).
@@ -25,19 +23,21 @@ export function ChiTietQue({
 
   return (
     <div>
+      {/* Link thật, không phải button: đây là internal link giữa 64 trang quẻ — vừa cho người
+          dùng mở tab mới/copy link, vừa là đường để bot bò ngang giữa các quẻ. */}
       <div className="hang-form khong-in" style={{ marginBottom: 12 }}>
-        <button className="nut phu" type="button" onClick={onVeDanhSach}>
+        <Link className="nut phu" to="/64-que">
           ← Danh sách 64 quẻ
-        </button>
+        </Link>
         {quaTruoc && (
-          <button className="nut phu" type="button" onClick={() => onChon(quaTruoc)}>
+          <Link className="nut phu" to={duongDanQue(quaTruoc)}>
             ‹ {quaTruoc.soThuTu}. {quaTruoc.tenQue}
-          </button>
+          </Link>
         )}
         {quaSau && (
-          <button className="nut phu" type="button" onClick={() => onChon(quaSau)}>
+          <Link className="nut phu" to={duongDanQue(quaSau)}>
             {quaSau.soThuTu}. {quaSau.tenQue} ›
-          </button>
+          </Link>
         )}
       </div>
 

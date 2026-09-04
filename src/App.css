@@ -45,16 +45,17 @@
   flex-wrap: wrap;
 }
 
-.app-nav button {
+.app-nav a {
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   padding: 10px 14px;
   color: var(--text-dim);
   font-size: 0.95rem;
+  text-decoration: none;
 }
 
-.app-nav button.active {
+.app-nav a.active {
   color: var(--accent);
   border-bottom-color: var(--accent);
   font-weight: 600;
@@ -103,13 +104,20 @@
   color: var(--text);
 }
 
+/* Dùng cho cả <button> lẫn <a class="nut"> (link điều hướng giữa các quẻ) — nên phải khai
+ * `display`/`text-decoration`/`line-height` để thẻ <a> trông y hệt nút. */
 .nut {
+  display: inline-block;
   padding: 7px 16px;
   border-radius: 6px;
   border: 1px solid var(--accent);
   background: var(--accent);
   color: var(--accent-text);
   font-weight: 600;
+  font-size: inherit;
+  line-height: normal;
+  text-decoration: none;
+  text-align: center;
 }
 
 .nut.phu {
@@ -446,7 +454,10 @@ table.bang-ket-qua th {
   text-decoration: none;
 }
 
+/* Ô quẻ trong lưới giờ là <a href> (xem DanhSachQue.tsx) — cần bỏ gạch chân và ép màu chữ,
+ * nếu không trình duyệt sẽ tô màu link mặc định. */
 .the-que {
+  text-decoration: none;
   display: flex;
   flex-direction: column;
   align-items: center;
