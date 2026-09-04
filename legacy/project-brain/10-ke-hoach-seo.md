@@ -162,6 +162,13 @@ Trọng". Khi trải nghiệm có thể ảnh hưởng quyết định tài chí
 > Hoa/ba đồng xu ở trên đã không còn tái hiện trên `/gioi-thieu` hiện tại (đã liệt kê cả hai).
 > Chưa làm: chưa có "người review" độc lập với tác giả chính, chỉ mới công bố rõ giới hạn thay vì
 > có quy trình review chính thức — xem thêm mục 7.1 registry.
+>
+> **Cập nhật 2026-09-04 (`ca3a6cd`, lên production):** theo góp ý review, chuyển `LuuYThamKhao`
+> xuống **cuối trang kết quả** (sau toàn bộ nội dung luận giải và khối hành động Lưu/Chia sẻ/In ở
+> Xem quẻ; sau bảng kết quả ở Tìm ngày tốt) thay vì đặt ngay đầu, và thêm nhãn in đậm **"Miễn trừ
+> trách nhiệm:"** trước đoạn text thay vì để trôi trong câu. Deploy UAT → production theo đúng
+> quy trình, deployment ID production `08d2a2b7-64e9-41bd-b471-2a5ad8076b5a`, hydration smoke
+> test pass.
 
 ### 1.6. Hiện chưa có hệ đo thành công
 
