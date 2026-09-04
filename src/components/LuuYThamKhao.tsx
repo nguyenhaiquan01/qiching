@@ -18,10 +18,10 @@ export function LuuYThamKhao() {
       }}
     >
       <p className="giai-thich" style={{ margin: 0 }}>
-        Kết quả dựa trên phương pháp Dịch học truyền thống, <strong>chỉ để tham khảo và chiêm
-        nghiệm</strong> — chưa được xác nhận bằng phương pháp khoa học, không thay thế tư vấn y
-        tế, pháp lý hoặc tài chính, và không nên là căn cứ duy nhất cho quyết định hệ trọng. Xem
-        thêm phương pháp, nguồn dữ liệu và giới hạn tại{" "}
+        <strong>Miễn trừ trách nhiệm:</strong> Kết quả dựa trên phương pháp Dịch học truyền
+        thống, <strong>chỉ để tham khảo và chiêm nghiệm</strong> — chưa được xác nhận bằng phương
+        pháp khoa học, không thay thế tư vấn y tế, pháp lý hoặc tài chính, và không nên là căn cứ
+        duy nhất cho quyết định hệ trọng. Xem thêm phương pháp, nguồn dữ liệu và giới hạn tại{" "}
         <Link to="/gioi-thieu" style={{ color: "inherit" }}>
           trang Giới thiệu
         </Link>

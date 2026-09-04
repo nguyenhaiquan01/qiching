@@ -144,8 +144,6 @@ export function TimNgayTot() {
         )}
       </div>
 
-      <LuuYThamKhao />
-
       <div className="the">
         <h2>Kết quả ({ketQua.length})</h2>
         {ketQua.length === 0 ? (
@@ -183,6 +181,8 @@ export function TimNgayTot() {
           </div>
         )}
       </div>
+
+      <LuuYThamKhao />
     </div>
   );
 }

@@ -59,8 +59,6 @@ export function KetQuaXemQue({
         onXemChiTiet={onXemChiTietQue}
       />
 
-      <LuuYThamKhao />
-
       {dungThan && mucDo && (
         <LuanQueTheoViec
           que={que}
@@ -138,6 +136,8 @@ export function KetQuaXemQue({
       </div>
 
       {children}
+
+      <LuuYThamKhao />
     </>
   );
 }
