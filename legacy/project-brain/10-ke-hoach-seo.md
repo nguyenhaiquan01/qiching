@@ -137,6 +137,23 @@ Riêng `Tìm ngày tốt`, SERP rộng thường kỳ vọng tuổi, 12 Trực, 
 QIChing thực tế quét điểm Lục Hào theo thời điểm. Copy/H1/title phải định vị rõ là **"Tìm thời điểm
 thuận theo quẻ Dịch/Lục Hào"**, không hứa đáp ứng intent lịch vạn niên nếu sản phẩm không làm việc đó.
 
+> **Research SERP nhẹ 2026-09-04** (qua WebSearch, thay cho công cụ từ khóa trả phí — chỉ mang
+> tính định hướng, không có số liệu volume/competition thật):
+>
+> - **Tool intent** ("gieo quẻ kinh dịch online"): SERP đã dày đặc đối thủ (luho.vn,
+>   quekinhdich.net, quedich.com, kabala.vn, phongthuyso.vn...), một số tích hợp AI. Xác nhận
+>   đúng nhận định ở mục 1.1: khó thắng bằng "có công cụ", phải thắng bằng minh bạch công thức/
+>   provenance — hướng `/gioi-thieu` đã bắt đầu làm (xem Giai đoạn 0/G3).
+> - **`Tìm ngày tốt`**: kiểm tra "tìm ngày tốt xem tuổi" cho SERP 100% là site lịch vạn
+>   niên/12 Trực/hoàng-hắc đạo (lichvannien365, tuvi.vn, xemngay.com...), xác nhận đúng cảnh báo
+>   mismatch ở trên. Title/mô tả hiện tại (Giai đoạn C: "Tìm thời điểm thuận theo quẻ Dịch — quét
+>   theo Lục Hào", có câu "không phải lịch vạn niên") **đã định vị đúng, không cần sửa**.
+> - **Learning intent** ("nạp giáp là gì", "lục thân trong kinh dịch", "thế ứng trong kinh dịch"):
+>   phát hiện quan trọng nhất — SERP hiện tại yếu và cũ (forum 2010s như tuvilyso.net/bocdich.com,
+>   blogspot, vài kết quả Wikipedia lạc đề hoàn toàn). Gần như chưa có nội dung hiện đại, có cấu
+>   trúc tốt nào giữ các từ khóa này. **Đây là cơ hội có cạnh tranh thấp nhất trong 4 cụm** — nên
+>   ưu tiên viết 3 trang hướng dẫn này trước (xem đề xuất URL ở mục 3.2) thay vì dàn trải.
+
 ### 1.5. Trust, safety và độ đúng nghiệp vụ
 
 UI hiện có ví dụ câu hỏi về đầu tư và sức khỏe, sau đó trả các mức như "Khá Thuận" hoặc "Cần Thận
@@ -235,7 +252,7 @@ sách landing page phải tạo bằng mọi giá.
 | Tìm thời điểm theo Lục Hào | `/tim-ngay-tot` | Index sau khi copy giải thích đúng phương pháp và intent |
 | Giới thiệu/phương pháp/nguồn | `/gioi-thieu` và route trust cần thiết | Index nếu có nội dung hữu ích, không tạo trang hình thức |
 | Quẻ đã lưu/kết quả cá nhân | `/que-da-luu`, state kết quả | `noindex`, không sitemap, không public hóa dữ liệu |
-| Hướng dẫn Nạp Giáp/Lục Thân/Thế–Ứng | Chốt sau keyword research | Chỉ tạo khi một URL đáp ứng intent riêng, tránh cannibalization |
+| Hướng dẫn Nạp Giáp/Lục Thân/Thế–Ứng | `/huong-dan/nap-giap`, `/huong-dan/luc-than`, `/huong-dan/the-ung` (đề xuất 2026-09-04 — xem research SERP mục 1.4; URL cuối vẫn cần domain reviewer duyệt) | Ưu tiên viết trước — SERP hiện yếu/cũ (forum 2010s, không có nội dung hiện đại). Mỗi trang: định nghĩa, cách tính, ví dụ, link sang công cụ và quẻ minh hoạ. Qua đủ G2 (copyedit/domain review) trước khi index, tránh cannibalization với nhau và với `/gioi-thieu` |
 
 Mỗi quẻ có một URL canonical cho mọi alias. Slug sai, alias URL hoặc biến thể trailing slash phải
 redirect về URL chuẩn hoặc trả 404; không để router chấp nhận vô hạn URL khác nhau cho cùng `soThuTu`.
