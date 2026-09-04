@@ -339,6 +339,31 @@ gắn `noindex` là phương án chuyển tiếp, không phải trạng thái ho
 
 ### Giai đoạn B — Prerender/SSG (quyết định phạm vi trước khi làm)
 
+> **ĐÃ LÀM 2026-09-04** (`5dbbb9e`, đang ở UAT). Prerender **toàn bộ** 69 route hợp lệ + `404.html`.
+>
+> | Hạng mục | Trạng thái |
+> |---|---|
+> | SSR entry + script prerender, `hydrateRoot` | ✅ `src/entry-server.tsx`, `scripts/prerender.mjs` |
+> | Bóc metadata khỏi body, chèn vào `<head>` | ✅ cần vì `renderToString` chỉ dựng cây con nên React không có `<head>` để hoist |
+> | Build FAIL khi sai | ✅ thiếu file route, metadata sót trong body, sai số lượng title/canonical/description |
+> | Khởi tạo deterministic | ✅ ngày/giờ "bây giờ" (XemQue, TimNgayTot) và `localStorage` (QueDaLuu) chuyển sang set sau mount |
+> | 0 cảnh báo hydration | ✅ đo trên cả 6 route, chạy trực tiếp trên UAT |
+> | **HTTP 404 thật** | ✅ **đã trả được** — món nợ từ Giai đoạn A |
+> | Bot không chạy JS đọc được nội dung | ✅ ~3.800 ký tự text trong HTML tĩnh của một trang quẻ |
+>
+> **Bẫy đã sập và cách thoát — ghi lại để không lặp lại:** bản deploy đầu tiên bị **vòng lặp
+> redirect vô hạn**. Với `dist/64-que/index.html`, Cloudflare Pages coi URL canonical là dạng CÓ
+> dấu `/` cuối và 308 `/64-que` → `/64-que/`, trong khi luật `_redirects` tự thêm lại 301 ngược
+> chiều. Thoát bằng cách xuất **file phẳng** `dist/64-que.html` — Pages phục vụ thẳng `/64-que`
+> ở 200 và tự nắn dạng có dấu `/` về canonical. Bài học: hành vi URL của Pages phụ thuộc CÁCH
+> ĐẶT FILE, và chỉ lộ ra khi chạy trên hạ tầng thật, không thấy được ở local.
+>
+> Trạng thái HTTP hiện tại (đo trên Cloudflare): route hợp lệ 200; `/64-que/46` và alias theo
+> tên 301 về canonical; URL rác 404; `/64-que/thuan-can` 404 vì nhập nhằng giữa quẻ 1 và 52 —
+> cố ý không đoán.
+>
+> **Phạm vi index chưa đổi:** 64 trang quẻ vẫn `noindex` theo quyết định đóng băng G1.
+
 > **Bằng chứng 2026-09-03 — Googlebot RENDER ĐƯỢC app, nên B hạ ưu tiên so với A.**
 > URL Inspection → Live Test → rendered HTML của `https://qiching.org/` cho thấy Google dựng được
 > toàn bộ cây DOM của React: header, nav 5 tab, khối "Cách khởi quẻ", form "Câu hỏi", nút "Lập quẻ".
@@ -387,6 +412,20 @@ Về kỹ thuật: build-time render HTML cho từng route rồi hydrate lại, 
   hydrate phát warning.
 
 ### Giai đoạn C — Thẻ meta động theo route
+
+> **ĐÃ LÀM 2026-09-04** (`48a3477`). `src/ui/MetaTrang.tsx` + `metaNoiDung.ts`.
+>
+> | Yêu cầu | Trạng thái |
+> |---|---|
+> | Mỗi route đúng 1 title/description/canonical/OG | ✅ script prerender fail build nếu sai số lượng |
+> | Không để fallback tĩnh song song | ✅ đã bỏ toàn bộ metadata tĩnh khỏi `index.html`; chỉ giữ `google-site-verification` vì không đổi theo route |
+> | Metadata không lọt vào `<div id="root">` | ✅ có kiểm tra trong script |
+> | Canonical là URL tuyệt đối, tự trỏ | ✅ ví dụ `https://qiching.org/64-que/46-dia-phong-thang` |
+> | Detail quẻ KHÔNG trích `giaiNghia` làm snippet | ✅ dùng dữ liệu định danh do app tính (số, tên, nội/ngoại quái, cung) — không đẩy văn bản chưa qua G1/G2 ra SERP |
+> | Bot không chạy JS đọc được head | ✅ nhờ Giai đoạn B |
+>
+> `/tim-ngay-tot` đặt tiêu đề đúng thứ tính năng làm (quét theo Lục Hào), không hứa lịch vạn niên
+> — theo mục 1.4.
 
 React 19 (`package.json`: `react ^19.2.8`) hỗ trợ native việc render `<title>`, `<meta>`, `<link>`
 từ component và hoist lên `<head>` — không bắt buộc dùng `react-helmet`. Yêu cầu cần kiểm tra trên
