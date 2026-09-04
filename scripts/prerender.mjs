@@ -70,14 +70,19 @@ async function main() {
       .replace("</head>", `  ${metadata.join("\n    ")}\n  </head>`)
       .replace('<div id="root"></div>', `<div id="root">${than}</div>`);
 
-    // `/404` -> dist/404.html (Cloudflare Pages dùng file này cho mọi URL không khớp).
-    // Route khác -> dist/<path>/index.html
+    // Ghi ra file PHẲNG `<path>.html` chứ KHÔNG phải `<path>/index.html`.
+    //
+    // Lý do (kiểm chứng trên UAT 2026-09-04): với `dist/64-que/index.html`, Cloudflare Pages
+    // coi URL canonical là dạng CÓ dấu "/" cuối và 308-redirect `/64-que` -> `/64-que/`. Điều
+    // đó vừa lệch với canonical/link trong app (đều không có dấu "/"), vừa từng tạo VÒNG LẶP
+    // redirect vô hạn khi ta tự thêm luật nắn ngược lại. Với file phẳng `dist/64-que.html`,
+    // Pages phục vụ thẳng `/64-que` ở 200 và không tự thêm dấu "/".
     const dich =
       duongDan === "/404"
         ? join(THU_MUC_DIST, "404.html")
         : duongDan === "/"
           ? join(THU_MUC_DIST, "index.html")
-          : join(THU_MUC_DIST, duongDan.slice(1), "index.html");
+          : join(THU_MUC_DIST, `${duongDan.slice(1)}.html`);
     mkdirSync(dirname(dich), { recursive: true });
     writeFileSync(dich, html, "utf-8");
     daGhi.push(dich.replace(THU_MUC_DIST + "/", ""));
@@ -86,7 +91,7 @@ async function main() {
   // Kiểm tra lại trên file thật: mọi route hợp lệ PHẢI có file, nếu thiếu mà vẫn thêm 404.html
   // thì route đó sẽ thành 404 thật khi lên Cloudflare.
   for (const duongDan of DANH_SACH_DUONG_DAN) {
-    const f = join(THU_MUC_DIST, duongDan === "/" ? "index.html" : join(duongDan.slice(1), "index.html"));
+    const f = join(THU_MUC_DIST, duongDan === "/" ? "index.html" : `${duongDan.slice(1)}.html`);
     if (!existsSync(f)) loi.push(`  ${duongDan}: THIẾU file HTML — không được thêm 404.html khi còn thiếu`);
   }
 
@@ -105,11 +110,6 @@ async function main() {
   ).then((m) => m.duongDan ?? m);
 
   const luat = [];
-
-  // Chuẩn hoá dấu "/" thừa ở cuối ngay tại hosting. Nếu để client tự nắn thì trên URL có dấu
-  // "/" người dùng sẽ thấy một lần điều hướng ngay lúc hydrate -> React báo mismatch. Ép về
-  // canonical trước khi app chạy là sạch hơn.
-  for (const d of DANH_SACH_DUONG_DAN) if (d !== "/") luat.push(`${d}/ ${d} 301`);
 
   const demTen = new Map();
   for (const q of DANH_SACH_QUE) demTen.set(boDau(q.tenQue), (demTen.get(boDau(q.tenQue)) ?? 0) + 1);
