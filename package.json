@@ -12,7 +12,9 @@
     "deploy:uat": "npm run build && wrangler pages deploy dist --project-name=qiching-uat --branch=main",
     "deploy:prod": "npm run build && wrangler pages deploy dist --project-name=qiching --branch=main",
     "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist-ssr",
-    "prerender": "node scripts/prerender.mjs"
+    "prerender": "node scripts/prerender.mjs",
+    "smoke:hydration": "node scripts/smoke-hydration.mjs",
+    "smoke:hydration:uat": "BASE_URL=https://uat.qiching.org node scripts/smoke-hydration.mjs"
   },
   "dependencies": {
     "lunar-calendar-ts-vi": "^1.0.2",
@@ -27,6 +29,7 @@
     "@vitejs/plugin-react": "^6.1.0",
     "@vitest/ui": "^4.1.11",
     "oxlint": "^1.79.0",
+    "playwright": "^1.62.1",
     "typescript": "~6.0.2",
     "vite": "^8.2.2",
     "vitest": "^4.1.11",

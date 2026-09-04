@@ -7,5 +7,7 @@
 User-agent: *
 Allow: /
 
-# Sitemap: chưa công bố. Chỉ thêm dòng `Sitemap:` sau khi sitemap.xml thật sự tồn tại,
-# chỉ chứa URL canonical được phép index và trả HTTP 200 (Giai đoạn D2 của kế hoạch).
+# D2: sitemap đã được sinh tự động trong build (`scripts/prerender.mjs`) từ cùng nguồn route
+# canonical với prerender. Dùng đường dẫn tương đối để cùng một artifact chạy được ở UAT và
+# production.
+Sitemap: /sitemap.xml

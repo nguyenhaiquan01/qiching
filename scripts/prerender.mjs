@@ -18,6 +18,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const GOC_DU_AN = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const THU_MUC_DIST = join(GOC_DU_AN, "dist");
+const GOC_CANONICAL = "https://qiching.org";
+
+/** Các route có `noindex` ở runtime (không được đưa vào sitemap). */
+const DUONG_DAN_KHONG_INDEX = new Set(["/que-da-luu"]);
 
 /** Các thẻ được phép nằm trong `<head>`; đúng những thẻ React render qua `MetaTrang`. */
 const THE_METADATA = /<title>[\s\S]*?<\/title>|<meta\b[^>]*\/?>|<link\b[^>]*rel="canonical"[^>]*\/?>/g;
@@ -136,6 +140,22 @@ async function main() {
     process.exit(1);
   }
 
+  // --- Sitemap XML (Giai đoạn D2) ---
+  // Chỉ đưa URL canonical được phép index và có file HTML thật.
+  const dsSitemap = DANH_SACH_DUONG_DAN.filter((duongDan) => !DUONG_DAN_KHONG_INDEX.has(duongDan));
+  const homNay = new Date().toISOString().slice(0, 10);
+  const sitemap =
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    dsSitemap
+      .map((duongDan) => {
+        const loc = `${GOC_CANONICAL}${duongDan === "/" ? "/" : duongDan}`;
+        return `  <url><loc>${loc}</loc><lastmod>${homNay}</lastmod></url>`;
+      })
+      .join("\n") +
+    `\n</urlset>\n`;
+  writeFileSync(join(THU_MUC_DIST, "sitemap.xml"), sitemap, "utf-8");
+
   // --- Redirect cho các slug không chuẩn ---
   // Từ khi có `404.html`, SPA fallback tắt: `/64-que/46` không còn file nên sẽ trả 404 thay vì
   // được router nắn về canonical như trước. Vì vậy sinh redirect Ở TẦNG HOSTING. Dùng được vì
@@ -169,6 +189,7 @@ async function main() {
     "utf-8",
   );
   console.log(`✓ Đã sinh ${luat.length} redirect slug không chuẩn vào dist/_redirects`);
+  console.log(`✓ Đã sinh dist/sitemap.xml với ${dsSitemap.length} URL canonical indexable`);
 
   console.log(`✓ Đã prerender ${daGhi.length} file (gồm 404.html)`);
   console.log(`  ${DANH_SACH_DUONG_DAN.length} route hợp lệ + trang 404`);
