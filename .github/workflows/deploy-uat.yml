@@ -1,0 +1,50 @@
+name: Deploy UAT
+
+# Content-as-code (Option B, xem legacy/project-brain/12-QICHING_ADMIN_ARTICLES_PROMPT.md mục 0):
+# QIChing.org không có backend/DB — "publish" nghĩa là build lại site tĩnh rồi deploy. Workflow này
+# tự động hoá đúng bước `npm run deploy:uat` mà trước đây phải chạy tay, để viết/sửa bài chỉ cần
+# push lên `main`, không cần ai tự tay build + wrangler deploy nữa.
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "legacy/project-brain/**"
+      - "**/*.md"
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-uat
+  cancel-in-progress: true
+
+jobs:
+  deploy-uat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build (tsc + vite + SSR + prerender)
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages (UAT)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=qiching-uat --branch=main
