@@ -91,7 +91,20 @@ export function phanGiaiSlugQue(slug: string | undefined): KetQuaPhanGiai {
 }
 
 /** Các route tĩnh (không tính 64 trang chi tiết quẻ). Thứ tự này cũng là thứ tự trong menu. */
-export const DUONG_DAN_TINH = ["/", "/tim-ngay-tot", "/64-que", "/que-da-luu", "/gioi-thieu"] as const;
+export const DUONG_DAN_TINH = [
+  "/",
+  "/tim-ngay-tot",
+  "/64-que",
+  "/que-da-luu",
+  "/huong-dan",
+  "/huong-dan/nap-giap",
+  "/huong-dan/luc-than",
+  "/huong-dan/the-ung",
+  "/huong-dan/que-bien",
+  "/huong-dan/tuan-khong",
+  "/huong-dan/ung-ky",
+  "/gioi-thieu",
+] as const;
 
 /**
  * TOÀN BỘ đường dẫn hợp lệ của site — nguồn dùng chung cho prerender (Giai đoạn B) và sitemap

@@ -21,7 +21,18 @@ const THU_MUC_DIST = join(GOC_DU_AN, "dist");
 const GOC_CANONICAL = "https://qiching.org";
 
 /** Các route có `noindex` ở runtime (không được đưa vào sitemap). */
-const DUONG_DAN_KHONG_INDEX = new Set(["/que-da-luu"]);
+const DUONG_DAN_KHONG_INDEX = new Set([
+  "/que-da-luu",
+  // Bản nháp hướng dẫn Bốc Dịch, chưa qua domain review (G2) — xem
+  // `legacy/project-brain/drafts-huong-dan/`. Bỏ khỏi set này khi bài đã duyệt và sẵn sàng index.
+  "/huong-dan",
+  "/huong-dan/nap-giap",
+  "/huong-dan/luc-than",
+  "/huong-dan/the-ung",
+  "/huong-dan/que-bien",
+  "/huong-dan/tuan-khong",
+  "/huong-dan/ung-ky",
+]);
 
 /** Các thẻ được phép nằm trong `<head>`; đúng những thẻ React render qua `MetaTrang`. */
 const THE_METADATA = /<title>[\s\S]*?<\/title>|<meta\b[^>]*\/?>|<link\b[^>]*rel="canonical"[^>]*\/?>/g;

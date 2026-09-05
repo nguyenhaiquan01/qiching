@@ -7,6 +7,13 @@ import { ChiTietQue } from "./pages/ChiTietQue";
 import { TimNgayTot } from "./pages/TimNgayTot";
 import { QueDaLuu } from "./pages/QueDaLuu";
 import { GioiThieu } from "./pages/GioiThieu";
+import { HuongDanHub } from "./pages/HuongDanHub";
+import { HuongDanNapGiap } from "./pages/HuongDanNapGiap";
+import { HuongDanLucThan } from "./pages/HuongDanLucThan";
+import { HuongDanTheUng } from "./pages/HuongDanTheUng";
+import { HuongDanQueBien } from "./pages/HuongDanQueBien";
+import { HuongDanTuanKhong } from "./pages/HuongDanTuanKhong";
+import { HuongDanUngKy } from "./pages/HuongDanUngKy";
 import { DANH_SACH_QUE, duongDanQue, phanGiaiSlugQue, timQueTheoTenChuan } from "./ui/duongDan";
 import type { QueDaGieoDaLuu } from "./core/coinCasting/storage";
 import { MetaQue, MetaTrang } from "./ui/MetaTrang";
@@ -19,6 +26,7 @@ const TRANG = [
   { nhan: "Tìm ngày tốt", duongDan: "/tim-ngay-tot" },
   { nhan: "64 Quẻ Kinh Dịch", duongDan: "/64-que" },
   { nhan: "Quẻ đã lưu", duongDan: "/que-da-luu" },
+  { nhan: "Hướng dẫn", duongDan: "/huong-dan" },
   { nhan: "Giới thiệu", duongDan: "/gioi-thieu" },
 ] as const;
 
@@ -211,6 +219,110 @@ function TrangGioiThieu() {
   );
 }
 
+/** Trang hub `/huong-dan` và 6 bài con — đang lên UAT để xem giao diện/luồng đọc thật.
+ *
+ * Toàn bộ nội dung là BẢN NHÁP lấy từ `legacy/project-brain/drafts-huong-dan/`, chưa qua domain
+ * review (G2) — xem `trang_thai` trong từng file draft. `khongIndex` ở mọi route dưới đây để tránh
+ * bị lập chỉ mục trước khi nội dung được duyệt, đúng nguyên tắc "chỉ index sau G2" ở mục 3.2 kế
+ * hoạch SEO — kể cả khi chạy trên production, không riêng UAT. */
+function TrangHuongDanHub() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="Hướng dẫn Bốc Dịch / Lục Hào | QIChing"
+        moTa="Loạt bài giải thích Nạp Giáp, Lục Thân, Thế Ứng, Hào động/Quẻ biến, Tuần Không và Ứng Kỳ — các khái niệm nền tảng QIChing dùng để luận quẻ theo Lục Hào Nạp Giáp."
+        duongDan="/huong-dan"
+        khongIndex
+      />
+      <HuongDanHub />
+    </>
+  );
+}
+
+function TrangHuongDanNapGiap() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="Nạp Giáp là gì? Cách gán Địa Chi vào quẻ theo Kinh Phòng | QIChing"
+        moTa="Nạp Giáp gán Địa Chi và Ngũ Hành vào từng hào của 64 quẻ — nền tảng của hệ Bốc Dịch Lục Hào, khác với cách đọc Thoán Từ/Hào Từ theo nghĩa lý."
+        duongDan="/huong-dan/nap-giap"
+        khongIndex
+      />
+      <HuongDanNapGiap />
+    </>
+  );
+}
+
+function TrangHuongDanLucThan() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="Lục Thân là gì? Vì sao phải chọn đúng Dụng Thần trước khi luận quẻ | QIChing"
+        moTa="Lục Thân (Phụ Mẫu, Huynh Đệ, Quan Quỷ, Thê Tài, Tử Tôn) quyết định hào nào là Dụng Thần — hào đại diện đúng việc bạn hỏi khi luận quẻ Bốc Dịch."
+        duongDan="/huong-dan/luc-than"
+        khongIndex
+      />
+      <HuongDanLucThan />
+    </>
+  );
+}
+
+function TrangHuongDanTheUng() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="Thế Ứng là gì? Hào nào là bạn, hào nào là đối tượng liên quan | QIChing"
+        moTa="Thế đại diện bản thân người hỏi, Ứng đại diện đối tượng liên quan — vị trí cố định theo Bát Cung, không phải chọn tùy ý."
+        duongDan="/huong-dan/the-ung"
+        khongIndex
+      />
+      <HuongDanTheUng />
+    </>
+  );
+}
+
+function TrangHuongDanQueBien() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="Hào động và Quẻ biến trong Lục Hào là gì? | QIChing"
+        moTa="Phân biệt hào động/quẻ biến của Lục Hào Bốc Dịch với Thể/Dụng của Mai Hoa Dịch Số — cách QIChing dùng quẻ biến để tính vượng suy."
+        duongDan="/huong-dan/que-bien"
+        khongIndex
+      />
+      <HuongDanQueBien />
+    </>
+  );
+}
+
+function TrangHuongDanTuanKhong() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="Tuần Không (Không Vong) trong Lục Hào là gì? | QIChing"
+        moTa="Vì sao một hào đang vượng vẫn có thể tạm mất lực khi lâm Tuần Không — cách tính và phân biệt với Triệt Không của Tử Vi."
+        duongDan="/huong-dan/tuan-khong"
+        khongIndex
+      />
+      <HuongDanTuanKhong />
+    </>
+  );
+}
+
+function TrangHuongDanUngKy() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="Ứng Kỳ: bao giờ quẻ ứng nghiệm? | QIChing"
+        moTa="Ứng Kỳ là thời điểm ứng nghiệm của một quẻ đã gieo — dựa trên hào động/tĩnh, vượng suy, Tuần Không và Nguyệt Phá, khác với việc tìm thời điểm tốt để hành động."
+        duongDan="/huong-dan/ung-ky"
+        khongIndex
+      />
+      <HuongDanUngKy />
+    </>
+  );
+}
+
 function App() {
   return (
     <Routes>
@@ -220,6 +332,13 @@ function App() {
         <Route path="64-que" element={<TrangDanhSachQue />} />
         <Route path="64-que/:slug" element={<TrangChiTietQue />} />
         <Route path="que-da-luu" element={<TrangQueDaLuu />} />
+        <Route path="huong-dan" element={<TrangHuongDanHub />} />
+        <Route path="huong-dan/nap-giap" element={<TrangHuongDanNapGiap />} />
+        <Route path="huong-dan/luc-than" element={<TrangHuongDanLucThan />} />
+        <Route path="huong-dan/the-ung" element={<TrangHuongDanTheUng />} />
+        <Route path="huong-dan/que-bien" element={<TrangHuongDanQueBien />} />
+        <Route path="huong-dan/tuan-khong" element={<TrangHuongDanTuanKhong />} />
+        <Route path="huong-dan/ung-ky" element={<TrangHuongDanUngKy />} />
         <Route path="gioi-thieu" element={<TrangGioiThieu />} />
         <Route path="*" element={<KhongTimThay />} />
       </Route>
