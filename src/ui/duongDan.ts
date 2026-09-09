@@ -42,6 +42,21 @@ export function timQueTheoTenChuan(tenQueChuan: string): NoiDungQueRow | undefin
   return DANH_SACH_QUE.find((q) => q.tenQueChuan === tenQueChuan);
 }
 
+/**
+ * Điều hướng bằng phím mũi tên ở trang chi tiết quẻ: trái = quẻ trước, phải = quẻ sau — cùng
+ * hướng với 2 nút "‹ quẻ trước" / "quẻ sau ›" đã có. Tách riêng phần logic thuần (không đụng
+ * DOM/KeyboardEvent) để test được mà không cần dựng môi trường trình duyệt (jsdom) — phần đọc
+ * `event.key`/kiểm tra đang gõ trong ô nhập liệu vẫn nằm ở tầng component.
+ */
+export function duongDanQueTheoPhim(
+  key: string,
+  { quaTruoc, quaSau }: { quaTruoc?: NoiDungQueRow; quaSau?: NoiDungQueRow },
+): string | undefined {
+  if (key === "ArrowLeft") return quaTruoc && duongDanQue(quaTruoc);
+  if (key === "ArrowRight") return quaSau && duongDanQue(quaSau);
+  return undefined;
+}
+
 export type KetQuaPhanGiai =
   /** Slug khớp canonical — render bình thường. */
   | { trangThai: "khop"; que: NoiDungQueRow }

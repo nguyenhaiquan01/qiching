@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { BoLocMucNoiDung } from "../components/BoLocMucNoiDung";
 import { HinhQue } from "../components/HinhQue";
 import type { NoiDungQueRow } from "../core/data/noiDungQue";
 import type { NoiDungQueNgoTatToRow, MenhDeNgoTatTo } from "../core/data/noiDungQueNgoTatTo";
 import type { NoiDungQuePhanBoiChauRow } from "../core/data/noiDungQuePhanBoiChau";
-import { duongDanQue } from "../ui/duongDan";
+import { duongDanQue, duongDanQueTheoPhim } from "../ui/duongDan";
 import { docBanPhanBoiChauNhung } from "../ui/duLieuNhung";
 import { docMucAnDaLuu, hienKhoi, luuMucAn, type MucNoiDung } from "../ui/mucNoiDungQue";
 
@@ -77,6 +77,23 @@ export function ChiTietQue({
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [que.tenQueChuan]);
+
+  const navigate = useNavigate();
+  // Phím mũi tên trái/phải = quẻ trước/sau, cùng hướng 2 nút "‹ quẻ trước" / "quẻ sau ›" ở
+  // trên. Bỏ qua khi đang gõ trong ô nhập liệu hoặc có phím bổ trợ (Alt/Ctrl/Meta/Shift) —
+  // tránh đụng phím tắt khác của trình duyệt (ví dụ Alt+Trái/Phải = back/forward).
+  useEffect(() => {
+    function xuLyPhim(e: KeyboardEvent) {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const dich = e.target as HTMLElement | null;
+      const the = dich?.tagName;
+      if (the === "INPUT" || the === "TEXTAREA" || the === "SELECT" || dich?.isContentEditable) return;
+      const duongDan = duongDanQueTheoPhim(e.key, { quaTruoc, quaSau });
+      if (duongDan) navigate(duongDan);
+    }
+    window.addEventListener("keydown", xuLyPhim);
+    return () => window.removeEventListener("keydown", xuLyPhim);
+  }, [quaTruoc, quaSau, navigate]);
 
   // Mặc định là bản PHAN BỘI CHÂU: đây là bản được prerender vào HTML tĩnh và do đó là bản
   // Google index. Chọn bản này vì tác giả mất năm 1940 nên tác phẩm đã hết thời hạn bảo hộ

@@ -3,6 +3,7 @@ import {
   DANH_SACH_QUE,
   boDau,
   duongDanQue,
+  duongDanQueTheoPhim,
   phanGiaiSlugQue,
   slugQue,
   timQueTheoTenChuan,
@@ -103,6 +104,30 @@ describe("phanGiaiSlugQue", () => {
 
   it("không phân biệt hoa thường và bỏ qua khoảng trắng thừa", () => {
     expect(phanGiaiSlugQue("  46-DIA-PHONG-THANG  ").trangThai).toBe("khop");
+  });
+});
+
+describe("duongDanQueTheoPhim", () => {
+  const khon = timQueTheoTenChuan("KHÔN VI ĐỊA")!; // quẻ 2 — có cả trước (Càn) lẫn sau (Truân)
+  const quaTruoc = DANH_SACH_QUE[khon.soThuTu - 2];
+  const quaSau = DANH_SACH_QUE[khon.soThuTu];
+
+  it("mũi tên trái ra đường dẫn quẻ trước", () => {
+    expect(duongDanQueTheoPhim("ArrowLeft", { quaTruoc, quaSau })).toBe(duongDanQue(quaTruoc));
+  });
+
+  it("mũi tên phải ra đường dẫn quẻ sau", () => {
+    expect(duongDanQueTheoPhim("ArrowRight", { quaTruoc, quaSau })).toBe(duongDanQue(quaSau));
+  });
+
+  it("phím khác không ra đường dẫn nào", () => {
+    expect(duongDanQueTheoPhim("Enter", { quaTruoc, quaSau })).toBeUndefined();
+    expect(duongDanQueTheoPhim(" ", { quaTruoc, quaSau })).toBeUndefined();
+  });
+
+  it("ở đầu/cuối danh sách (thiếu quẻ trước hoặc sau) thì không ra đường dẫn", () => {
+    expect(duongDanQueTheoPhim("ArrowLeft", { quaTruoc: undefined, quaSau })).toBeUndefined();
+    expect(duongDanQueTheoPhim("ArrowRight", { quaTruoc, quaSau: undefined })).toBeUndefined();
   });
 });
 
