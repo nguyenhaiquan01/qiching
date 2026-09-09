@@ -43,6 +43,12 @@ describe("NOI_DUNG_QUE_PHAN_BOI_CHAU — nội dung 64 quẻ (bản Phan Bội C
     expect(new Set(khongCoTuQuai)).toEqual(new Set(["CÀN VI THIÊN", "KHÔN VI ĐỊA"]));
   });
 
+  it("đã giữ được đoạn mở đầu trước Tự Quái (hồi quy quẻ Thiên Thủy Tụng)", () => {
+    const q6 = timNoiDungQuePhanBoiChau("THIÊN THỦY TỤNG");
+    expect(q6?.moDau).toContain("Kiền trên; Khảm dưới");
+    expect(q6?.moDau).toContain("Quẻ này là quẻ Thiên Thủy Tụng");
+  });
+
   it("chỉ Càn và Khôn có vanNgon/dungCuu", () => {
     const coVanNgon = NOI_DUNG_QUE_PHAN_BOI_CHAU.filter((r) => r.vanNgon).map((r) => r.tenQueChuan);
     const coDungCuu = NOI_DUNG_QUE_PHAN_BOI_CHAU.filter((r) => r.dungCuu).map((r) => r.tenQueChuan);

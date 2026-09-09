@@ -55,6 +55,10 @@ function KhoiMenhDeNgoTatTo({ md }: { md: MenhDeNgoTatTo }) {
   );
 }
 
+function layDanNhapNgoTatTo(duLieu: NoiDungQueNgoTatToRow): MenhDeNgoTatTo | undefined {
+  return duLieu.quaiTu[0];
+}
+
 /** Trang chi tiết một quẻ — tương tự cấu trúc trang cohoc.net/&lt;ten-que&gt;.html: đồ hình,
  * Giải nghĩa, Dịch, Giảng, Hào Từ đầy đủ 6 hào, Dụng Cửu/Lục và Chú Thích (nếu có). Có thể
  * toggle qua lại giữa 3 bản diễn giải (Nguyễn Hiến Lê/Ngô Tất Tố/Phan Bội Châu) — xem
@@ -214,7 +218,7 @@ export function ChiTietQue({
         <>
           {hienKhoi(mucAn, "y-nghia-chinh") && (
             <div className="the">
-              <h2>Giải nghĩa</h2>
+              <h2>Dẫn Nhập</h2>
               <p className="giai-thich">{que.giaiNghia}</p>
             </div>
           )}
@@ -284,14 +288,22 @@ export function ChiTietQue({
         !dangTai &&
         (ngoTatTo ? (
           <>
-            {hienKhoi(mucAn, "y-nghia-chinh", "thoan-tu", "thoan-truyen", "dai-tuong-truyen") && (
+            {layDanNhapNgoTatTo(ngoTatTo) && hienKhoi(mucAn, "y-nghia-chinh") && (
               <div className="the">
-                <h2>Ý nghĩa chính / Thoán Từ / Thoán Truyện / Đại Tượng Truyện</h2>
+                <h2>Dẫn Nhập</h2>
+                <p className="que-dich-cung">Lấy theo mệnh đề mở đầu của bản dịch Ngô Tất Tố.</p>
+                <KhoiMenhDeNgoTatTo md={layDanNhapNgoTatTo(ngoTatTo)!} />
+              </div>
+            )}
+
+            {ngoTatTo.quaiTu.length > 1 && hienKhoi(mucAn, "thoan-tu", "thoan-truyen", "dai-tuong-truyen") && (
+              <div className="the">
+                <h2>Thoán Từ / Thoán Truyện / Đại Tượng Truyện</h2>
                 <p className="que-dich-cung">
-                  Bản này gộp chung 4 mục trên trong một khối — nguồn không tách rời được (xem
+                  Bản này gộp chung 3 mục trên trong một khối — nguồn không tách rời được (xem
                   "Mục hiển thị" ở trên).
                 </p>
-                {ngoTatTo.quaiTu.map((md, i) => (
+                {ngoTatTo.quaiTu.slice(1).map((md, i) => (
                   <KhoiMenhDeNgoTatTo key={i} md={md} />
                 ))}
               </div>
@@ -337,10 +349,11 @@ export function ChiTietQue({
         !dangTai &&
         (phanBoiChau ? (
           <>
-            {phanBoiChau.tuQuai && hienKhoi(mucAn, "tu-quai-truyen") && (
+            {phanBoiChau.moDau && hienKhoi(mucAn, "y-nghia-chinh") && (
               <div className="the">
-                <h2>Tự Quái Truyện</h2>
-                <p className="giai-thich">{phanBoiChau.tuQuai}</p>
+                <h2>Dẫn Nhập</h2>
+                <p className="giai-thich">{phanBoiChau.moDau}</p>
+                {phanBoiChau.tuQuai && <p className="giai-thich">{phanBoiChau.tuQuai}</p>}
               </div>
             )}
 

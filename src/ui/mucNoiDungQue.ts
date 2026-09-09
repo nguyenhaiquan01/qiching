@@ -12,13 +12,12 @@
  *
  * Bảng ánh xạ khối hiển thị hiện có ở `ChiTietQue.tsx` sang mục chuẩn:
  *
- * | Mục chuẩn         | Nguyễn Hiến Lê        | Ngô Tất Tố                        | Phan Bội Châu       |
- * |-------------------|-----------------------|------------------------------------|----------------------|
- * | tu-quai-truyen    | (không có)            | (không có)                         | Tự Quái Truyện       |
- * | y-nghia-chinh     | Giải nghĩa            | ┐                                   | (không có)           |
- * | thoan-tu          | Thoán Từ              | ├─ gộp chung 1 khối "quaiTu"        | Soán Từ              |
- * | thoan-truyen      | Giảng (Thoán Từ)      | │  (nguồn không tách rời được)      | Soán Truyện          |
- * | dai-tuong-truyen  | (không có)            | ┘                                   | Đại Tượng Truyện     |
+ * | Mục chuẩn         | Nguyễn Hiến Lê        | Ngô Tất Tố                        | Phan Bội Châu               |
+ * |-------------------|-----------------------|------------------------------------|-------------------------------|
+ * | y-nghia-chinh     | Dẫn Nhập (từ Giải nghĩa) | Dẫn Nhập (mệnh đề mở đầu)       | Dẫn Nhập (Mở Đầu + Tự Quái) |
+ * | thoan-tu          | Thoán Từ              | ┐                                   | Soán Từ              |
+ * | thoan-truyen      | Giảng (Thoán Từ)      | ├─ phần còn lại của "quaiTu"       | Soán Truyện          |
+ * | dai-tuong-truyen  | (không có)            | ┘  (nguồn không tách rời tuyệt đối) | Đại Tượng Truyện     |
  * | hao-tu            | Hào Từ                | Hào Từ (kèm Tiểu Tượng Truyện)     | Hào Từ & Tiểu Tượng  |
  * | van-ngon-truyen   | (không có)            | ┐ gộp chung vào "dungCuu" (chỉ Càn/ | Văn Ngôn Truyện      |
  * | dung-cuu-luc      | Dụng Cửu/Lục          | ┘ Khôn, nguồn không tách rời được) | Dụng Cửu/Lục         |
@@ -32,7 +31,6 @@
  */
 
 export type MucNoiDung =
-  | "tu-quai-truyen"
   | "y-nghia-chinh"
   | "thoan-tu"
   | "thoan-truyen"
@@ -44,8 +42,7 @@ export type MucNoiDung =
   | "phu-luc";
 
 export const DANH_SACH_MUC_NOI_DUNG: { id: MucNoiDung; nhan: string }[] = [
-  { id: "tu-quai-truyen", nhan: "Tự Quái Truyện" },
-  { id: "y-nghia-chinh", nhan: "Ý nghĩa chính" },
+  { id: "y-nghia-chinh", nhan: "Dẫn Nhập" },
   { id: "thoan-tu", nhan: "Thoán Từ" },
   { id: "thoan-truyen", nhan: "Thoán Truyện" },
   { id: "dai-tuong-truyen", nhan: "Đại Tượng Truyện" },

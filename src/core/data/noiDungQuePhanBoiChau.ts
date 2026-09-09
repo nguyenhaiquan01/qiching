@@ -57,6 +57,9 @@ export interface NoiDungQuePhanBoiChauRow {
   queThuong: string;
   queHa: string;
   haoThe: number;
+  /** Đoạn mở đầu của trang (ví dụ "Kiền trên; Khảm dưới..."), trước mục Tự Quái/Soán Từ.
+   * Null ở quẻ 1, 2 vì nguồn không tách theo cùng pattern với các quẻ còn lại. */
+  moDau: string | null;
   /** Tự Quái Truyện — null ở quẻ 1, 2 (xem comment đầu file). */
   tuQuai: string | null;
   /** Soán Từ (Thoán Từ): Hán tự + phiên âm + giảng, gộp theo đúng thứ tự xuất hiện. */
