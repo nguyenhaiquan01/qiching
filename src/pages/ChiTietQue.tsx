@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { BoLocMucNoiDung } from "../components/BoLocMucNoiDung";
 import { HinhQue } from "../components/HinhQue";
 import type { NoiDungQueRow } from "../core/data/noiDungQue";
 import type { NoiDungQueNgoTatToRow, MenhDeNgoTatTo } from "../core/data/noiDungQueNgoTatTo";
 import type { NoiDungQuePhanBoiChauRow } from "../core/data/noiDungQuePhanBoiChau";
 import { duongDanQue } from "../ui/duongDan";
 import { docBanPhanBoiChauNhung } from "../ui/duLieuNhung";
+import { docMucAnDaLuu, hienKhoi, luuMucAn, type MucNoiDung } from "../ui/mucNoiDungQue";
 
 type NguonDichGia = "nguyen-hien-le" | "ngo-tat-to" | "phan-boi-chau";
 
@@ -88,10 +90,14 @@ export function ChiTietQue({
     docBanPhanBoiChauNhung(que.tenQueChuan),
   );
   const [dangTai, setDangTai] = useState(false);
+  // Mặc định hiện đủ mọi mục (tập rỗng) để khớp bản server render, rồi mới đọc lựa chọn đã
+  // lưu trong effect bên dưới — cùng lý do tránh hydration mismatch như `nguon` ở trên.
+  const [mucAn, setMucAn] = useState<Set<MucNoiDung>>(() => new Set());
 
   useEffect(() => {
     const daLuu = docNguonDaLuu();
     if (daLuu !== "phan-boi-chau") setNguon(daLuu);
+    setMucAn(docMucAnDaLuu());
   }, []);
 
   function doiNguon(n: NguonDichGia) {
@@ -104,12 +110,26 @@ export function ChiTietQue({
     }
   }
 
+  function doiMuc(id: MucNoiDung) {
+    setMucAn((truoc) => {
+      const sau = new Set(truoc);
+      if (sau.has(id)) sau.delete(id);
+      else sau.add(id);
+      luuMucAn(sau);
+      return sau;
+    });
+  }
+
   // Chỉ import động (code-splitting) 1 trong 2 bản còn lại khi thực sự cần — bản Nguyễn Hiến
   // Lê đã có sẵn trong prop `que`, không cần tải thêm. Dữ liệu 2 bản mới khá lớn (>1MB mỗi
   // bản), không nên bundle tĩnh vào chunk chính khi đa số người dùng không đổi bản mặc định.
   useEffect(() => {
     if (nguon === "nguyen-hien-le") return; // đã có sẵn trong prop `que`
-    if (nguon === "phan-boi-chau" && phanBoiChau) return; // đã nhúng sẵn trong trang
+    // Chỉ bỏ qua khi dữ liệu đang có ĐÚNG LÀ của quẻ hiện tại (nhúng sẵn hoặc đã tải trước đó
+    // khi còn ở quẻ này) — so `tenQueChuan` chứ không chỉ kiểm tra có dữ liệu hay không, tránh
+    // giữ nguyên nội dung của quẻ cũ khi bấm quẻ trước/sau (quẻ đổi nhưng component không bị
+    // remount nên state cũ vẫn còn).
+    if (nguon === "phan-boi-chau" && phanBoiChau?.tenQueChuan === que.tenQueChuan) return;
     let huy = false;
     setDangTai(true);
     if (nguon === "ngo-tat-to") {
@@ -188,54 +208,64 @@ export function ChiTietQue({
         </div>
       </div>
 
+      <BoLocMucNoiDung mucAn={mucAn} onDoi={doiMuc} />
+
       {nguon === "nguyen-hien-le" && (
         <>
-          <div className="the">
-            <h2>Giải nghĩa</h2>
-            <p className="giai-thich">{que.giaiNghia}</p>
-          </div>
+          {hienKhoi(mucAn, "y-nghia-chinh") && (
+            <div className="the">
+              <h2>Giải nghĩa</h2>
+              <p className="giai-thich">{que.giaiNghia}</p>
+            </div>
+          )}
 
-          <div className="the">
-            <h2>Thoán Từ</h2>
-            {que.thoanTu.hanTu && <p className="han-tu">{que.thoanTu.hanTu}</p>}
-            <p className="giai-thich">{que.thoanTu.dich}</p>
-          </div>
+          {hienKhoi(mucAn, "thoan-tu") && (
+            <div className="the">
+              <h2>Thoán Từ</h2>
+              {que.thoanTu.hanTu && <p className="han-tu">{que.thoanTu.hanTu}</p>}
+              <p className="giai-thich">{que.thoanTu.dich}</p>
+            </div>
+          )}
 
-          <div className="the">
-            <h2>Giảng (Thoán Từ)</h2>
-            <p className="giai-thich">{que.thoanTu.giang}</p>
-          </div>
+          {hienKhoi(mucAn, "thoan-truyen") && (
+            <div className="the">
+              <h2>Giảng (Thoán Từ)</h2>
+              <p className="giai-thich">{que.thoanTu.giang}</p>
+            </div>
+          )}
 
-          <div className="the">
-            <h2>Hào Từ</h2>
-            {que.haoTu
-              .slice()
-              .sort((a, b) => a.vach - b.vach)
-              .map((h) => (
-                <div key={h.vach} className="hao-tu-chi-tiet">
-                  <h3>
-                    Hào {h.vach} — {h.nhan}
-                  </h3>
-                  <p className="giai-thich">{h.noiDung}</p>
-                </div>
-              ))}
-          </div>
+          {hienKhoi(mucAn, "hao-tu") && (
+            <div className="the">
+              <h2>Hào Từ</h2>
+              {que.haoTu
+                .slice()
+                .sort((a, b) => a.vach - b.vach)
+                .map((h) => (
+                  <div key={h.vach} className="hao-tu-chi-tiet">
+                    <h3>
+                      Hào {h.vach} — {h.nhan}
+                    </h3>
+                    <p className="giai-thich">{h.noiDung}</p>
+                  </div>
+                ))}
+            </div>
+          )}
 
-          {que.dungCuu && (
+          {que.dungCuu && hienKhoi(mucAn, "dung-cuu-luc") && (
             <div className="the">
               <h2>Dụng Cửu / Dụng Lục</h2>
               <p className="giai-thich">{que.dungCuu}</p>
             </div>
           )}
 
-          {que.chuThich && (
+          {que.chuThich && hienKhoi(mucAn, "chu-thich") && (
             <div className="the">
               <h2>Chú Thích</h2>
               <p className="giai-thich">{que.chuThich}</p>
             </div>
           )}
 
-          {que.phuLuc && (
+          {que.phuLuc && hienKhoi(mucAn, "phu-luc") && (
             <div className="the">
               <h2>Phụ Lục</h2>
               <p className="giai-thich">{que.phuLuc}</p>
@@ -254,33 +284,45 @@ export function ChiTietQue({
         !dangTai &&
         (ngoTatTo ? (
           <>
-            <div className="the">
-              <h2>Thoán Từ / Thoán Truyện / Đại Tượng Truyện</h2>
-              {ngoTatTo.quaiTu.map((md, i) => (
-                <KhoiMenhDeNgoTatTo key={i} md={md} />
-              ))}
-            </div>
-
-            <div className="the">
-              <h2>Hào Từ</h2>
-              {ngoTatTo.haoTu
-                .slice()
-                .sort((a, b) => a.vach - b.vach)
-                .map((h) => (
-                  <div key={h.vach}>
-                    <h3>
-                      Hào {h.vach} — {h.nhan}
-                    </h3>
-                    {h.menhDe.map((md, i) => (
-                      <KhoiMenhDeNgoTatTo key={i} md={md} />
-                    ))}
-                  </div>
+            {hienKhoi(mucAn, "y-nghia-chinh", "thoan-tu", "thoan-truyen", "dai-tuong-truyen") && (
+              <div className="the">
+                <h2>Ý nghĩa chính / Thoán Từ / Thoán Truyện / Đại Tượng Truyện</h2>
+                <p className="que-dich-cung">
+                  Bản này gộp chung 4 mục trên trong một khối — nguồn không tách rời được (xem
+                  "Mục hiển thị" ở trên).
+                </p>
+                {ngoTatTo.quaiTu.map((md, i) => (
+                  <KhoiMenhDeNgoTatTo key={i} md={md} />
                 ))}
-            </div>
+              </div>
+            )}
 
-            {ngoTatTo.dungCuu && (
+            {hienKhoi(mucAn, "hao-tu") && (
+              <div className="the">
+                <h2>Hào Từ</h2>
+                {ngoTatTo.haoTu
+                  .slice()
+                  .sort((a, b) => a.vach - b.vach)
+                  .map((h) => (
+                    <div key={h.vach}>
+                      <h3>
+                        Hào {h.vach} — {h.nhan}
+                      </h3>
+                      {h.menhDe.map((md, i) => (
+                        <KhoiMenhDeNgoTatTo key={i} md={md} />
+                      ))}
+                    </div>
+                  ))}
+              </div>
+            )}
+
+            {ngoTatTo.dungCuu && hienKhoi(mucAn, "dung-cuu-luc", "van-ngon-truyen") && (
               <div className="the">
                 <h2>Dụng Cửu / Dụng Lục</h2>
+                <p className="que-dich-cung">
+                  Bản này gộp chung với Tiểu Tượng Truyện lặp lại và Văn Ngôn Truyện — nguồn
+                  không tách rời được (xem "Mục hiển thị" ở trên).
+                </p>
                 <p className="giai-thich">{ngoTatTo.dungCuu}</p>
               </div>
             )}
@@ -295,51 +337,59 @@ export function ChiTietQue({
         !dangTai &&
         (phanBoiChau ? (
           <>
-            {phanBoiChau.tuQuai && (
+            {phanBoiChau.tuQuai && hienKhoi(mucAn, "tu-quai-truyen") && (
               <div className="the">
                 <h2>Tự Quái Truyện</h2>
                 <p className="giai-thich">{phanBoiChau.tuQuai}</p>
               </div>
             )}
 
-            <div className="the">
-              <h2>Soán Từ</h2>
-              <p className="giai-thich">{phanBoiChau.soanTu}</p>
-            </div>
+            {hienKhoi(mucAn, "thoan-tu") && (
+              <div className="the">
+                <h2>Soán Từ</h2>
+                <p className="giai-thich">{phanBoiChau.soanTu}</p>
+              </div>
+            )}
 
-            <div className="the">
-              <h2>Soán Truyện</h2>
-              <p className="giai-thich">{phanBoiChau.soanTruyen}</p>
-            </div>
+            {hienKhoi(mucAn, "thoan-truyen") && (
+              <div className="the">
+                <h2>Soán Truyện</h2>
+                <p className="giai-thich">{phanBoiChau.soanTruyen}</p>
+              </div>
+            )}
 
-            <div className="the">
-              <h2>Đại Tượng Truyện</h2>
-              <p className="giai-thich">{phanBoiChau.daiTuongTruyen}</p>
-            </div>
+            {hienKhoi(mucAn, "dai-tuong-truyen") && (
+              <div className="the">
+                <h2>Đại Tượng Truyện</h2>
+                <p className="giai-thich">{phanBoiChau.daiTuongTruyen}</p>
+              </div>
+            )}
 
-            <div className="the">
-              <h2>Hào Từ &amp; Tiểu Tượng Truyện</h2>
-              {phanBoiChau.haoTu
-                .slice()
-                .sort((a, b) => a.vach - b.vach)
-                .map((h) => (
-                  <div key={h.vach} className="hao-tu-chi-tiet">
-                    <h3>
-                      Hào {h.vach} — {h.nhan}
-                    </h3>
-                    <p className="giai-thich">{h.noiDung}</p>
-                  </div>
-                ))}
-            </div>
+            {hienKhoi(mucAn, "hao-tu") && (
+              <div className="the">
+                <h2>Hào Từ &amp; Tiểu Tượng Truyện</h2>
+                {phanBoiChau.haoTu
+                  .slice()
+                  .sort((a, b) => a.vach - b.vach)
+                  .map((h) => (
+                    <div key={h.vach} className="hao-tu-chi-tiet">
+                      <h3>
+                        Hào {h.vach} — {h.nhan}
+                      </h3>
+                      <p className="giai-thich">{h.noiDung}</p>
+                    </div>
+                  ))}
+              </div>
+            )}
 
-            {phanBoiChau.vanNgon && (
+            {phanBoiChau.vanNgon && hienKhoi(mucAn, "van-ngon-truyen") && (
               <div className="the">
                 <h2>Văn Ngôn Truyện</h2>
                 <p className="giai-thich">{phanBoiChau.vanNgon}</p>
               </div>
             )}
 
-            {phanBoiChau.dungCuu && (
+            {phanBoiChau.dungCuu && hienKhoi(mucAn, "dung-cuu-luc") && (
               <div className="the">
                 <h2>Dụng Cửu / Dụng Lục</h2>
                 <p className="giai-thich">{phanBoiChau.dungCuu}</p>

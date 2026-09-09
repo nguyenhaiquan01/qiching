@@ -24,6 +24,16 @@
  *   "Nhị Cửu" như cách `noiDungQue.json` tự ghi lại theo thứ tự hiển thị gốc của nó) — không tin
  *   theo chữ scrape được vì nguồn có nhiều lỗi chính tả nhãn hào (Sơ/Sở, Cửu/Cứu...).
  * - `vanNgon`/`dungCuu` chỉ khác `null` ở quẻ 1, quẻ 2.
+ *
+ * Audit đối chiếu ngược (2026-09) — đã tải lại HTML gốc của 5 trang bên dưới bằng `curl` để xác
+ * nhận trước khi sửa, không suy đoán:
+ * - `tenQue` của quẻ 4/36 có lỗi chính tả sẵn ở nguồn ("QUỂ"/"QUÉ" thay vì "QUẺ"; quẻ 36 còn có
+ *   "HÓA" thay vì "HỎA"), quẻ 5/33 nguồn thiếu hẳn tiền tố "QUẺ " — đã copyedit cả 4 quẻ (cùng
+ *   tinh thần không tin nguyên văn scrape có lỗi rõ ràng như đã làm với nhãn hào ở trên).
+ * - `soanTu` của quẻ 1 (Càn) thiếu dòng chữ Hán ở nguồn (trang không có chữ Hán nào trước "彖曰"
+ *   mở đầu Soán Truyện) — đã bổ sung "乾元亨利貞." (theo đúng quy ước dấu câu nguồn này dùng cho
+ *   Soán Từ ngắn không có mệnh đề phụ, ví dụ quẻ 58 Đoài "兌亨利貞.") vì đây là nội dung Soán Từ
+ *   kinh điển chuẩn, không phải suy diễn.
  */
 import raw from "./noiDungQuePhanBoiChau.json";
 
