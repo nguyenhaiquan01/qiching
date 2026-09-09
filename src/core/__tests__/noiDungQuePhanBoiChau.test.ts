@@ -49,6 +49,15 @@ describe("NOI_DUNG_QUE_PHAN_BOI_CHAU — nội dung 64 quẻ (bản Phan Bội C
     expect(q6?.moDau).toContain("Quẻ này là quẻ Thiên Thủy Tụng");
   });
 
+  it("Càn, Khôn có moDau dù không có Tự Quái (nguồn đi thẳng từ đoạn mở đầu sang Soán Từ)", () => {
+    const can = timNoiDungQuePhanBoiChau("CÀN VI THIÊN");
+    const khon = timNoiDungQuePhanBoiChau("KHÔN VI ĐỊA");
+    expect(can?.moDau).toContain("Kiền trên; Kiền dưới");
+    expect(can?.tuQuai).toBeNull();
+    expect(khon?.moDau).toContain("Khôn trên; Khôn dưới");
+    expect(khon?.tuQuai).toBeNull();
+  });
+
   it("chỉ Càn và Khôn có vanNgon/dungCuu", () => {
     const coVanNgon = NOI_DUNG_QUE_PHAN_BOI_CHAU.filter((r) => r.vanNgon).map((r) => r.tenQueChuan);
     const coDungCuu = NOI_DUNG_QUE_PHAN_BOI_CHAU.filter((r) => r.dungCuu).map((r) => r.tenQueChuan);
