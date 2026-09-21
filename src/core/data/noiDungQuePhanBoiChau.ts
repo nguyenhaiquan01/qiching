@@ -41,6 +41,18 @@
  *   mở đầu Soán Truyện) — đã bổ sung "乾元亨利貞." (theo đúng quy ước dấu câu nguồn này dùng cho
  *   Soán Từ ngắn không có mệnh đề phụ, ví dụ quẻ 58 Đoài "兌亨利貞.") vì đây là nội dung Soán Từ
  *   kinh điển chuẩn, không phải suy diễn.
+ *
+ * Audit đối chiếu ngược (2026-09, đợt 2) — người dùng báo lỗi lệch Hán tự/Hán Việt ở
+ * `daiTuongTruyen` quẻ 53 (kèm link nguồn); rà lại toàn bộ 64 quẻ bằng script phát hiện field
+ * `hanViet` chứa ký tự CJK (đáng lẽ chỉ `hanTu` có), tìm thêm 6 quẻ cùng lỗi hệt vậy: 6, 9, 23,
+ * 27, 31, 49. Đã tải lại HTML gốc của cả 7 trang bằng `curl` để xác nhận trước khi sửa. Nguyên
+ * nhân: script trích xuất gốc parse nhầm khi trang nguồn thiếu dòng phiên âm Hán Việt ở đúng vị
+ * trí mong đợi — kết quả là `hanViet` bị gán nhầm sang chữ Hán (đáng lẽ là `hanTu`), `hanTu` bị
+ * gán nhầm sang câu đầu của phần giảng, và dòng phiên âm Hán Việt thật ("Tượng viết: ...") bị
+ * rơi mất hoàn toàn, không nằm ở field nào. Đã sửa cho cả 7 quẻ: gán lại `hanTu` = chữ Hán cũ
+ * (trước đó nằm nhầm ở `hanViet`), bổ sung `hanViet` = phiên âm Hán Việt đúng lấy từ HTML gốc,
+ * nối câu đầu bị lạc (`hanTu` cũ) vào đầu `dichGiang`. Không đụng tới `soanTu` — audit riêng cho
+ * `soanTu` không phát hiện field nào chứa CJK ở `hanViet` hay thiếu CJK ở `hanTu`.
  */
 import type { CardContent } from "../types";
 import raw from "./noiDungQuePhanBoiChau.json";
