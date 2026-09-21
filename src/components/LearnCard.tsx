@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import type { CardContent } from "../core/types";
 import { DifficultyLevel } from "../core/types";
+import { HexagramDisplay } from "./HexagramDisplay";
 import "./LearnCard.css";
+
+interface HaoInfo {
+  vach: number;
+  nhan: string;
+  noiDung?: string;
+}
 
 interface LearnCardProps {
   /** Nội dung học tập (quẻ cơ bản hoặc hào cụ thể) */
@@ -15,6 +22,10 @@ interface LearnCardProps {
   onReview?: (result: "remember" | "forget") => void;
   /** CSS class thêm vào */
   className?: string;
+  /** Optional: Mảng hào để hiển thị hexagram */
+  haoTu?: HaoInfo[];
+  /** Optional: Tên quẻ để hiển thị */
+  tenQue?: string;
 }
 
 /**
@@ -32,6 +43,8 @@ export const LearnCard: React.FC<LearnCardProps> = ({
   total,
   onReview,
   className = "",
+  haoTu,
+  tenQue,
 }) => {
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(
     DifficultyLevel.Easy
@@ -110,6 +123,9 @@ export const LearnCard: React.FC<LearnCardProps> = ({
           </button>
         ))}
       </div>
+
+      {/* Hexagram Display */}
+      {haoTu && tenQue && <HexagramDisplay haoTu={haoTu} tenQue={tenQue} />}
 
       {/* Nội dung thẻ */}
       <div

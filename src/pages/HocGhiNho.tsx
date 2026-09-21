@@ -223,6 +223,8 @@ export const HocGhiNho: React.FC = () => {
             index={currentIndex}
             total={cards.length}
             onReview={handleReview}
+            haoTu={currentCard.data.haoTu}
+            tenQue={currentCard.data.tenQue}
           />
         )}
       </div>
