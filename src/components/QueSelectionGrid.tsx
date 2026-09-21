@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
-import { NOI_DUNG_QUE_PHAN_BOI_CHAU } from "../core/data/noiDungQuePhanBoiChau";
+import { HinhQue } from "./HinhQue";
+import { NOI_DUNG_QUE } from "../core/data/noiDungQue";
 import "./QueSelectionGrid.css";
 
 interface QueSelectionGridProps {
@@ -10,10 +11,6 @@ interface QueSelectionGridProps {
   onRandomSelect: (count: number) => void;
 }
 
-const isYang = (nhan: string): boolean => {
-  return nhan.includes("Cửu");
-};
-
 export const QueSelectionGrid: React.FC<QueSelectionGridProps> = ({
   selectedQueNumbers,
   onToggleQue,
@@ -21,12 +18,16 @@ export const QueSelectionGrid: React.FC<QueSelectionGridProps> = ({
   onClearAll,
   onRandomSelect,
 }) => {
-  // Create grid of 8x8 (64 quẻ) with hexagram data
+  // Cùng nguồn `NOI_DUNG_QUE` (Nguyễn Hiến Lê) mà trang "64 Quẻ Kinh Dịch" (`DanhSachQue.tsx`)
+  // dùng, để tên quẻ và hình hexagram khớp đúng định dạng hiển thị ở đó (không suy ra tên quẻ
+  // từ `tenQue.split(" ")[0]` của bản Phan Bội Châu — chuỗi đó luôn bắt đầu bằng "QUẺ ..." nên
+  // tách từ đầu chỉ ra được chữ "QUẺ" cho mọi quẻ).
   const gridItems = useMemo(() => {
-    return NOI_DUNG_QUE_PHAN_BOI_CHAU.map((que) => ({
+    return NOI_DUNG_QUE.map((que) => ({
       soThuTu: que.soThuTu,
-      tenQue: que.tenQue.split(" ")[0], // Get first part of name for display
-      haoTu: que.haoTu,
+      tenQue: que.tenQue,
+      queThuong: que.queThuong,
+      queHa: que.queHa,
       isSelected: selectedQueNumbers.has(que.soThuTu),
     }));
   }, [selectedQueNumbers]);
@@ -77,25 +78,8 @@ export const QueSelectionGrid: React.FC<QueSelectionGridProps> = ({
                 title={item.tenQue}
               >
                 <div className="grid-number">{item.soThuTu}</div>
-                
-                {/* Compact Hexagram */}
-                <div className="grid-hexagram">
-                  {item.haoTu.map((hao) => (
-                    <div
-                      key={hao.vach}
-                      className={`hex-line ${isYang(hao.nhan) ? "yang" : "yin"}`}
-                    >
-                      {isYang(hao.nhan) ? (
-                        <div className="hex-solid"></div>
-                      ) : (
-                        <div className="hex-broken">
-                          <span></span>
-                          <span></span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+
+                <HinhQue queThuong={item.queThuong} queHa={item.queHa} cachDong="gon" />
 
                 <div className="grid-name">{item.tenQue}</div>
               </button>

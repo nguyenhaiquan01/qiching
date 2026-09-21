@@ -19,60 +19,16 @@
   text-transform: uppercase;
 }
 
-.hexagram-lines {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 0.4rem;
-  align-items: center;
+/* `.hinh-que` mặc định (dùng chung ở trang "64 Quẻ Kinh Dịch") khá nhỏ; phóng to riêng trong
+ * khung thẻ học này để giữ đúng mức nổi bật như thiết kế ban đầu, không đụng tới style toàn cục
+ * của `HinhQue` (selector 3 lớp ở đây có độ đặc thù cao hơn rule gốc `.hinh-que .hao-vach`). */
+.hexagram-display .hinh-que {
+  gap: 8px;
 }
 
-.hexagram-line {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
-/* Solid line (Yang - 陽) */
-.line.solid {
-  width: 80px;
-  height: 3px;
-  background-color: #333;
-  border-radius: 1px;
-  transition: all 0.2s ease;
-}
-
-.hexagram-line.yang:hover .line.solid {
+.hexagram-display .hinh-que .hao-vach {
   width: 90px;
-  height: 4px;
-  background-color: #000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Broken line (Yin - 陰) */
-.line.broken {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
-.break-left,
-.break-right {
-  width: 32px;
-  height: 3px;
-  background-color: #333;
-  border-radius: 1px;
-  transition: all 0.2s ease;
-}
-
-.hexagram-line.yin:hover .break-left,
-.hexagram-line.yin:hover .break-right {
-  width: 36px;
-  height: 4px;
-  background-color: #000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  height: 8px;
 }
 
 /* Responsive design */
@@ -81,23 +37,8 @@
     padding: 1rem;
   }
 
-  .line.solid {
-    width: 60px;
-    height: 2.5px;
-  }
-
-  .hexagram-line.yang:hover .line.solid {
-    width: 70px;
-  }
-
-  .break-left,
-  .break-right {
-    width: 24px;
-    height: 2.5px;
-  }
-
-  .hexagram-line.yin:hover .break-left,
-  .hexagram-line.yin:hover .break-right {
-    width: 28px;
+  .hexagram-display .hinh-que .hao-vach {
+    width: 64px;
+    height: 6px;
   }
 }

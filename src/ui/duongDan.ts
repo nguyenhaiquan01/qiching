@@ -111,6 +111,7 @@ export const DUONG_DAN_TINH = [
   "/tim-ngay-tot",
   "/64-que",
   "/que-da-luu",
+  "/hoc-ghi-nho",
   "/huong-dan",
   "/huong-dan/nap-giap",
   "/huong-dan/luc-than",
