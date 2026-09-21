@@ -4,13 +4,20 @@ import { NOI_DUNG_QUE_PHAN_BOI_CHAU } from "../core/data/noiDungQuePhanBoiChau";
 import "./HocGhiNho.css";
 
 /**
- * Trang học ghi nhớ Spaced Repetition (MVP)
+ * Trang học ghi nhớ Spaced Repetition
  * 
- * MVP scope: 128 thẻ học (64 quẻ × 2 loại: soanTu + daiTuongTruyen)
- * Mỗi thẻ có 3 mức độ khó + Leitner 2-level scoring
+ * Người dùng chọn loại nội dung muốn học:
+ * - Soán Từ: 64 thẻ (1 cho mỗi quẻ)
+ * - Đại Tượng Truyện: 64 thẻ (1 cho mỗi quẻ)
+ * - Cả 2: 128 thẻ (2 cho mỗi quẻ)
  */
 export const HocGhiNho: React.FC = () => {
-  // Build card list: 64 quẻ × 2 loại nội dung
+  // Selection state
+  const [includeSoanTu, setIncludeSoanTu] = useState(true);
+  const [includeDaiTuong, setIncludeDaiTuong] = useState(true);
+  const [sessionStarted, setSessionStarted] = useState(false);
+
+  // Build card list dựa trên selection
   const cards = useMemo(() => {
     const result: Array<{
       id: string;
@@ -20,25 +27,29 @@ export const HocGhiNho: React.FC = () => {
     }> = [];
 
     NOI_DUNG_QUE_PHAN_BOI_CHAU.forEach((que) => {
-      // Card 1: Soán Từ
-      result.push({
-        id: `${que.soThuTu}-soan`,
-        title: `Quẻ ${que.soThuTu} - Soán Từ`,
-        contentType: "soanTu",
-        data: que,
-      });
+      // Soán Từ
+      if (includeSoanTu) {
+        result.push({
+          id: `${que.soThuTu}-soan`,
+          title: `Quẻ ${que.soThuTu} - Soán Từ`,
+          contentType: "soanTu",
+          data: que,
+        });
+      }
 
-      // Card 2: Đại Tượng Truyện
-      result.push({
-        id: `${que.soThuTu}-dai`,
-        title: `Quẻ ${que.soThuTu} - Đại Tượng Truyện`,
-        contentType: "daiTuongTruyen",
-        data: que,
-      });
+      // Đại Tượng Truyện
+      if (includeDaiTuong) {
+        result.push({
+          id: `${que.soThuTu}-dai`,
+          title: `Quẻ ${que.soThuTu} - Đại Tượng Truyện`,
+          contentType: "daiTuongTruyen",
+          data: que,
+        });
+      }
     });
 
     return result;
-  }, []);
+  }, [includeSoanTu, includeDaiTuong]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<Record<string, "remember" | "forget">>(
@@ -85,16 +96,91 @@ export const HocGhiNho: React.FC = () => {
     setCurrentIndex(Math.max(0, Math.min(index, cards.length - 1)));
   };
 
-  const progress = ((currentIndex + 1) / cards.length) * 100;
+  const handleStartSession = () => {
+    if (!includeSoanTu && !includeDaiTuong) {
+      alert("Vui lòng chọn ít nhất 1 loại nội dung để học");
+      return;
+    }
+    setSessionStarted(true);
+    setCurrentIndex(0);
+    setResults({});
+    setStats({ remember: 0, forget: 0 });
+  };
+
+  const handleResetSession = () => {
+    setSessionStarted(false);
+  };
+
+  const progress = cards.length > 0 ? ((currentIndex + 1) / cards.length) * 100 : 0;
   const reviewedCount = Object.keys(results).length;
 
+  // Content selection screen
+  if (!sessionStarted) {
+    return (
+      <div className="hoc-ghi-nho selection-screen">
+        <div className="hnh-header">
+          <h1>🧠 Học Ghi Nhớ Kinh Dịch</h1>
+          <p className="subtitle">
+            Chọn loại nội dung bạn muốn học
+          </p>
+        </div>
+
+        <div className="selection-container">
+          <div className="selection-box">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={includeSoanTu}
+                onChange={(e) => setIncludeSoanTu(e.target.checked)}
+              />
+              <span className="checkbox-text">
+                <strong>📜 Soán Từ</strong>
+                <em>Dịch và giảng thích tên quẻ</em>
+              </span>
+            </label>
+          </div>
+
+          <div className="selection-box">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={includeDaiTuong}
+                onChange={(e) => setIncludeDaiTuong(e.target.checked)}
+              />
+              <span className="checkbox-text">
+                <strong>📖 Đại Tượng Truyện</strong>
+                <em>Dịch và giảng thích hình tượng quẻ</em>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div className="card-count">
+          <p>
+            {includeSoanTu && includeDaiTuong
+              ? "128 thẻ (64 quẻ × 2 loại)"
+              : includeSoanTu || includeDaiTuong
+                ? "64 thẻ (64 quẻ × 1 loại)"
+                : "Chọn ít nhất 1 loại"}
+          </p>
+        </div>
+
+        <button className="start-button" onClick={handleStartSession}>
+          🚀 Bắt đầu học
+        </button>
+      </div>
+    );
+  }
+
+  // Learning session screen
   return (
     <div className="hoc-ghi-nho">
       {/* Header */}
       <div className="hnh-header">
         <h1>🧠 Học Ghi Nhớ Kinh Dịch</h1>
         <p className="subtitle">
-          Spaced Repetition Learning - 128 thẻ (64 quẻ × 2 nội dung)
+          Spaced Repetition Learning - {cards.length} thẻ
+          {includeSoanTu && includeDaiTuong ? " (64 quẻ × 2 loại)" : " (64 quẻ × 1 loại)"}
         </p>
       </div>
 
@@ -187,6 +273,9 @@ export const HocGhiNho: React.FC = () => {
           <p className="accuracy">
             Độ chính xác: <strong>{Math.round((stats.remember / cards.length) * 100)}%</strong>
           </p>
+          <button className="reset-button" onClick={handleResetSession}>
+            ↻ Học lại
+          </button>
         </div>
       )}
 
