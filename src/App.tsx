@@ -14,6 +14,7 @@ import { HuongDanTheUng } from "./pages/HuongDanTheUng";
 import { HuongDanQueBien } from "./pages/HuongDanQueBien";
 import { HuongDanTuanKhong } from "./pages/HuongDanTuanKhong";
 import { HuongDanUngKy } from "./pages/HuongDanUngKy";
+import { HocGhiNho } from "./pages/HocGhiNho";
 import { DANH_SACH_QUE, duongDanQue, phanGiaiSlugQue, timQueTheoTenChuan } from "./ui/duongDan";
 import type { QueDaGieoDaLuu } from "./core/coinCasting/storage";
 import { MetaQue, MetaTrang } from "./ui/MetaTrang";
@@ -26,6 +27,7 @@ const TRANG = [
   { nhan: "Tìm ngày tốt", duongDan: "/tim-ngay-tot" },
   { nhan: "64 Quẻ Kinh Dịch", duongDan: "/64-que" },
   { nhan: "Quẻ đã lưu", duongDan: "/que-da-luu" },
+  { nhan: "🧠 Học ghi nhớ", duongDan: "/hoc-ghi-nho" },
   { nhan: "Hướng dẫn", duongDan: "/huong-dan" },
   { nhan: "Giới thiệu", duongDan: "/gioi-thieu" },
 ] as const;
@@ -323,6 +325,19 @@ function TrangHuongDanUngKy() {
   );
 }
 
+function TrangHocGhiNho() {
+  return (
+    <>
+      <MetaTrang
+        tieuDe="🧠 Học ghi nhớ Kinh Dịch - Spaced Repetition | QIChing"
+        moTa="Học 128 thẻ (64 quẻ × 2 nội dung) bằng phương pháp Spaced Repetition với 3 mức độ khó: dễ (dịch + giảng), trung bình (Hán tự + dịch), khó (chỉ Hán tự)."
+        duongDan="/hoc-ghi-nho"
+      />
+      <HocGhiNho />
+    </>
+  );
+}
+
 function App() {
   return (
     <Routes>
@@ -332,6 +347,7 @@ function App() {
         <Route path="64-que" element={<TrangDanhSachQue />} />
         <Route path="64-que/:slug" element={<TrangChiTietQue />} />
         <Route path="que-da-luu" element={<TrangQueDaLuu />} />
+        <Route path="hoc-ghi-nho" element={<TrangHocGhiNho />} />
         <Route path="huong-dan" element={<TrangHuongDanHub />} />
         <Route path="huong-dan/nap-giap" element={<TrangHuongDanNapGiap />} />
         <Route path="huong-dan/luc-than" element={<TrangHuongDanLucThan />} />

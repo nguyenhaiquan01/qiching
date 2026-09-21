@@ -3,6 +3,28 @@
  * Không phụ thuộc React — dùng được cả trong core logic lẫn UI.
  */
 
+/** Nội dung học tập của quẻ (Phan Bội Châu) — tách Hán tự khỏi phần dịch/giảng. */
+export interface CardContent {
+  /** Dịch Hán tự sang Việt, ví dụ: "CÀN, NGUYÊN, HANH, LỊ, TRINH" */
+  hanViet: string;
+  /** Hán tự gốc (kinh điển I Ching), ví dụ: "乾元亨利貞" */
+  hanTu: string;
+  /** Phần dịch/giảng thích chi tiết */
+  dichGiang: string;
+}
+
+/** Mức độ khó khi học thẻ quẻ */
+export const DifficultyLevel = {
+  /** Dễ: chỉ hiển thị dịch + giảng (không Hán tự) */
+  Easy: "easy",
+  /** Trung bình: dịch + Hán tự + giảng */
+  Medium: "medium",
+  /** Khó: chỉ Hán tự (không dịch) */
+  Hard: "hard",
+} as const;
+
+export type DifficultyLevel = typeof DifficultyLevel[keyof typeof DifficultyLevel];
+
 /** Port từ Business/Hao.cs — mô tả một hào trong quẻ dịch. */
 export interface Hao {
   /** Chuỗi hiển thị: "<lucthan> <chi> <nguhanh>", có thể có hậu tố "(Thế)"/"(Ứng)"/"- Không". */

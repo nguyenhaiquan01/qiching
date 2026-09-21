@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { BoLocMucNoiDung } from "../components/BoLocMucNoiDung";
 import { HinhQue } from "../components/HinhQue";
+import type { CardContent } from "../core/types";
 import type { NoiDungQueRow } from "../core/data/noiDungQue";
 import type { NoiDungQueNgoTatToRow, MenhDeNgoTatTo } from "../core/data/noiDungQueNgoTatTo";
 import type { NoiDungQuePhanBoiChauRow } from "../core/data/noiDungQuePhanBoiChau";
@@ -16,6 +17,15 @@ const NHAN_NGUON: Record<NguonDichGia, string> = {
   "ngo-tat-to": "Ngô Tất Tố",
   "phan-boi-chau": "Phan Bội Châu",
 };
+
+/** Helper để render CardContent hoặc string (nội dung cũ) */
+function renderCardContentOrString(content: CardContent | string): string {
+  if (typeof content === "string") {
+    return content;
+  }
+  // Render CardContent: hanViet + hanTu + dichGiang
+  return `${content.hanViet}\n${content.hanTu}\n${content.dichGiang}`;
+}
 
 /** Tên tác phẩm + tác giả hiển thị ở dòng "Nguồn:" — khớp cách ghi nguồn của chính từng bản
  * dịch, thay cho URL thô. */
@@ -377,7 +387,7 @@ export function ChiTietQue({
             {hienKhoi(mucAn, "thoan-tu") && (
               <div className="the">
                 <h2>Soán Từ</h2>
-                <p className="giai-thich">{phanBoiChau.soanTu}</p>
+                <p className="giai-thich">{renderCardContentOrString(phanBoiChau.soanTu)}</p>
               </div>
             )}
 
@@ -391,7 +401,7 @@ export function ChiTietQue({
             {hienKhoi(mucAn, "dai-tuong-truyen") && (
               <div className="the">
                 <h2>Đại Tượng Truyện</h2>
-                <p className="giai-thich">{phanBoiChau.daiTuongTruyen}</p>
+                <p className="giai-thich">{renderCardContentOrString(phanBoiChau.daiTuongTruyen)}</p>
               </div>
             )}
 

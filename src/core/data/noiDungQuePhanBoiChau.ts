@@ -13,6 +13,13 @@
  * Nguyễn Hiến Lê. Muốn hiển thị chung một layout, tầng UI phải tự biết render đúng theo từng
  * schema, không suy diễn field lẫn nhau.
  *
+ * Schema 2026-09 — Tách Hán tự khỏi phần dịch/giảng (Phương án B): Thay vì `soanTu` và
+ * `daiTuongTruyen` là string ghép chứa cả Hán tự + dịch + giảng, đã restructure thành object
+ * { hanViet, hanTu, dichGiang } để:
+ * - Hỗ trợ toggle show/hide Hán tự độc lập
+ * - Cho phép nhiều mức độ khó (dễ = Việt + giảng; trung bình = Hán tự + Việt; khó = chỉ Hán tự)
+ * - Bảo tồn toàn bộ nội dung gốc Phan Bội Châu
+ *
  * Ghi chú trích xuất — các trường hợp KHÔNG suy được từ header rõ ràng của nguồn (nguồn không
  * luôn ghi nhãn mục bằng chữ hoa, và một số trang thiếu hẳn nhãn), phải dò theo dấu hiệu nội
  * dung (tương tự cách đã làm với Thoán Từ ở `noiDungQue.ts`):
@@ -35,6 +42,7 @@
  *   Soán Từ ngắn không có mệnh đề phụ, ví dụ quẻ 58 Đoài "兌亨利貞.") vì đây là nội dung Soán Từ
  *   kinh điển chuẩn, không phải suy diễn.
  */
+import type { CardContent } from "../types";
 import raw from "./noiDungQuePhanBoiChau.json";
 
 export interface HaoTuPhanBoiChauRow {
@@ -62,12 +70,14 @@ export interface NoiDungQuePhanBoiChauRow {
   moDau: string | null;
   /** Tự Quái Truyện — null ở quẻ 1, 2 (xem comment đầu file). */
   tuQuai: string | null;
-  /** Soán Từ (Thoán Từ): Hán tự + phiên âm + giảng, gộp theo đúng thứ tự xuất hiện. */
-  soanTu: string;
+  /** Soán Từ (Thoán Từ): Tách Hán tự khỏi phần dịch/giảng (Phương án B, 2026-09).
+   * Mỗi thành phần independ: hanViet (dịch Hán tự), hanTu (Hán tự gốc), dichGiang (giảng).
+   * Cho phép UI toggle show/hide theo mức độ khó. */
+  soanTu: CardContent;
   /** Soán Truyện (Thoán Truyện). */
   soanTruyen: string;
-  /** Đại Tượng Truyện. */
-  daiTuongTruyen: string;
+  /** Đại Tượng Truyện: Tách Hán tự khỏi phần dịch/giảng (schema như soanTu). */
+  daiTuongTruyen: CardContent;
   haoTu: HaoTuPhanBoiChauRow[];
   /** Văn Ngôn Truyện — chỉ Càn (1) và Khôn (2) có. */
   vanNgon: string | null;
