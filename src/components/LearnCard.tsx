@@ -43,7 +43,7 @@ export const LearnCard: React.FC<LearnCardProps> = ({
   tenQue,
 }) => {
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(
-    DifficultyLevel.Easy
+    DifficultyLevel.Medium
   );
   const [isFlipped, setIsFlipped] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
