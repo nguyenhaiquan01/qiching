@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import LearnCard from "../components/LearnCard";
+import QueSelectionGrid from "../components/QueSelectionGrid";
 import { NOI_DUNG_QUE_PHAN_BOI_CHAU } from "../core/data/noiDungQuePhanBoiChau";
 import "./HocGhiNho.css";
 
@@ -10,11 +11,19 @@ import "./HocGhiNho.css";
  * - Soán Từ: 64 thẻ (1 cho mỗi quẻ)
  * - Đại Tượng Truyện: 64 thẻ (1 cho mỗi quẻ)
  * - Cả 2: 128 thẻ (2 cho mỗi quẻ)
+ * 
+ * Cũng có thể chọn quẻ cụ thể (từ 1-64)
  */
 export const HocGhiNho: React.FC = () => {
-  // Selection state
+  // Selection state - Content types
   const [includeSoanTu, setIncludeSoanTu] = useState(true);
   const [includeDaiTuong, setIncludeDaiTuong] = useState(true);
+  
+  // Selection state - Quẻ numbers
+  const [selectedQueNumbers, setSelectedQueNumbers] = useState<Set<number>>(
+    new Set(Array.from({ length: 64 }, (_, i) => i + 1))
+  );
+  
   const [sessionStarted, setSessionStarted] = useState(false);
 
   // Build card list dựa trên selection
@@ -27,6 +36,11 @@ export const HocGhiNho: React.FC = () => {
     }> = [];
 
     NOI_DUNG_QUE_PHAN_BOI_CHAU.forEach((que) => {
+      // Only include if quẻ is selected
+      if (!selectedQueNumbers.has(que.soThuTu)) {
+        return;
+      }
+
       // Soán Từ
       if (includeSoanTu) {
         result.push({
@@ -49,7 +63,7 @@ export const HocGhiNho: React.FC = () => {
     });
 
     return result;
-  }, [includeSoanTu, includeDaiTuong]);
+  }, [includeSoanTu, includeDaiTuong, selectedQueNumbers]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [results, setResults] = useState<Record<string, "remember" | "forget">>(
@@ -101,10 +115,40 @@ export const HocGhiNho: React.FC = () => {
       alert("Vui lòng chọn ít nhất 1 loại nội dung để học");
       return;
     }
+    if (selectedQueNumbers.size === 0) {
+      alert("Vui lòng chọn ít nhất 1 quẻ để học");
+      return;
+    }
     setSessionStarted(true);
     setCurrentIndex(0);
     setResults({});
     setStats({ remember: 0, forget: 0 });
+  };
+
+  const handleToggleQue = (queNumber: number) => {
+    setSelectedQueNumbers((prev) => {
+      const next = new Set(prev);
+      if (next.has(queNumber)) {
+        next.delete(queNumber);
+      } else {
+        next.add(queNumber);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAllQue = () => {
+    setSelectedQueNumbers(new Set(Array.from({ length: 64 }, (_, i) => i + 1)));
+  };
+
+  const handleClearAllQue = () => {
+    setSelectedQueNumbers(new Set());
+  };
+
+  const handleRandomSelectQue = (count: number) => {
+    const allQueNumbers = Array.from({ length: 64 }, (_, i) => i + 1);
+    const shuffled = allQueNumbers.sort(() => Math.random() - 0.5);
+    setSelectedQueNumbers(new Set(shuffled.slice(0, count)));
   };
 
   const handleResetSession = () => {
@@ -122,56 +166,77 @@ export const HocGhiNho: React.FC = () => {
 
   // Content selection screen
   if (!sessionStarted) {
+    const totalCards = selectedQueNumbers.size * (Number(includeSoanTu) + Number(includeDaiTuong));
+    
     return (
       <div className="hoc-ghi-nho selection-screen">
         <div className="hnh-header">
           <h1>🧠 Học Ghi Nhớ Kinh Dịch</h1>
           <p className="subtitle">
-            Chọn loại nội dung bạn muốn học
+            Chọn nội dung & quẻ bạn muốn học
           </p>
         </div>
 
-        <div className="selection-container">
-          <div className="selection-box">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={includeSoanTu}
-                onChange={(e) => setIncludeSoanTu(e.target.checked)}
-              />
-              <span className="checkbox-text">
-                <strong>📜 Soán Từ</strong>
-                <em>Dịch và giảng thích tên quẻ</em>
-              </span>
-            </label>
-          </div>
+        {/* Content Type Selection */}
+        <div className="content-type-selection">
+          <h3>📋 Loại nội dung:</h3>
+          <div className="selection-container">
+            <div className="selection-box">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={includeSoanTu}
+                  onChange={(e) => setIncludeSoanTu(e.target.checked)}
+                />
+                <span className="checkbox-text">
+                  <strong>📜 Soán Từ</strong>
+                  <em>Dịch và giảng thích tên quẻ</em>
+                </span>
+              </label>
+            </div>
 
-          <div className="selection-box">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={includeDaiTuong}
-                onChange={(e) => setIncludeDaiTuong(e.target.checked)}
-              />
-              <span className="checkbox-text">
-                <strong>📖 Đại Tượng Truyện</strong>
-                <em>Dịch và giảng thích hình tượng quẻ</em>
-              </span>
-            </label>
+            <div className="selection-box">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={includeDaiTuong}
+                  onChange={(e) => setIncludeDaiTuong(e.target.checked)}
+                />
+                <span className="checkbox-text">
+                  <strong>📖 Đại Tượng Truyện</strong>
+                  <em>Dịch và giảng thích hình tượng quẻ</em>
+                </span>
+              </label>
+            </div>
           </div>
         </div>
 
+        {/* Quẻ Selection */}
+        <div className="que-selection">
+          <h3>🎯 Chọn quẻ để học:</h3>
+          <QueSelectionGrid
+            selectedQueNumbers={selectedQueNumbers}
+            onToggleQue={handleToggleQue}
+            onSelectAll={handleSelectAllQue}
+            onClearAll={handleClearAllQue}
+            onRandomSelect={handleRandomSelectQue}
+          />
+        </div>
+
+        {/* Card Count */}
         <div className="card-count">
           <p>
-            {includeSoanTu && includeDaiTuong
-              ? "128 thẻ (64 quẻ × 2 loại)"
-              : includeSoanTu || includeDaiTuong
-                ? "64 thẻ (64 quẻ × 1 loại)"
-                : "Chọn ít nhất 1 loại"}
+            {totalCards > 0
+              ? `${totalCards} thẻ (${selectedQueNumbers.size} quẻ × ${Number(includeSoanTu) + Number(includeDaiTuong)} loại)`
+              : "Chọn ít nhất 1 quẻ & 1 loại nội dung"}
           </p>
         </div>
 
-        <button className="start-button" onClick={handleStartSession}>
+        <button 
+          className="start-button" 
+          onClick={handleStartSession}
+          disabled={totalCards === 0}
+        >
           🚀 Bắt đầu học
         </button>
       </div>
@@ -186,7 +251,7 @@ export const HocGhiNho: React.FC = () => {
         <h1>🧠 Học Ghi Nhớ Kinh Dịch</h1>
         <p className="subtitle">
           Spaced Repetition Learning - {cards.length} thẻ
-          {includeSoanTu && includeDaiTuong ? " (64 quẻ × 2 loại)" : " (64 quẻ × 1 loại)"}
+          ({selectedQueNumbers.size} quẻ × {Number(includeSoanTu) + Number(includeDaiTuong)} loại)
         </p>
       </div>
 
