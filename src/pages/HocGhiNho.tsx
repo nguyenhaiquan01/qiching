@@ -111,6 +111,12 @@ export const HocGhiNho: React.FC = () => {
     setSessionStarted(false);
   };
 
+  const handleRestartCurrentSession = () => {
+    setCurrentIndex(0);
+    setResults({});
+    setStats({ remember: 0, forget: 0 });
+  };
+
   const progress = cards.length > 0 ? ((currentIndex + 1) / cards.length) * 100 : 0;
   const reviewedCount = Object.keys(results).length;
 
@@ -262,6 +268,16 @@ export const HocGhiNho: React.FC = () => {
           disabled={currentIndex === cards.length - 1}
         >
           Tiếp theo →
+        </button>
+      </div>
+
+      {/* Session Control */}
+      <div className="session-control">
+        <button className="restart-btn" onClick={handleRestartCurrentSession}>
+          ↻ Quay lại từ đầu
+        </button>
+        <button className="change-content-btn" onClick={handleResetSession}>
+          ⚙️ Thay đổi nội dung
         </button>
       </div>
 
