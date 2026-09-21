@@ -4,15 +4,21 @@
 
 ## 1. Điều hướng
 
-`src/App.tsx` dùng state React thay cho router. Năm mục cấp cao hiện tại là:
+`src/App.tsx` dùng `react-router` (khác mô tả gốc của tài liệu này — xem `src/ui/duongDan.ts` cho
+danh sách route tĩnh dùng để prerender). Bảy mục cấp cao hiện tại là:
 
-1. Xem quẻ
-2. Tìm ngày tốt
-3. 64 Quẻ Kinh Dịch
-4. Quẻ đã lưu
-5. Giới thiệu
+1. Xem quẻ (`/`)
+2. Tìm ngày tốt (`/tim-ngay-tot`)
+3. 64 Quẻ Kinh Dịch (`/64-que`)
+4. Quẻ đã lưu (`/que-da-luu`)
+5. 🧠 Học ghi nhớ (`/hoc-ghi-nho`) — xem mục 8
+6. Hướng dẫn (`/huong-dan`)
+7. Giới thiệu (`/gioi-thieu`)
 
-Không có URL riêng cho từng màn hình, deep link hay browser history. Trong working tree hiện tại, **Gieo đồng xu đã được bỏ khỏi top navigation và chuyển vào bên trong Xem quẻ**.
+Mỗi mục là URL thật (deep link/F5 hoạt động), trừ khi route đó thiếu trong danh sách prerender
+tĩnh `DUONG_DAN_TINH` (`src/ui/duongDan.ts`) — thiếu thì trả 404 thật vì site đã tắt SPA fallback
+(xem `10-ke-hoach-seo.md` Giai đoạn B). **Gieo đồng xu đã được bỏ khỏi top navigation và chuyển
+vào bên trong Xem quẻ**.
 
 ## 2. Xem quẻ
 
@@ -110,7 +116,59 @@ Có hai kho `localStorage` độc lập:
 
 Working tree hiện gộp hai kho ở tầng hiển thị, sắp mới nhất trước và cho xem lại/xóa đúng loại. Export/import JSON **chỉ áp dụng cho quẻ theo thời gian**; Coin Casting chưa có export/import.
 
-## 8. Trình bày và khả năng sử dụng
+## 8. Học ghi nhớ
+
+`HocGhiNho.tsx` (`/hoc-ghi-nho`) là trình duyệt thẻ ghi nhớ (flashcard) cho Soán Từ và Đại Tượng
+Truyện của 64 quẻ, nguồn dữ liệu cố định bản **Phan Bội Châu**
+(`src/core/data/noiDungQuePhanBoiChau.json`) — không đổi được sang bản Nguyễn Hiến Lê/Ngô Tất Tố.
+
+### 8.1 Chọn nội dung
+
+Trước khi vào phiên ôn, người dùng chọn:
+
+- **Loại nội dung**: Soán Từ và/hoặc Đại Tượng Truyện (mặc định bật cả hai).
+- **Quẻ cụ thể**: lưới 8×8 (`QueSelectionGrid.tsx`, dùng lại `HinhQue` — cùng component vẽ
+  hexagram đen ở mục 6 — và tên quẻ từ `noiDungQue.json` để khớp đúng định dạng hiển thị ở trang
+  Tra cứu). Mặc định chọn cả 64 quẻ; có nút Random 5/10/20, Tất cả 64, Bỏ tất cả.
+
+Số thẻ của phiên = số quẻ đã chọn × số loại nội dung đã chọn (tối đa 128 = 64 × 2).
+
+### 8.2 Phiên ôn tập
+
+Mỗi thẻ (`LearnCard.tsx`) hiển thị:
+
+- Tên quẻ + hình hexagram (`HexagramDisplay.tsx`, cũng dùng lại `HinhQue`) — luôn hiện, kể cả
+  trước khi lật thẻ.
+- 3 mức độ khó chọn được ngay trên thẻ — **Dễ** (chỉ dịch + giảng), **Trung bình** (Hán tự + dịch
+  + giảng, mặc định), **Khó** (chỉ Hán tự) — quyết định nội dung hiện ra sau khi lật thẻ.
+- Bấm vào thân thẻ để lật xem đáp án, sau đó tự đánh giá **Nhớ** hoặc **Quên**.
+
+Điều hướng trong phiên: nút "← Quay lại"/"Tiếp theo →", ô nhập số để nhảy thẳng tới thẻ bất kỳ,
+thanh tiến độ + số Nhớ/Quên/đã review, nút "↻ Quay lại từ đầu" (reset đúng phiên đang chọn) và
+"⚙️ Thay đổi nội dung" (quay về màn 8.1).
+
+### 8.3 Giới hạn hiện tại
+
+- **Chưa phải spaced repetition thật**: không có thuật toán lên lịch ôn lại (không Leitner box,
+  không SM-2), không phân biệt thẻ "mới" hay "đến hạn" — chỉ là duyệt tuần tự theo đúng thứ tự đã
+  chọn, đếm Nhớ/Quên cho biết chứ không ảnh hưởng thứ tự/tần suất thẻ nào.
+- **Không lưu trữ**: không dùng `localStorage` — rời trang hoặc F5 là mất hết lựa chọn nội dung,
+  quẻ đã chọn và kết quả Nhớ/Quên; phải chọn lại từ đầu mỗi lần vào trang.
+- Chưa có Hào Từ (384 hào) — chỉ Soán Từ và Đại Tượng Truyện.
+- Chưa có liên kết chéo từ thẻ ôn tập sang trang tra cứu chi tiết quẻ (mục 6).
+
+Xem đặc tả gốc (Spaced Repetition đầy đủ, chưa triển khai) và đối chiếu chi tiết từng điểm lệch ở
+[13-hoc-ghi-nho-soan-tu-dai-tuong.md](./13-hoc-ghi-nho-soan-tu-dai-tuong.md).
+
+### 8.4 Dữ liệu
+
+`daiTuongTruyen`/`soanTu` trong `noiDungQuePhanBoiChau.json` dùng schema tách riêng
+`{ hanViet, hanTu, dichGiang }`. Đã phát hiện và sửa lỗi lệch field ở 7/64 quẻ (6, 9, 23, 27, 31,
+49, 53 — `hanViet` bị gán nhầm thành chữ Hán, `hanTu` bị gán nhầm thành câu đầu phần giảng) do lỗi
+script trích xuất gốc; xem comment "Audit đối chiếu ngược (2026-09, đợt 2)" đầu
+`src/core/data/noiDungQuePhanBoiChau.ts`.
+
+## 9. Trình bày và khả năng sử dụng
 
 - Responsive CSS và dark mode theo `prefers-color-scheme`.
 - Màu Ngũ Hành tách khỏi màu trạng thái UX.
@@ -118,17 +176,19 @@ Working tree hiện gộp hai kho ở tầng hiển thị, sắp mới nhất tr
 - In bằng trình duyệt; không có engine PDF riêng.
 - Không có bộ test UI/accessibility tự động được check-in. Tooltip hover hiện chưa đầy đủ cho keyboard/touch.
 
-## 9. Trạng thái kiểm thử
+## 10. Trạng thái kiểm thử
 
-Tại lần rà soát 2026-08-31:
+Tại lần rà soát 2026-09-21:
 
-- `npm test`: 8/8 file, 63/63 test pass.
-- `npm run lint`: pass.
+- `npm test`: 11/11 file, 118/118 test pass.
+- `npm run lint`: pass (chỉ còn vài warning không chặn build, không liên quan tính năng mới).
 - `npm run build`: pass.
-- Chưa có component/E2E test trong repository.
+- Chưa có component/E2E test trong repository (bao gồm cả `HocGhiNho`/`LearnCard`/
+  `QueSelectionGrid` — mục 8 mới thêm, hiện không có test tự động, chỉ được kiểm tra thủ công
+  bằng Playwright ngoài luồng CI khi review).
 - Chưa có golden dataset lớn đối chiếu toàn pipeline với desktop.
 
-## 10. Chưa triển khai hoặc chỉ thuộc legacy
+## 11. Chưa triển khai hoặc chỉ thuộc legacy
 
 | Tính năng | Trạng thái bản web |
 |---|---|
