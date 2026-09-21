@@ -88,9 +88,9 @@
 }
 
 .grid-button {
-  width: 80px;
-  height: 80px;
-  padding: 8px;
+  width: 100px;
+  height: 100px;
+  padding: 6px;
   border: 2px solid #d0d0d0;
   background: white;
   border-radius: 8px;
@@ -98,9 +98,9 @@
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   font-size: 0.85rem;
   font-weight: 600;
   color: #333;
@@ -126,17 +126,61 @@
 }
 
 .grid-number {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #333;
 }
 
+/* Compact Hexagram Display */
+.grid-hexagram {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 1px;
+  width: 100%;
+}
+
+.hex-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 4px;
+}
+
+.hex-line.yang .hex-solid {
+  width: 50px;
+  height: 2px;
+  background: #333;
+  border-radius: 1px;
+}
+
+.hex-line.yin .hex-broken {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.hex-line.yin .hex-broken span {
+  width: 18px;
+  height: 2px;
+  background: #333;
+  border-radius: 1px;
+  display: block;
+}
+
+.grid-button.selected .hex-line.yang .hex-solid {
+  background: #27ae60;
+}
+
+.grid-button.selected .hex-line.yin .hex-broken span {
+  background: #27ae60;
+}
+
 .grid-name {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #666;
   text-align: center;
   line-height: 1.2;
-  max-height: 2.4rem;
+  max-height: 1.4rem;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -176,17 +220,31 @@
   }
 
   .grid-button {
-    width: 70px;
-    height: 70px;
+    width: 85px;
+    height: 85px;
     font-size: 0.8rem;
   }
 
   .grid-number {
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .grid-hexagram {
+    gap: 0.5px;
+  }
+
+  .hex-line.yang .hex-solid {
+    width: 45px;
+    height: 1.5px;
+  }
+
+  .hex-line.yin .hex-broken span {
+    width: 16px;
+    height: 1.5px;
   }
 
   .grid-name {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
   }
 }
 
@@ -198,18 +256,36 @@
   }
 
   .grid-button {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     gap: 2px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
 
   .grid-number {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .grid-hexagram {
+    gap: 0.5px;
+  }
+
+  .hex-line {
+    height: 3px;
+  }
+
+  .hex-line.yang .hex-solid {
+    width: 40px;
+    height: 1.5px;
+  }
+
+  .hex-line.yin .hex-broken span {
+    width: 14px;
+    height: 1.5px;
   }
 
   .grid-name {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .quick-actions {
@@ -230,19 +306,38 @@
   }
 
   .grid-button {
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     gap: 2px;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    padding: 4px;
   }
 
   .grid-number {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .grid-hexagram {
+    gap: 0.5px;
+  }
+
+  .hex-line {
+    height: 2.5px;
+  }
+
+  .hex-line.yang .hex-solid {
+    width: 32px;
+    height: 1.2px;
+  }
+
+  .hex-line.yin .hex-broken span {
+    width: 12px;
+    height: 1.2px;
   }
 
   .grid-name {
-    font-size: 0.6rem;
-    max-height: 1.8rem;
+    font-size: 0.55rem;
+    max-height: 1rem;
   }
 
   .quick-actions {

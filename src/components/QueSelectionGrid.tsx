@@ -10,6 +10,10 @@ interface QueSelectionGridProps {
   onRandomSelect: (count: number) => void;
 }
 
+const isYang = (nhan: string): boolean => {
+  return nhan.includes("Cửu");
+};
+
 export const QueSelectionGrid: React.FC<QueSelectionGridProps> = ({
   selectedQueNumbers,
   onToggleQue,
@@ -17,11 +21,12 @@ export const QueSelectionGrid: React.FC<QueSelectionGridProps> = ({
   onClearAll,
   onRandomSelect,
 }) => {
-  // Create grid of 8x8 (64 quẻ)
+  // Create grid of 8x8 (64 quẻ) with hexagram data
   const gridItems = useMemo(() => {
     return NOI_DUNG_QUE_PHAN_BOI_CHAU.map((que) => ({
       soThuTu: que.soThuTu,
       tenQue: que.tenQue.split(" ")[0], // Get first part of name for display
+      haoTu: que.haoTu,
       isSelected: selectedQueNumbers.has(que.soThuTu),
     }));
   }, [selectedQueNumbers]);
@@ -72,6 +77,26 @@ export const QueSelectionGrid: React.FC<QueSelectionGridProps> = ({
                 title={item.tenQue}
               >
                 <div className="grid-number">{item.soThuTu}</div>
+                
+                {/* Compact Hexagram */}
+                <div className="grid-hexagram">
+                  {item.haoTu.map((hao) => (
+                    <div
+                      key={hao.vach}
+                      className={`hex-line ${isYang(hao.nhan) ? "yang" : "yin"}`}
+                    >
+                      {isYang(hao.nhan) ? (
+                        <div className="hex-solid"></div>
+                      ) : (
+                        <div className="hex-broken">
+                          <span></span>
+                          <span></span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
                 <div className="grid-name">{item.tenQue}</div>
               </button>
             </div>
